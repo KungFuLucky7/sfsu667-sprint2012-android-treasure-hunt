@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MapsActivity</string>
+    <string name="getclue">Get Clue</string>
+    <string name="tools">Tools</string>
+</resources>

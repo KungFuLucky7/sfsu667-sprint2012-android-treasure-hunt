@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+    <com.google.android.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="fill_parent"
+        android:layout_height="414dp"
+        android:apiKey="0TfvsAqP3tJMEuZuVjuUtCc84uARu7YKpflgbwA"
+        android:clickable="true"
+        android:state_enabled="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <Button
+            android:id="@+id/refreshButton"
+            android:layout_width="156dp"
+            android:layout_height="wrap_content"
+            android:text="@string/getclue" />
+
+        <Button
+            android:id="@+id/toolsButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/tools" />
+
+    </LinearLayout>
+
+</LinearLayout>
+
