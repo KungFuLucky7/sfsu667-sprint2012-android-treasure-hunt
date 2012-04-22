@@ -1,5 +1,12 @@
 package sfsu.treasurehunt;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -17,7 +24,9 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -39,6 +48,15 @@ public class MapsActivity extends MapActivity {
 	// Screen buttons.
     Button tools;
     Button refresh;
+    
+    // Network passing variables.
+    public static String passData;
+    private String webAddress = "http://thecity.sfsu.edu:9226/";
+	private String localHost = "http://10.0.2.2:9226/";
+	private String server;
+    private int activity;
+    private static final int GETCLUE = 1;
+	
 
     /** Called when the activity is first created. */
     @Override
@@ -46,12 +64,20 @@ public class MapsActivity extends MapActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        server = webAddress;
         tools = (Button) findViewById(R.id.toolsButton);
         refresh = (Button) findViewById(R.id.refreshButton);
 
         tools.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
 				purchaseTools();
+			}
+		});
+        
+        refresh.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
+				refreshCall();
 			}
 		});
         
@@ -85,12 +111,6 @@ public class MapsActivity extends MapActivity {
         listOfOverlays.add(mapOverlay);
 
         mapView.invalidate();
-        
-        refresh.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				//moveLocation();
-			}
-		});
     }
     
     public void moveLocation() {
@@ -216,4 +236,110 @@ public class MapsActivity extends MapActivity {
         // TODO Auto-generated method stub
         return false;
     }
+    
+    private void refreshCall() {
+    	activity = GETCLUE;
+		new NetworkCall().execute(server + "CLUE<CMD>");
+    }
+    
+    /*
+	 * Processes what happens after returning from a network call.
+	 */
+	protected void onNetworkResult() {
+		switch (activity) {
+		case GETCLUE:
+			Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
+			break;
+		}
+	}
+    
+    public class NetworkCall extends AsyncTask<String, Void, String> {
+		 @Override
+	        protected void onPreExecute() {
+	            Log.i("AsyncTask", "onPreExecute");
+		}
+
+		/*
+		 * Opens a Http connection to a server.
+		 */
+		private InputStream OpenHttpConnection(String urlString) throws IOException {
+			InputStream in = null;
+			int response = -1;
+
+			try {
+				URL url = new URL(urlString);
+				URLConnection conn = url.openConnection();
+
+				if (!(conn instanceof HttpURLConnection))
+					throw new IOException("Not an HTTP connection");
+				try {
+					HttpURLConnection httpConn = (HttpURLConnection) conn;
+					httpConn.setAllowUserInteraction(false);
+					httpConn.setInstanceFollowRedirects(true);
+					httpConn.setRequestMethod("GET");
+					httpConn.connect();
+					response = httpConn.getResponseCode();
+					if (response == HttpURLConnection.HTTP_OK) {
+						in = httpConn.getInputStream();
+					}
+				} catch (Exception ex) {
+					Log.d("Networking", ex.getLocalizedMessage());
+					throw new IOException("Error connecting");
+				}
+			} catch (MalformedURLException e) {
+				Log.d("Networking", "Error opening URL: " + e);
+			}
+			return in;
+		}
+
+		/*
+		 * Pulls string from server.
+		 */
+		private String DownloadText(String URL) {
+			int BUFFER_SIZE = 2000;
+			InputStream in = null;
+			try {
+				in = OpenHttpConnection(URL);
+			} catch (IOException e) {
+				Log.d("NetworkingActivity", e.getLocalizedMessage());
+				return "";
+			}
+
+			InputStreamReader isr = new InputStreamReader(in);
+			int charRead;
+			String str = "";
+			char[] inputBuffer = new char[BUFFER_SIZE];
+			try {
+				while ((charRead = isr.read(inputBuffer)) > 0) {
+					// ---convert the chars to a String---
+					String readString = String
+							.copyValueOf(inputBuffer, 0, charRead);
+					str += readString;
+					inputBuffer = new char[BUFFER_SIZE];
+				}
+				in.close();
+			} catch (IOException e) {
+				Log.d("NetworkingActivity", e.getLocalizedMessage());
+				return "";
+			}
+			return str;
+		}
+
+		// Set up DownloadText as occurs in the background.
+		@Override
+		protected String doInBackground(String... urls) {
+			Log.i("NetworkCall", "doInBackgroup: " + urls);
+			return DownloadText(urls[0]);
+		}
+		
+		/*
+		 * On completion of Async task, the string pulled from the server is
+		 * saved in passData.
+		 */
+		@Override
+		protected void onPostExecute(String result) {
+			passData = result;
+			onNetworkResult();
+		}
+	}
 }

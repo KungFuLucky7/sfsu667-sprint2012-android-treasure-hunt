@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MapsActivity</string>
+    <string name="app_name">Treasure Hunt v1.0</string>
     <string name="getclue">Get Clue</string>
     <string name="tools">Tools</string>
+    <string name="purchase">Purchase</string>
+    <string name="map">Map</string>
 </resources>
