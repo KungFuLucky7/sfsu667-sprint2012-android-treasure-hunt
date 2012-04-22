@@ -5,12 +5,14 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class Tools extends Activity {
 
+	private Button returnToMap;
 	private ListView listView1;
 	ArrayList<ToolList> toolListData = new ArrayList<ToolList>();
 	
@@ -41,6 +43,13 @@ public class Tools extends Activity {
 					int position, long id) {
 				// When clicked, show a toast with the TextView text
 				Toast.makeText(getApplicationContext(), toolListData.get(position-1).title, Toast.LENGTH_LONG).show();
+			}
+		});
+		
+		returnToMap = (Button) findViewById(R.id.mapButton);
+		returnToMap.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				finish();
 			}
 		});
 	}

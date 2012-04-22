@@ -5,9 +5,26 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#FFFFFF"> 
-    
-     <ListView
-        android:id="@+id/list"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+         <ListView
+         android:id="@+id/list"
+         android:layout_width="fill_parent"
+         android:layout_height="440dp" />
+
+     <LinearLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content" >
+
+         <Button
+             android:id="@+id/purchaseButton"
+             android:layout_width="156dp"
+             android:layout_height="wrap_content"
+             android:text="@string/purchase" />
+
+         <Button
+             android:id="@+id/mapButton"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:text="@string/map" />
+
+     </LinearLayout>
 </LinearLayout>
