@@ -1,8 +1,5 @@
 package sfsumapserver;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
 /**
  * A class for keeping track of all of a player's stats.
  *
@@ -10,16 +7,14 @@ import java.util.Queue;
  */
 public class PlayerStats {
 
-    private String playerID = "", currentLocation = "", playerGoal = "", currentClue = "", tool = "", toolInEffect = "";
+    private String playerID = "", currentLocation = "", playerGoal = "", currentClue = "", toolInEffect = "", stealer = "";
     private int playerPoints = 0;
     private float playerDistance;
-    private boolean HotOnce = false, WarmOnce = false;
-    private long startTime = 0, effectStartTime = 0;
-    private Queue<String> toolsStats;
+    private boolean HotOnce = false, WarmOnce = false, isTaunt = false, stolenWin = false;
+    private long startTime = 0, effectStartTime = 0, effectDuration = 0;
 
     public PlayerStats(String ID) {
         playerID = ID;
-        toolsStats = new LinkedList<String>();
     }
 
     public String getPlayerID() {
@@ -70,44 +65,40 @@ public class PlayerStats {
         return playerPoints;
     }
 
-    public void setTool(String tool) {
-        toolsStats.offer(tool);
+    public void setStealer(String s) {
+        stealer = s;
     }
 
-    public String activateTool() {
-        if ((toolInEffect.equals("smokeBomb") || toolInEffect.equals("drunkMonkey")) && toolsStats.peek().equals("clearSky")) {
+    public String getStealer() {
+        return stealer;
+    }
+
+    public void activateTool(String tool) {
+        if (!toolInEffect.equals("") && tool.equals("clearSky")) {
             toolInEffect = "";
             effectStartTime = 0;
-        } else if (toolsStats.peek().equals("smokeBomb") || toolsStats.peek().equals("drunkMonkey")) {
-            toolInEffect = toolsStats.peek();
+        } else if (ServerTable.getDurationalTools().contains(tool)) {
+            toolInEffect = tool;
             effectStartTime = System.currentTimeMillis();
+            if (toolInEffect.equals("lock-out") || toolInEffect.equals("steal")) {
+                effectDuration = 120;
+            } else {
+                effectDuration = 60;
+            }
         }
-        tool = toolsStats.poll();
-        return tool;
-    }
-
-    public boolean checkTool() {
-        return toolsStats.isEmpty();
-    }
-
-    public void endEffect() {
-        toolInEffect = "";
     }
 
     public String getCurrentEffect() {
-        return toolInEffect;
-    }
-
-    public boolean checkEffect() {
         if (!toolInEffect.equals("")) {
             long duration = (System.currentTimeMillis() - effectStartTime) / 1000;
-            if (duration > 60) {
-                return true;
+            if (duration > effectDuration) {
+                toolInEffect = "";
+                return toolInEffect;
             } else {
-                return false;
+                return toolInEffect;
             }
         } else {
-            return true;
+            return toolInEffect;
         }
     }
 
@@ -125,5 +116,29 @@ public class PlayerStats {
 
     public boolean checkWarmOnce() {
         return WarmOnce;
+    }
+
+    public void setTaunt() {
+        isTaunt = true;
+    }
+
+    public boolean checkTaunt() {
+        return isTaunt;
+    }
+
+    public void resetTaunt() {
+        isTaunt = false;
+    }
+
+    public void setStolenWin() {
+        stolenWin = true;
+    }
+
+    public boolean checkStolenWin() {
+        return stolenWin;
+    }
+
+    public void resetStolenWin() {
+        stolenWin = false;
     }
 }
