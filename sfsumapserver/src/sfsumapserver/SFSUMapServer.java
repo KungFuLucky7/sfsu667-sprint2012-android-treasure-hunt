@@ -59,10 +59,6 @@ public class SFSUMapServer {
     }
 }
 
-
-//****** Is this a private class???
-
-
 /**
  * Private class used for multithreading
  */
@@ -76,7 +72,7 @@ class clientThread extends Thread {
      *
      * @param incoming Socket value which designates the socket used by the
      * client
-remove-->     * @param hcf HttpdConf object created upon server startup.
+     * @param hcf HttpdConf object created upon server startup.
      */
     public clientThread(Socket client) {
         this.client = client;

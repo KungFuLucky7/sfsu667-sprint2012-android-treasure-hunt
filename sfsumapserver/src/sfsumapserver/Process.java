@@ -15,15 +15,18 @@ public class Process {
 
     private final Socket client;
     private int index, totalPoints = 0;
-    private String line, requestline, playerID, goal, currentLocation, goalLocation, option, tool, clue;
+    private String line, requestline, playerID, goal, currentLocation, goalLocation, option,
+            password = "", tool = "", targetPlayer = "", clue = "", currentEffect = "";
     private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private float distance;
-    private long startTime, endTime, elapsedTime;
+    private long startTime, currentTime, elapsedTime;
     private PlayerStats player;
-    private boolean playerIDInUse = false, getTopThree = false;
+    private boolean playerIDInUse = false, authenticationFailure = false, getTopThree = false;
     private String[] topThreeTeams = {"*****", "*****", "*****"};
     private String[] topThreeClues = {"****", "****", "****"};
     private float[] topThreeDistances = {1000, 1000, 1000};
+    private AddNewPlayer newPlayer;
+    private Authentication authen;
 
     /**
      * Default constructor used to reset your variables and data structures for
@@ -57,20 +60,38 @@ public class Process {
                 System.out.println("currentLocation: " + currentLocation);
                 option = st.nextToken();
                 System.out.println("option: " + option);
-                if (st.hasMoreTokens()) {
+                if (st.hasMoreTokens() && (option.equalsIgnoreCase("signUp") || option.equalsIgnoreCase("signIn"))) {
+                    password = st.nextToken();
+                    System.out.println("encrypted password: " + password);
+                } else if (st.hasMoreTokens() && (option.equalsIgnoreCase("setTool"))) {
                     tool = st.nextToken();
-                    System.out.println("tool: " + tool);
+                    System.out.println("tool: " + password);
+                    if (st.hasMoreTokens()) {
+                        targetPlayer = st.nextToken();
+                        System.out.println("target player: " + targetPlayer);
+                    } else {
+                        targetPlayer = playerID;
+                        System.out.println("target player: " + targetPlayer);
+                    }
                 }
             }
         }
     }
 
-    public void processRequest() {
-        if (option.equalsIgnoreCase("signIn")) {
+    public void processRequest() throws IOException {
+        if (option.equalsIgnoreCase("signUp")) {
             if (!ServerTable.playerInfoContains(playerID)) {
+                newPlayer = new AddNewPlayer(playerID, password);
+                newPlayer.add();
                 ServerTable.setPlayerInfo(playerID);
             } else {
                 playerIDInUse = true;
+            }
+        } else if (option.equalsIgnoreCase("signIn")) {
+            authen = new Authentication(playerID, password);
+            String ID = authen.checkAuth();
+            if (ID == null || !ServerTable.playerInfoContains(playerID)) {
+                authenticationFailure = true;
             }
         } else if (option.equalsIgnoreCase("getClue")) {
             goal = ServerTable.getGoal();
@@ -86,14 +107,17 @@ public class Process {
             }
             goalLocation = ServerTable.getGoalLocation();
             computeDistance();
+            computeElapsedTime();
             player.setDistance(distance);
             updateTopThree();
             setClue();
         } else if (option.equalsIgnoreCase("setTool")) {
-            System.out.println("tool: " + tool);
             totalPoints -= ServerTable.getToolPrice(tool);
-            player.setTool(tool);
-            setClue();
+            ServerTable.getPlayerInfo(targetPlayer).activateTool(tool);
+            if (tool.equals("steal")) {
+                ServerTable.getPlayerInfo(targetPlayer).setStealer(playerID);
+            }
+            ServerTable.getPlayerInfo(targetPlayer).setPlayerPoints(ServerTable.getToolDamage(tool));
         } else if (option.equalsIgnoreCase("getTopThree")) {
             getTopThree = true;
         }
@@ -108,6 +132,16 @@ public class Process {
         float latitude2 = Float.valueOf(goalLocation.substring(index + 1));
         distance = (float) Math.sqrt(Math.pow(longitude1 - longitude2, 2) + Math.pow(latitude1 - latitude2, 2));
         System.out.println("distance:" + distance + " degrees");
+    }
+
+    private long computeElapsedTime() {
+        currentTime = System.currentTimeMillis();
+        if (player.getStartTime() != 0) {
+            elapsedTime = currentTime - Long.valueOf(player.getStartTime());
+        } else {
+            elapsedTime = 0;
+        }
+        return elapsedTime;
     }
 
     private void updateTopThree() {
@@ -131,66 +165,95 @@ public class Process {
     }
 
     private void setClue() {
-        if (!player.checkTool()) {
-            clue = player.activateTool();
-            totalPoints += ServerTable.getToolDamage(tool);
-        } else if (player.checkEffect()) {
-            if (distance <= 0.00005) {
-                clue = "Win";
+        if (player.checkStolenWin()) {
+            clue = "Win";
+            totalPoints += 50;
+            if (elapsedTime <= 120) {
                 totalPoints += 50;
-                ServerTable.removeGoal();
-                ServerTable.resetGame();
+            }
+            player.resetStolenWin();
+            ServerTable.removeGoal();
+            ServerTable.resetGame();
+        } else if (player.checkTaunt()) {
+            clue = "taunt";
+            player.resetTaunt();
+        } else {
+            if (!player.getCurrentEffect().equals("")) {
+                currentEffect = player.getCurrentEffect();
+            }
+            if (distance <= 0.00005) {
+                if (currentEffect.equals("steal")) {
+                    clue = "steal";
+                    ServerTable.getPlayerInfo(player.getStealer()).setStolenWin();
+                } else if (currentEffect.equals("lock-out")) {
+                    clue = "lock-out";
+                } else {
+                    clue = "Win";
+                    totalPoints += 50;
+                    if (elapsedTime <= 120) {
+                        totalPoints += 50;
+                    }
+                    ServerTable.removeGoal();
+                    ServerTable.resetGame();
+                }
             } else if (distance <= 0.00050) {
                 clue = "Hot";
-                if (!player.checkHotOnce()) {
+                if (currentEffect.equals("") && !player.checkHotOnce()) {
                     totalPoints += 20;
                     player.setHotOnce();
                 }
             } else if (distance <= 0.00100) {
                 clue = "Warm";
-                if (!player.checkWarmOnce()) {
+                if (currentEffect.equals("") && !player.checkWarmOnce()) {
                     totalPoints += 20;
                     player.setWarmOnce();
                 }
             } else {
                 clue = "Cold";
             }
-        } else {
-            clue = player.getCurrentEffect();
-        }
-        if (clue.equals("smokeBomb")) {
-            distance = 1000000;
-        }
-        if (clue.equals("drunkMonkey")) {
-            distance = (float) 0.00200;
-            clue = "Cold";
+            if (!clue.equals("Win")) {
+                if (currentEffect.equals("smokeBomb")) {
+                    distance = 1000000;
+                    clue = "smokeBomb";
+                } else if (currentEffect.equals("drunkMonkey")) {
+                    distance = (float) 0.00200;
+                    clue = "Cold";
+                }
+            }
         }
         player.setClue(clue);
+        player.setPlayerPoints(totalPoints);
     }
 
     public void writeResponse() throws IOException {
         BufferedOutputStream out = new BufferedOutputStream(client.getOutputStream());
         PrintWriter writer = new PrintWriter(out, true);
-        if (option.equalsIgnoreCase("signIn")) {
+        if (option.equalsIgnoreCase("signUp")) {
             if (!playerIDInUse) {
+                writer.println(playerID + " Sign-Up success");
+            } else {
+                writer.println(playerID + " Sign-Up failure: ID already in use");
+            }
+        } else if (option.equalsIgnoreCase("signIn")) {
+            if (!authenticationFailure) {
                 writer.println(playerID + " Sign-In success");
             } else {
-                writer.println(playerID + " Sign-In fail: ID already in use");
+                writer.println(playerID + " Sign-In failure: Authentication error");
             }
-        } else if (!getTopThree) {
+        } else if (option.equalsIgnoreCase("getClue")) {
             writer.print(playerID + " " + clue);
-            endTime = System.currentTimeMillis();
-            if (player.getStartTime() != 0) {
-                elapsedTime = endTime - Long.valueOf(player.getStartTime());
-            } else {
-                elapsedTime = 0;
-            }
             writer.print(" " + distance);
             writer.print(" " + goalLocation);
             writer.print(" " + dateFormat.format(new Date(elapsedTime)));
-            player.setPlayerPoints(totalPoints);
             writer.println(" " + player.getPlayerPoints());
-        } else {
+
+        } else if (option.equalsIgnoreCase("setTool")) {
+            writer.print(playerID + " " + tool);
+            writer.print(" " + distance);
+            writer.print(" " + goalLocation);
+            writer.print(" " + dateFormat.format(new Date(elapsedTime)));
+            writer.println(" " + player.getPlayerPoints());
+        } else if (getTopThree) {
             writer.println("1. " + topThreeTeams[0] + " " + topThreeClues[0] + " " + topThreeDistances[0]);
             writer.println("2. " + topThreeTeams[1] + " " + topThreeClues[1] + " " + topThreeDistances[1]);
             writer.println("3. " + topThreeTeams[2] + " " + topThreeClues[2] + " " + topThreeDistances[2]);
