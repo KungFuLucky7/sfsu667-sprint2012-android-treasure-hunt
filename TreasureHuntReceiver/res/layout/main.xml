@@ -5,13 +5,38 @@
     android:layout_height="fill_parent"
     >
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="20dp" >
+
+        <TextView
+            android:id="@+id/nameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.53"
+            android:textSize="15dp" />
+
+        <TextView
+            android:id="@+id/balanceText"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:textSize="15dp" />
+    </LinearLayout>
+
     <com.google.android.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="fill_parent"
-        android:layout_height="440dp"
+        android:layout_height="380dp"
         android:apiKey="0TfvsAqP3tJMEuZuVjuUtCc84uARu7YKpflgbwA"
         android:clickable="true"
         android:state_enabled="true" />
+
+    <TextView
+        android:id="@+id/clueText"
+        android:layout_width="match_parent"
+        android:layout_height="40dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
