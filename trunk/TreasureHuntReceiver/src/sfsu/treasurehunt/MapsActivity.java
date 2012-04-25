@@ -30,8 +30,31 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.util.Locale;
+
+/*
+ * Treasure Hunt Receiver.
+ * Send to server:
+ * GET /<USER><CR><LONG>,<LAT><CR><CMD><CR><EXTRA?>
+ * 
+ * Commands:
+ * SIGNUP -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
+ * SIGNIN -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
+ * GETCLUE -> <USER><CR><LONG>,<LAT><CR>GETCLUE
+ * SETTOOL -> <USER><CR><LONG>,<LAT><CR>SETTOOL<CR>toolname
+ * GETTOPTHREE -> <USER><CR><LONG>,<LAT><CR>GETTOPTHREE
+ * 
+ * Receive:
+ * SIGNUP -> GOOD / BAD
+ * SIGNIN -> GOOD / BAD
+ * GETCLUE -> <CLUE><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
+ * SETTOOL -> <TOOL><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
+ * GETTOPTHREE -> <USER1><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ *                <USER2><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ *                <USER3><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ */
 
 public class MapsActivity extends MapActivity {
 	// For Google maps.
@@ -46,8 +69,17 @@ public class MapsActivity extends MapActivity {
 	final Context context = this;
 	
 	// Screen buttons.
-    Button tools;
-    Button refresh;
+    private Button tools;
+    private Button refresh;
+    
+    // Screen Text Boxes for messages, clues, name, account balance.
+    private TextView textMessages;
+    private TextView userNameText;
+    private TextView balanceText;
+    
+    // User Account Info.
+    private String name = "Dennis";
+    private int balance = 100;
     
     // Network passing variables.
     public static String passData;
@@ -65,6 +97,11 @@ public class MapsActivity extends MapActivity {
         setContentView(R.layout.main);
 
         server = webAddress;
+        textMessages = (TextView) findViewById(R.id.clueText);
+        userNameText = (TextView) findViewById(R.id.nameText);
+        balanceText = (TextView) findViewById(R.id.balanceText);
+        setUserAccountInfo();
+        
         tools = (Button) findViewById(R.id.toolsButton);
         refresh = (Button) findViewById(R.id.refreshButton);
 
@@ -76,7 +113,7 @@ public class MapsActivity extends MapActivity {
         
         refresh.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
+				//Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
 				refreshCall();
 			}
 		});
@@ -135,11 +172,6 @@ public class MapsActivity extends MapActivity {
         listOfOverlays.add(mapOverlay);
 
         mapView.invalidate();
-    }
-    
-    public void purchaseTools() {
-        Intent intent = new Intent(this, Tools.class);
-        startActivityForResult(intent, 0);
     }
     
     public class MyLocationListener implements LocationListener {
@@ -220,7 +252,7 @@ public class MapsActivity extends MapActivity {
                         mapView.invalidate();
                     }
 
-                    Toast.makeText(getBaseContext(), add, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getBaseContext(), add, Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -237,9 +269,19 @@ public class MapsActivity extends MapActivity {
         return false;
     }
     
+    public void purchaseTools() {
+        Intent intent = new Intent(this, Tools.class);
+        startActivityForResult(intent, 0);
+    }
+    
     private void refreshCall() {
     	activity = GETCLUE;
 		new NetworkCall().execute(server + "CLUE<CMD>");
+    }
+    
+    private void setUserAccountInfo() {
+    	userNameText.setText(name);
+    	balanceText.setText("Balance: " + balance + " pts");
     }
     
     /*
@@ -248,7 +290,8 @@ public class MapsActivity extends MapActivity {
 	protected void onNetworkResult() {
 		switch (activity) {
 		case GETCLUE:
-			Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
+			//Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
+			textMessages.setText(passData);
 			break;
 		}
 	}
