@@ -25,8 +25,9 @@ public class ServerTable extends Object {
         "37.723684,-122.476873", "37.723457,-122.475862", "37.72392,-122.47631", "37.723167,-122.475594", "37.722397,-122.478496",
         "37.722628,-122.478365", "37.72246,-122.479808", "37.721716,-122.479475", "37.722356,-122.480953", "37.721391,-122.477954",
         "37.721198,-122.476739", "37.722083,-122.476737", "37.721889,-122.476074"};
-    private static String toolName[] = {"taunt", "smokeBomb", "drunkMonkey", "clearSky", "steal", "lock-out", "compass"};
-    private static String toolWithDuration[] = {"smokeBomb", "drunkMonkey", "lock-out", "steal", "compass"};
+    
+    private static String toolName[] = {"taunt", "smokeBomb", "dizzyMonkey", "clearSky", "steal", "lock-out", "compass"};
+    private static String toolWithDuration[] = {"taunt", "smokeBomb", "dizzyMonkey", "lock-out", "steal", "compass"};
     private static Integer toolPrice[] = {10, 20, 30, 15, 80, 100, 100};
     private static Integer toolDamage[] = {-5, -5, -10, 5, -30, -20, 0};
     private static HashMap<String, String> buildingInfo = new HashMap<String, String>();

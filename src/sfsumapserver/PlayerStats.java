@@ -8,6 +8,8 @@ package sfsumapserver;
 public class PlayerStats {
 
     private String playerID = "", currentLocation = "", playerGoal = "", currentClue = "", toolInEffect = "", stealer = "";
+    private float latitude = 0;
+    private float longitude = 0;
     private int playerPoints = 0;
     private float playerDistance;
     private boolean HotOnce = false, WarmOnce = false, isTaunt = false, stolenWin = false;

@@ -17,7 +17,7 @@ public class SFSUMapServer {
     //class variable to keep track of number of threads created
 
     public static int numThreadsCreated = 0;
-    private static final int portNumber = 8088, maxThreads = 100;
+    private static final int portNumber = 9225, maxThreads = 100;
 
     public SFSUMapServer() {
         ServerTable.init();
@@ -90,11 +90,18 @@ class clientThread extends Thread {
             process.readRequest();
             process.processRequest();
             process.writeResponse();
-            client.close();
-            decrementNumThreadsCreated();
         } catch (Exception e) {
             System.err.println(e.getMessage());
             System.err.println("Error processing request");
+        }
+        finally {
+            try {
+                this.client.close();
+            	decrementNumThreadsCreated();
+            }
+            catch(IOException e) {
+                System.out.println("Error closing socket");
+            }
         }
     }
 

@@ -49,6 +49,7 @@ public class Process {
     public void readRequest() throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
         requestline = in.readLine();
+        System.out.println(requestline);
         if (requestline != null && requestline.trim().length() > 0) {
             StringTokenizer st = new StringTokenizer(requestline);
             if (st.hasMoreTokens()) {

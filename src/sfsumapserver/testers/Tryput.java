@@ -1,4 +1,4 @@
-package sfsumapserver;
+package sfsumapserver.testers;
 
 /*
  * This is a class for testing the Put, Trace or other edited methods.
@@ -12,9 +12,9 @@ import java.net.Socket;
  *
  * @author acer
  */
-public class Tryput_1 {
+public class Tryput {
 
-    public Tryput_1() {
+    public Tryput() {
     }
 
     public static void main(String[] args) {
@@ -26,7 +26,7 @@ public class Tryput_1 {
                 BufferedReader fromServer = new BufferedReader(new InputStreamReader(server.getInputStream()));
                 PrintWriter toServer = new PrintWriter(server.getOutputStream(), true);
 
-                toServer.println("Get Dennis 37.723598,-122.480807 getClue");
+                toServer.println("Get Dennis 37.723598,-122.480807 signIn");
                 toServer.println("");
 
                 while ((s = fromServer.readLine()) != null) {
