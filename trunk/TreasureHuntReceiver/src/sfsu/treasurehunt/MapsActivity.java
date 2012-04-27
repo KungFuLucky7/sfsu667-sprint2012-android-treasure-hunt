@@ -13,6 +13,7 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
 import com.google.android.maps.Overlay;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -33,6 +34,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.Locale;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /*
  * Treasure Hunt Receiver.
@@ -83,8 +86,8 @@ public class MapsActivity extends MapActivity {
     
     // Network passing variables.
     public static String passData;
-    private String webAddress = "http://thecity.sfsu.edu:9226/";
-	private String localHost = "http://10.0.2.2:9226/";
+    private String webAddress = "http://thecity.sfsu.edu:9225/";
+	private String localHost = "http://10.0.2.2:9225/";
 	private String server;
     private int activity;
     private static final int GETCLUE = 1;
@@ -297,82 +300,45 @@ public class MapsActivity extends MapActivity {
 	}
     
     public class NetworkCall extends AsyncTask<String, Void, String> {
+    	
+    	private final ProgressDialog dialog = new ProgressDialog(
+				MapsActivity.this);
+    	
 		 @Override
 	        protected void onPreExecute() {
+			 	this.dialog.setMessage("Updating location....");
 	            Log.i("AsyncTask", "onPreExecute");
 		}
 
-		/*
-		 * Opens a Http connection to a server.
-		 */
-		private InputStream OpenHttpConnection(String urlString) throws IOException {
-			InputStream in = null;
-			int response = -1;
-
-			try {
-				URL url = new URL(urlString);
-				URLConnection conn = url.openConnection();
-
-				if (!(conn instanceof HttpURLConnection))
-					throw new IOException("Not an HTTP connection");
-				try {
-					HttpURLConnection httpConn = (HttpURLConnection) conn;
-					httpConn.setAllowUserInteraction(false);
-					httpConn.setInstanceFollowRedirects(true);
-					httpConn.setRequestMethod("GET");
-					httpConn.connect();
-					response = httpConn.getResponseCode();
-					if (response == HttpURLConnection.HTTP_OK) {
-						in = httpConn.getInputStream();
-					}
-				} catch (Exception ex) {
-					Log.d("Networking", ex.getLocalizedMessage());
-					throw new IOException("Error connecting");
-				}
-			} catch (MalformedURLException e) {
-				Log.d("Networking", "Error opening URL: " + e);
-			}
-			return in;
-		}
-
-		/*
-		 * Pulls string from server.
-		 */
-		private String DownloadText(String URL) {
-			int BUFFER_SIZE = 2000;
-			InputStream in = null;
-			try {
-				in = OpenHttpConnection(URL);
-			} catch (IOException e) {
-				Log.d("NetworkingActivity", e.getLocalizedMessage());
-				return "";
-			}
-
-			InputStreamReader isr = new InputStreamReader(in);
-			int charRead;
-			String str = "";
-			char[] inputBuffer = new char[BUFFER_SIZE];
-			try {
-				while ((charRead = isr.read(inputBuffer)) > 0) {
-					// ---convert the chars to a String---
-					String readString = String
-							.copyValueOf(inputBuffer, 0, charRead);
-					str += readString;
-					inputBuffer = new char[BUFFER_SIZE];
-				}
-				in.close();
-			} catch (IOException e) {
-				Log.d("NetworkingActivity", e.getLocalizedMessage());
-				return "";
-			}
-			return str;
-		}
-
-		// Set up DownloadText as occurs in the background.
 		@Override
-		protected String doInBackground(String... urls) {
-			Log.i("NetworkCall", "doInBackgroup: " + urls);
-			return DownloadText(urls[0]);
+		protected String doInBackground(String...sendingInfo) {
+			
+			String URL = "http://thecity.sfsu.edu:9255";
+
+			/* JSON for sending to server
+			String stringToJson = "{\"playerID\":\"" + sendingInfo[0]
+					+ "\", \"latitude\":\"" + sendingInfo[2]
+					+ "\", \"longitude\":\"" + sendingInfo[3] + "\"}";
+			*/
+			
+			// Debugging Hard-coded JSON
+			String stringToJson = "{\"playerID\":\"testID\", \"latitude\":\"121.235\", \"longitude\":\"-23.456\"}";
+
+			JSONObject jsonToSend;
+			try {
+				jsonToSend = new JSONObject(stringToJson);
+			} catch (JSONException e) {
+				throw new RuntimeException(e);
+			}
+			
+			HttpClient httpClient = new HttpClient();
+			JSONObject responseJSON = httpClient.httpPost(URL,jsonToSend);
+			
+			String responseString = responseJSON.toString();
+			
+			Log.i("NetworkCall", "doInBackgroup: " + URL);
+			
+			return responseString;
 		}
 		
 		/*
@@ -381,6 +347,9 @@ public class MapsActivity extends MapActivity {
 		 */
 		@Override
 		protected void onPostExecute(String result) {
+			if (this.dialog.isShowing()) {
+				this.dialog.dismiss();
+			}
 			passData = result;
 			onNetworkResult();
 		}
