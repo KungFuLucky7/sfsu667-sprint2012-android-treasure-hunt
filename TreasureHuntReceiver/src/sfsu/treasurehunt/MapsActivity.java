@@ -38,62 +38,56 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /*
- * Treasure Hunt Receiver.
- * Send to server:
- * GET /<USER><CR><LONG>,<LAT><CR><CMD><CR><EXTRA?>
- * 
- * Commands:
- * SIGNUP -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
- * SIGNIN -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
- * GETCLUE -> <USER><CR><LONG>,<LAT><CR>GETCLUE
- * SETTOOL -> <USER><CR><LONG>,<LAT><CR>SETTOOL<CR>toolname
- * GETTOPTHREE -> <USER><CR><LONG>,<LAT><CR>GETTOPTHREE
- * 
- * Receive:
- * SIGNUP -> GOOD / BAD
- * SIGNIN -> GOOD / BAD
- * GETCLUE -> <CLUE><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
- * SETTOOL -> <TOOL><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
- * GETTOPTHREE -> <USER1><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
- *                <USER2><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
- *                <USER3><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ * Treasure Hunt Receiver. Send to server: GET
+ * /<USER><CR><LONG>,<LAT><CR><CMD><CR><EXTRA?>
+ *
+ * Commands: SIGNUP -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password SIGNIN ->
+ * <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password GETCLUE ->
+ * <USER><CR><LONG>,<LAT><CR>GETCLUE SETTOOL ->
+ * <USER><CR><LONG>,<LAT><CR>SETTOOL<CR>toolname GETTOPTHREE ->
+ * <USER><CR><LONG>,<LAT><CR>GETTOPTHREE
+ *
+ * Receive: SIGNUP -> GOOD / BAD SIGNIN -> GOOD / BAD GETCLUE ->
+ * <CLUE><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME
+ * -> HH:MM:SS><CR><PLAYER_POINTS> SETTOOL ->
+ * <TOOL><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME
+ * -> HH:MM:SS><CR><PLAYER_POINTS> GETTOPTHREE ->
+ * <USER1><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ * <USER2><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ * <USER3><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
  */
-
 public class MapsActivity extends MapActivity {
-	// For Google maps.
+    // For Google maps.
+
     MapView mapView;
     MapController mapControl;
     GeoPoint geoPoint;
-
     // For receiving and handling new geolocation.
     private LocationManager locationManager;
     private static final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 1; // Meters
-	private static final long MINIMUM_TIME_BETWEEN_UPDATE = 1000; // Milliseconds
-	final Context context = this;
-	
-	// Screen buttons.
+    private static final long MINIMUM_TIME_BETWEEN_UPDATE = 1000; // Milliseconds
+    final Context context = this;
+    // Screen buttons.
     private Button tools;
     private Button refresh;
-    
     // Screen Text Boxes for messages, clues, name, account balance.
     private TextView textMessages;
     private TextView userNameText;
     private TextView balanceText;
-    
     // User Account Info.
     private String name = "Dennis";
     private int balance = 100;
-    
     // Network passing variables.
     public static String passData;
     private String webAddress = "http://thecity.sfsu.edu:9225/";
-	private String localHost = "http://10.0.2.2:9225/";
-	private String server;
+    private String localHost = "http://10.0.2.2:9225/";
+    private String server;
     private int activity;
     private static final int GETCLUE = 1;
-	
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,29 +98,31 @@ public class MapsActivity extends MapActivity {
         userNameText = (TextView) findViewById(R.id.nameText);
         balanceText = (TextView) findViewById(R.id.balanceText);
         setUserAccountInfo();
-        
+
         tools = (Button) findViewById(R.id.toolsButton);
         refresh = (Button) findViewById(R.id.refreshButton);
 
         tools.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				purchaseTools();
-			}
-		});
-        
+
+            public void onClick(View view) {
+                purchaseTools();
+            }
+        });
+
         refresh.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				//Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
-				refreshCall();
-			}
-		});
-        
+
+            public void onClick(View v) {
+                //Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
+                refreshCall();
+            }
+        });
+
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-				MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,
-				new MyLocationListener());
-        
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,
+                new MyLocationListener());
+
         mapView = (MapView) findViewById(R.id.mapView);
         //Sets Zoom controls that appear at the bottom of the screen.
         mapView.setBuiltInZoomControls(true);
@@ -152,9 +148,9 @@ public class MapsActivity extends MapActivity {
 
         mapView.invalidate();
     }
-    
+
     public void moveLocation() {
-    	mapControl = mapView.getController();
+        mapControl = mapView.getController();
         String coordinates[] = {"100.0", "103.78921587"};
         double lat = Double.parseDouble(coordinates[0]);
         double lng = Double.parseDouble(coordinates[1]);
@@ -176,34 +172,34 @@ public class MapsActivity extends MapActivity {
 
         mapView.invalidate();
     }
-    
+
     public class MyLocationListener implements LocationListener {
-		public void onLocationChanged(Location location) {
-			Toast.makeText(getBaseContext(), "Location changed.", Toast.LENGTH_LONG).show();
-			placePin(location);
-		}
 
-		public void onStatusChanged(String s, int i, Bundle b) {
-		}
+        public void onLocationChanged(Location location) {
+            Toast.makeText(getBaseContext(), "Location changed.", Toast.LENGTH_LONG).show();
+            placePin(location);
+        }
 
-		public void onProviderDisabled(String s) {
-		}
+        public void onStatusChanged(String s, int i, Bundle b) {
+        }
 
-		public void onProviderEnabled(String s) {
-		}
+        public void onProviderDisabled(String s) {
+        }
 
-		private void placePin(Location location) {
-			GeoPoint newLocation = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
+        public void onProviderEnabled(String s) {
+        }
+
+        private void placePin(Location location) {
+            GeoPoint newLocation = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
 
             mapControl.animateTo(newLocation);
             mapView.invalidate();
-		}
-	}
+        }
+    }
 
     /*
      * Map Functions.
      */
-    
     //Set up to allow pushpins to be placed on map.
     class MapOverlay extends com.google.android.maps.Overlay {
 
@@ -243,9 +239,9 @@ public class MapsActivity extends MapActivity {
 
                     String add = "";
                     if (addresses.size() > 0) {
-                    //    for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
-                    //        add += addresses.get(0).getAddressLine(i) + "\n";
-                    //    }
+                        //    for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
+                        //        add += addresses.get(0).getAddressLine(i) + "\n";
+                        //    }
                         //Using address grabbed from the name and relocates map to that location.
                         p = new GeoPoint(
                                 (int) (addresses.get(0).getLatitude() * 1E6),
@@ -271,87 +267,87 @@ public class MapsActivity extends MapActivity {
         // TODO Auto-generated method stub
         return false;
     }
-    
+
     public void purchaseTools() {
         Intent intent = new Intent(this, Tools.class);
         startActivityForResult(intent, 0);
     }
-    
+
     private void refreshCall() {
-    	activity = GETCLUE;
-		new NetworkCall().execute(server + "CLUE<CMD>");
+        activity = GETCLUE;
+        new NetworkCall().execute(server + "CLUE<CMD>");
     }
-    
+
     private void setUserAccountInfo() {
-    	userNameText.setText(name);
-    	balanceText.setText("Balance: " + balance + " pts");
+        userNameText.setText(name);
+        balanceText.setText("Balance: " + balance + " pts");
     }
-    
+
     /*
-	 * Processes what happens after returning from a network call.
-	 */
-	protected void onNetworkResult() {
-		switch (activity) {
-		case GETCLUE:
-			//Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
-			textMessages.setText(passData);
-			break;
-		}
-	}
-    
+     * Processes what happens after returning from a network call.
+     */
+    protected void onNetworkResult() {
+        switch (activity) {
+            case GETCLUE:
+                //Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
+                textMessages.setText(passData);
+                break;
+        }
+    }
+
     public class NetworkCall extends AsyncTask<String, Void, String> {
-    	
-    	private final ProgressDialog dialog = new ProgressDialog(
-				MapsActivity.this);
-    	
-		 @Override
-	        protected void onPreExecute() {
-			 	this.dialog.setMessage("Updating location....");
-	            Log.i("AsyncTask", "onPreExecute");
-		}
 
-		@Override
-		protected String doInBackground(String...sendingInfo) {
-			
-			String URL = "http://thecity.sfsu.edu:9255";
+        private final ProgressDialog dialog = new ProgressDialog(
+                MapsActivity.this);
 
-			/* JSON for sending to server
-			String stringToJson = "{\"playerID\":\"" + sendingInfo[0]
-					+ "\", \"latitude\":\"" + sendingInfo[2]
-					+ "\", \"longitude\":\"" + sendingInfo[3] + "\"}";
-			*/
-			
-			// Debugging Hard-coded JSON
-			String stringToJson = "{\"playerID\":\"testID\", \"latitude\":\"121.235\", \"longitude\":\"-23.456\"}";
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("Updating location....");
+            Log.i("AsyncTask", "onPreExecute");
+        }
 
-			JSONObject jsonToSend;
-			try {
-				jsonToSend = new JSONObject(stringToJson);
-			} catch (JSONException e) {
-				throw new RuntimeException(e);
-			}
-			
-			HttpClient httpClient = new HttpClient();
-			JSONObject responseJSON = httpClient.httpPost(URL,jsonToSend);
-			
-			String responseString = responseJSON.toString();
-			
-			Log.i("NetworkCall", "doInBackgroup: " + URL);
-			
-			return responseString;
-		}
-		
-		/*
-		 * On completion of Async task, the string pulled from the server is
-		 * saved in passData.
-		 */
-		@Override
-		protected void onPostExecute(String result) {
-			if (this.dialog.isShowing()) {
-				this.dialog.dismiss();
-			}
-			passData = result;
-			onNetworkResult();
-		}
-	}
+        @Override
+        protected String doInBackground(String... sendingInfo) {
+
+            String URL = "http://thecity.sfsu.edu:9255";
+
+            /*
+             * JSON for sending to server String stringToJson =
+             * "{\"playerID\":\"" + sendingInfo[0] + "\", \"latitude\":\"" +
+             * sendingInfo[2] + "\", \"longitude\":\"" + sendingInfo[3] + "\"}";
+             */
+
+            // Debugging Hard-coded JSON
+            String stringToJson = "{\"playerID\":\"testID\", \"latitude\":\"121.235\", \"longitude\":\"-23.456\"}";
+
+            JSONObject jsonToSend;
+            try {
+                jsonToSend = new JSONObject(stringToJson);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            HttpClient httpClient = new HttpClient();
+            JSONObject responseJSON = httpClient.httpPost(URL, jsonToSend);
+
+            String responseString = responseJSON.toString();
+
+            Log.i("NetworkCall", "doInBackgroup: " + URL);
+
+            return responseString;
+        }
+
+        /*
+         * On completion of Async task, the string pulled from the server is
+         * saved in passData.
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            if (this.dialog.isShowing()) {
+                this.dialog.dismiss();
+            }
+            passData = result;
+            onNetworkResult();
+        }
+    }
 }
