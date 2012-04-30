@@ -23,11 +23,11 @@
             android:layout_gravity="right"
             android:textSize="15dp" />
     </LinearLayout>
-
+
     <com.google.android.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="fill_parent"
-        android:layout_height="380dp"
+        android:layout_height="321dp"
         android:apiKey="0TfvsAqP3tJMEuZuVjuUtCc84uARu7YKpflgbwA"
         android:clickable="true"
         android:state_enabled="true" />
