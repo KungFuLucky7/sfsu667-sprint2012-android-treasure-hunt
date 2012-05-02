@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+
 /**
  * This is the web server's main class for execution. It also contains a thread
  * class that applies support of the multi-threading functionality for the main
@@ -17,7 +18,7 @@ public class SFSUMapServer {
     //class variable to keep track of number of threads created
 
     public static int numThreadsCreated = 0;
-    private static final int portNumber = 8088, maxThreads = 100;
+    private static final int portNumber = 9255, maxThreads = 100;
 
     public SFSUMapServer() {
         ServerTable.init();

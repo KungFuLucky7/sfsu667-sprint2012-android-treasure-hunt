@@ -1,4 +1,4 @@
-package sfsumapserver;
+package sfsumapserver.testing;
 
 /*
  * This is a class for testing the Put, Trace or other edited methods.
@@ -8,13 +8,15 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import sfsumapserver.Encrypt;
+
 /**
  *
  * @author acer
  */
-public class Tryput_1 {
+public class Tryput {
 
-    public Tryput_1() {
+    public Tryput() {
     }
 
     public static void main(String[] args) {
@@ -27,7 +29,7 @@ public class Tryput_1 {
                 String password = new Encrypt("1234").getPassword();
                 PrintWriter toServer = new PrintWriter(server.getOutputStream(), true);
 
-                toServer.println("Get /Dennis#37.723598,-122.480807#signIn#" + password);
+                toServer.println("Get /Dennis#37.723598,-122.480807#signUp#" + password);
                 toServer.println("");
 
                 while ((s = fromServer.readLine()) != null) {

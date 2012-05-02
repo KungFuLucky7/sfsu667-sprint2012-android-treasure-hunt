@@ -7,6 +7,9 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
 
+import com.google.gson.*;
+
+
 /**
  *
  * @author Terry Wong
@@ -49,37 +52,58 @@ public class Process {
     public void readRequest() throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
         requestline = in.readLine();
-        if (requestline != null && requestline.trim().length() > 0) {
-            index = requestline.trim().indexOf(" ");
-            if (index > 0) {
-                requestline = requestline.substring(index + 1);
-            } else {
-                throw new IOException();
-            }
-            StringTokenizer st = new StringTokenizer(requestline, "#");
-            if (st.hasMoreTokens()) {
-                playerID = st.nextToken();
-                playerID = playerID.replaceAll("/", "").trim();
-                System.out.println("playerID: " + playerID);
-                currentLocation = st.nextToken();
-                System.out.println("currentLocation: " + currentLocation);
-                option = st.nextToken();
-                System.out.println("option: " + option);
-                if (st.hasMoreTokens() && (option.equalsIgnoreCase("signUp") || option.equalsIgnoreCase("signIn"))) {
-                    password = st.nextToken();
-                    System.out.println("encrypted password: " + password);
-                } else if (st.hasMoreTokens() && (option.equalsIgnoreCase("setTool"))) {
-                    tool = st.nextToken();
-                    System.out.println("tool: " + password);
-                    if (st.hasMoreTokens()) {
-                        targetPlayer = st.nextToken();
-                        System.out.println("target player: " + targetPlayer);
-                    } else {
-                        targetPlayer = playerID;
-                        System.out.println("target player: " + targetPlayer);
-                    }
-                }
-            }
+        while(!(requestline.isEmpty())) {
+        	// Debug
+        	// System.out.println("requestline : "+requestline);
+        	requestline = in.readLine();
+        }
+        requestline = in.readLine();
+
+		JsonObject jsonReceived = new JsonParser().parse(requestline).getAsJsonObject();
+        
+		// Debug
+        // System.out.println("json received : "+jsonReceived.toString());        
+        // System.out.println("playerid : "+jsonReceived.getAsJsonPrimitive("playerID").getAsString());
+        
+        if(jsonReceived.has("playerID")) {
+        	playerID = jsonReceived.getAsJsonPrimitive("playerID").getAsString();
+        	// Debug
+        	// System.out.println("playerID : "+playerID);
+        }
+        		
+        if(jsonReceived.has("currentLocation")) {
+        	currentLocation = jsonReceived.getAsJsonPrimitive("currentLocation").getAsString();
+        	// Debug
+        	// System.out.println("currentLocation : "+currentLocation);
+        }
+        
+        if(jsonReceived.has("option")) {
+        	option = jsonReceived.getAsJsonPrimitive("option").getAsString();
+        	// Debug
+        	// System.out.println("option : "+option);
+        }
+        
+        if(jsonReceived.has("password")) {
+        	password = jsonReceived.getAsJsonPrimitive("password").getAsString();
+        	// Debug
+        	// System.out.println("password : "+password);
+        }
+        
+        if(jsonReceived.has("tool")) {
+        	tool = jsonReceived.getAsJsonPrimitive("tool").getAsString();
+        	// Debug
+        	// System.out.println("tool : "+tool);
+        }
+        
+        if(jsonReceived.has("targetPlayer")) {
+        	targetPlayer = jsonReceived.getAsJsonPrimitive("targetPlayer").getAsString();
+        	// Debug
+        	// System.out.println("targetPlayer : "+targetPlayer);
+        }
+        else {
+        	targetPlayer = playerID;
+        	// Debug
+        	// System.out.println("targetPlayer : "+targetPlayer);
         }
     }
 
@@ -240,33 +264,54 @@ public class Process {
         writer.println("Date: " + dateFormat.format(date));
         writer.println("Content-Type: text/plain");
         writer.println("Connection: close");
-        String output = "";
+        String output = "{";
         if (option.equalsIgnoreCase("signUp")) {
+        	output += "\"signUp\":\"";
             if (!playerIDInUse) {
-                output += "Good\n";
+                output += "Good";
             } else {
-                output += "Bad\n";
+                output += "Bad";
             }
+            output += "\"";
         } else if (option.equalsIgnoreCase("signIn")) {
+        	output += "\"signIn\":\"";
             if (!authenticationFailure) {
                 output += "Good";
             } else {
                 output += "Bad";
             }
+            output += "\"";
         } else if (option.equalsIgnoreCase("getClue")) {
-            output += clue + "#" + distance + "#" + goalLocation;
-            output += "#" + dateFormat.format(new Date(elapsedTime));
-            output += "#" + player.getPlayerPoints() + "\n";
-
+        	output += ",\"clue\":\""+ clue + "\"";
+            output += ",\"distance\":\""+ distance + "\"";
+            output += ",\"goalLocation\":\""+ goalLocation + "\"";
+            
+            //What is this for
+            output += ",\"misc\":\""+ dateFormat.format(new Date(elapsedTime)) + "\"";
+            
+            output += ",\"playerPoints\":\""+ player.getPlayerPoints() + "\"";
         } else if (option.equalsIgnoreCase("setTool")) {
-            output += tool + "#" + distance + "#" + goalLocation;
-            output += "#" + dateFormat.format(new Date(elapsedTime));
-            output += "#" + player.getPlayerPoints() + "\n";
+        	output += ",\"tool\":\""+ tool + "\"";
+        	output += ",\"distance\":\""+ distance + "\"";
+        	output += ",\"goalLocation\":\""+ goalLocation + "\"";
+
+            //What is this for
+        	output += ",\"misc\":\""+ dateFormat.format(new Date(elapsedTime)) + "\"";
+
+            output += ",\"playerPoints\":\""+ player.getPlayerPoints() + "\"";
         } else if (getTopThree) {
-            output += "1. " + topThreeTeams[0] + " " + topThreeClues[0] + " " + topThreeDistances[0] + "\n";
-            output += "2. " + topThreeTeams[1] + " " + topThreeClues[1] + " " + topThreeDistances[1] + "\n";
-            output += "3. " + topThreeTeams[2] + " " + topThreeClues[2] + " " + topThreeDistances[2] + "\n";
+        	
+        	output += ",\"1.\":\""+ topThreeTeams[0] + "\"";
+        	output += ",\"2.\":\""+ topThreeClues[0] + "\"";
+        	output += ",\"3.\":\""+ topThreeDistances[0] + "\"";
+        	
+        	
+            //output += "1. " + topThreeTeams[0] + " " + topThreeClues[0] + " " + topThreeDistances[0] + "\n";
+            //output += "2. " + topThreeTeams[1] + " " + topThreeClues[1] + " " + topThreeDistances[1] + "\n";
+            //output += "3. " + topThreeTeams[2] + " " + topThreeClues[2] + " " + topThreeDistances[2] + "\n";
         }
+        output += "}";
+        System.out.println("output"+output);
         writer.println("Content-Length: " + output.length());
         System.out.println("Content-Length: " + output.length());
         writer.println("");
