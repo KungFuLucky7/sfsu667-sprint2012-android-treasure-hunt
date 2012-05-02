@@ -318,7 +318,7 @@ public class MapsActivity extends MapActivity {
              */
 
             // Debugging Hard-coded JSON
-            String stringToJson = "{\"playerID\":\"testID\", \"latitude\":\"121.235\", \"longitude\":\"-23.456\"}";
+            String stringToJson = "{\"playerID\":\"testID\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
 
             JSONObject jsonToSend;
             try {
