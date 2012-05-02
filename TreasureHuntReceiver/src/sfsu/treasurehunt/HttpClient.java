@@ -37,7 +37,7 @@ public class HttpClient {
 			// Debug print out body of client request to server
 			System.out.println("json sent : "+jsonToSend.toString());
 			
-			StringEntity stringToSend = new StringEntity(jsonToSend.toString());			
+			StringEntity stringToSend = new StringEntity((jsonToSend.toString()+"\n"));			
 			httpPostRequest.setEntity(stringToSend);
 			
 			HttpResponse response = httpClient.execute(httpPostRequest);
