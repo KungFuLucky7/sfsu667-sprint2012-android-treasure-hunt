@@ -1,5 +1,6 @@
 package sfsumapserver;
 
+
 /**
  * A class for keeping track of all of a player's stats.
  *
