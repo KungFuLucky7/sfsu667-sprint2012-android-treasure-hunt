@@ -45,6 +45,7 @@ public class ToolListAdapter extends ArrayAdapter<ToolList>{
             holder = new ToolListHolder();
             holder.imgIcon = (ImageView)row.findViewById(R.id.imgIcon);
             holder.txtTitle = (TextView)row.findViewById(R.id.txtTitle);
+            holder.txtCost = (TextView)row.findViewById(R.id.cost);
             
             row.setTag(holder);
         }
@@ -53,10 +54,10 @@ public class ToolListAdapter extends ArrayAdapter<ToolList>{
             holder = (ToolListHolder)row.getTag();
         }
         
-        //NoteList noteLineItem = data[position];
         ToolList noteLineItem = data2.get(position);
         holder.txtTitle.setText(noteLineItem.title);
         holder.imgIcon.setImageResource(noteLineItem.icon);
+        holder.txtCost.setText(Integer.toString(noteLineItem.price));
         
         return row;
     }
@@ -65,5 +66,6 @@ public class ToolListAdapter extends ArrayAdapter<ToolList>{
     {
         ImageView imgIcon;
         TextView txtTitle;
+        TextView txtCost;
     }
 }

@@ -8,11 +8,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
+import java.util.Locale;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -20,7 +28,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
@@ -33,268 +43,284 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.util.Locale;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /*
- * Treasure Hunt Receiver. Send to server: GET
- * /<USER><CR><LONG>,<LAT><CR><CMD><CR><EXTRA?>
- *
- * Commands: SIGNUP -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password SIGNIN ->
- * <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password GETCLUE ->
- * <USER><CR><LONG>,<LAT><CR>GETCLUE SETTOOL ->
- * <USER><CR><LONG>,<LAT><CR>SETTOOL<CR>toolname GETTOPTHREE ->
- * <USER><CR><LONG>,<LAT><CR>GETTOPTHREE
- *
- * Receive: SIGNUP -> GOOD / BAD SIGNIN -> GOOD / BAD GETCLUE ->
- * <CLUE><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME
- * -> HH:MM:SS><CR><PLAYER_POINTS> SETTOOL ->
- * <TOOL><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME
- * -> HH:MM:SS><CR><PLAYER_POINTS> GETTOPTHREE ->
- * <USER1><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
- * <USER2><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
- * <USER3><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ * Treasure Hunt Receiver.
+ * Send to server:
+ * GET /<USER><CR><LONG>,<LAT><CR><CMD><CR><EXTRA?>
+ * 
+ * Commands:
+ * SIGNUP -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
+ * SIGNIN -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
+ * GETCLUE -> <USER><CR><LONG>,<LAT><CR>GETCLUE
+ * SETTOOL -> <USER><CR><LONG>,<LAT><CR>SETTOOL<CR>toolname
+ * GETTOPTHREE -> <USER><CR><LONG>,<LAT><CR>GETTOPTHREE
+ * 
+ * Receive:
+ * SIGNUP -> GOOD / BAD
+ * SIGNIN -> GOOD / BAD
+ * GETCLUE -> <CLUE><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
+ * SETTOOL -> <TOOL><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
+ * GETTOPTHREE -> <USER1><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ *                <USER2><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
+ *                <USER3><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
  */
-public class MapsActivity extends MapActivity {
-    // For Google maps.
 
-    MapView mapView;
-    MapController mapControl;
-    GeoPoint geoPoint;
+public class MapsActivity extends MapActivity {
+	// For Google maps.
+	private LocationManager myLocationManager;
+	private Location myLocation;
+	//private TextView textBox;
+	private MapView mapView;
+	
+	// For Map Overlay.
+	public static Context myContext;
+	private List<Overlay> mapOverlays;
+	private MyMarkerLayer markerlayer;
+	private MapController mapController;
+	private MyLocationOverlay myLocationOverlay;
+	
+	// Static value for color coding.
+	private static final int COLD = 0;
+	private static final int WARM = 1;
+	private static final int WARMER = 2;
+	private static final int HOT = 3;
+
     // For receiving and handling new geolocation.
-    private LocationManager locationManager;
     private static final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 1; // Meters
-    private static final long MINIMUM_TIME_BETWEEN_UPDATE = 1000; // Milliseconds
-    final Context context = this;
-    // Screen buttons.
+	private static final long MINIMUM_TIME_BETWEEN_UPDATE = 10000; // Milliseconds
+	
+	// Screen buttons.
     private Button tools;
     private Button refresh;
+    
     // Screen Text Boxes for messages, clues, name, account balance.
     private TextView textMessages;
     private TextView userNameText;
     private TextView balanceText;
+    
     // User Account Info.
     private String name = "Dennis";
     private int balance = 100;
+    
     // Network passing variables.
     public static String passData;
-    private String webAddress = "http://thecity.sfsu.edu:9225/";
-    private String localHost = "http://10.0.2.2:9225/";
-    private String server;
+    private String webAddress = "http://thecity.sfsu.edu:9226/";
+	private String localHost = "http://10.0.2.2:9226/";
+	private String server;
     private int activity;
     private static final int GETCLUE = 1;
-
-    /**
-     * Called when the activity is first created.
-     */
+    
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        myContext = this;
 
-        server = webAddress;
+		mapView = (MapView) findViewById(R.id.mapView);
+		//textBox = (TextView) findViewById(R.id.addressBox);
+		
+		server = webAddress;
         textMessages = (TextView) findViewById(R.id.clueText);
         userNameText = (TextView) findViewById(R.id.nameText);
         balanceText = (TextView) findViewById(R.id.balanceText);
         setUserAccountInfo();
-
+        
         tools = (Button) findViewById(R.id.toolsButton);
         refresh = (Button) findViewById(R.id.refreshButton);
 
         tools.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-                purchaseTools();
-            }
-        });
-
+			public void onClick(View view) {
+				purchaseTools();
+			}
+		});
+        
         refresh.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				//Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
+				refreshCall();
+			}
+		});
+        
+        textMessages = (TextView) findViewById(R.id.clueText);
+        textMessages.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				textMessages.setVisibility(View.GONE);
+			}
+		});
+		
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		criteria.setPowerRequirement(Criteria.POWER_LOW);
 
-            public void onClick(View v) {
-                //Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
-                refreshCall();
-            }
-        });
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE,
-                new MyLocationListener());
-
-        mapView = (MapView) findViewById(R.id.mapView);
-        //Sets Zoom controls that appear at the bottom of the screen.
+		myLocationOverlay = new MyLocationOverlay(this, mapView);
         mapView.setBuiltInZoomControls(true);
-
-        //Sets starting location when app starts.
-        mapControl = mapView.getController();
-        String coordinates[] = {"1.352566007", "103.78921587"};
-        double lat = Double.parseDouble(coordinates[0]);
-        double lng = Double.parseDouble(coordinates[1]);
-
-        //Establish geolocation.
-        geoPoint = new GeoPoint((int) (lat * 1E6), (int) (lng * 1E6));
-
-        //Change map location.
-        mapControl.animateTo(geoPoint);
-        mapControl.setZoom(17);
-
-        //---Add a location marker---
-        MapOverlay mapOverlay = new MapOverlay();
-        List<Overlay> listOfOverlays = mapView.getOverlays();
-        listOfOverlays.clear();
-        listOfOverlays.add(mapOverlay);
-
-        mapView.invalidate();
+ 		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		String locationProvider = myLocationManager.getBestProvider(criteria, true);
+		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
+			
+		GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
+    	
+		mapController = mapView.getController();
+		mapController.animateTo(point);
+		mapController.setZoom(14);
+		
+		setLocationColor(point, HOT);
+		reverseGeoLocation(myLocation);
+		
+		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
+        
+        //mapView.invalidate();
     }
+    
+    protected boolean isRouteDisplayed() {
+		return false;
+	}
+	
+	@Override
+	protected void onResume() {
+	    super.onResume();
+	    // when our activity resumes, we want to register for location updates
+	    myLocationOverlay.enableMyLocation();
+	}
+	 
+	@Override
+	protected void onPause() {
+	    super.onPause();
+	    // when our activity pauses, we want to remove listening for location updates
+	    myLocationOverlay.disableMyLocation();
+	}
 
-    public void moveLocation() {
-        mapControl = mapView.getController();
-        String coordinates[] = {"100.0", "103.78921587"};
-        double lat = Double.parseDouble(coordinates[0]);
-        double lng = Double.parseDouble(coordinates[1]);
-
-        //Establish geolocation.
-        geoPoint = new GeoPoint(
-                (int) (lat * 1E6),
-                (int) (lng * 1E6));
-
-        //Change map location.
-        mapControl.animateTo(geoPoint);
-        mapControl.setZoom(17);
-
-        //---Add a location marker---
-        MapOverlay mapOverlay = new MapOverlay();
-        List<Overlay> listOfOverlays = mapView.getOverlays();
-        listOfOverlays.clear();
-        listOfOverlays.add(mapOverlay);
-
-        mapView.invalidate();
-    }
-
-    public class MyLocationListener implements LocationListener {
-
-        public void onLocationChanged(Location location) {
-            Toast.makeText(getBaseContext(), "Location changed.", Toast.LENGTH_LONG).show();
-            placePin(location);
-        }
-
-        public void onStatusChanged(String s, int i, Bundle b) {
-        }
-
-        public void onProviderDisabled(String s) {
-        }
-
-        public void onProviderEnabled(String s) {
-        }
-
-        private void placePin(Location location) {
-            GeoPoint newLocation = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
-
-            mapControl.animateTo(newLocation);
-            mapView.invalidate();
-        }
+	/*
+	 * Reverse geolocation using given location parameter resulting in actual address.
+	 */
+	private void reverseGeoLocation(Location location) {
+		List<Address> addresses;
+		StringBuilder label = new StringBuilder("");
+		try {
+			Geocoder geoCoder = new Geocoder(this, Locale.ENGLISH);
+			addresses = geoCoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+			
+			if(addresses != null) {
+				Address currentAddress = addresses.get(0);
+				for(int x = 0; x < currentAddress.getMaxAddressLineIndex(); x++) {
+					label.append(currentAddress.getAddressLine(x)).append(", ");
+				}
+				label.deleteCharAt(label.length()-1);
+				label.deleteCharAt(label.length()-1);
+				label.append("\nLat: " + location.getLatitude() + "\nLng: " + location.getLongitude());
+				//textBox.setText(label.toString());
+			}
+		} catch(IOException e) {
+			//textBox.setText("Error in reverse geolocation: " + e.getMessage());
+		}
+		//return label.toString();
+	}
+	
+	/*
+	 * Geolocation using location to get latitude and longitude from an address.
+	 */
+	private void getGeoLocation(String myAddress) {
+		List<Address> addresses;
+		StringBuilder label = new StringBuilder("myAddress");
+		Geocoder geoCoder = new Geocoder(this);
+		try {
+			addresses = geoCoder.getFromLocationName(myAddress, 1);
+			if(addresses != null) {
+				Address x = addresses.get(0);
+				label.append("\nlatitude: ").append(x.getLatitude());
+				label.append("\nlongitude: ").append(x.getLongitude());
+				//textBox.setText(label.toString());
+			}
+		} catch(IOException e) {
+			//textBox.setText("Error getting geolocation: " + e.getMessage());
+		}
+	}
+    
+    /*
+	 * Utilize MyMarkerLayer for map overlays.
+	 */
+    private void setLocationColor(GeoPoint point, int condition) {
+		mapOverlays = mapView.getOverlays();
+		Drawable drawable;
+		OverlayItem overlayItem;
+		
+		switch (condition) {
+			case HOT:
+				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_flame);
+				overlayItem = new OverlayItem(point, "Here", "You're Hot!!!");
+				markerlayer = new MyMarkerLayer(drawable);
+				markerlayer.addOverlayItem(overlayItem);
+				break;
+			case WARMER:
+				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_red);
+				overlayItem = new OverlayItem(point, "Here", "You're getting Warmer!!");
+				markerlayer = new MyMarkerLayer(drawable);
+		    	markerlayer.addOverlayItem(overlayItem);
+				break;
+			case WARM:
+				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_yellow);
+				overlayItem = new OverlayItem(point, "Here", "You're getting Warm!");
+				markerlayer = new MyMarkerLayer(drawable);
+		    	markerlayer.addOverlayItem(overlayItem);
+				break;
+			case COLD:
+				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_blue);
+				overlayItem = new OverlayItem(point, "Here", "You're Cold!");
+				markerlayer = new MyMarkerLayer(drawable);
+		    	markerlayer.addOverlayItem(overlayItem);
+				break;
+		}
+		
+		mapOverlays.add(markerlayer);
     }
 
     /*
-     * Map Functions.
+     * Listens to location changes and centers the map to user's new location.
      */
-    //Set up to allow pushpins to be placed on map.
-    class MapOverlay extends com.google.android.maps.Overlay {
+	private final LocationListener listener = new LocationListener() {
+		public void onLocationChanged(Location location) {
+			myLocation = location;
+			GeoPoint newGeoPoint = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
+			mapController.animateTo(newGeoPoint);
+			//textBox.setText("Location changed.");
+			//reverseGeoLocation(location);
+			//mapView.invalidate();
+		}
 
-        @Override
-        //Override original draw to place pushpin onto screen.
-        public boolean draw(Canvas canvas, MapView mapView, boolean shadow, long when) {
-            super.draw(canvas, mapView, shadow);
-
-            //---translate the GeoPoint to screen pixels---
-            Point screenPts = new Point();
-            mapView.getProjection().toPixels(geoPoint, screenPts);
-
-            //---add the marker---
-            Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.pushpin);
-            canvas.drawBitmap(bmp, screenPts.x, screenPts.y - 50, null);
-
-            return true;
-        }
-
-        @Override
-        //Sense when user touches the screen and captures the location touched.
-        public boolean onTouchEvent(MotionEvent event, MapView mapView) {
-            //---when user lifts his finger---
-            if (event.getAction() == 1) {
-                GeoPoint p = mapView.getProjection().fromPixels(
-                        (int) event.getX(),
-                        (int) event.getY());
-
-                Geocoder geoCoder = new Geocoder(
-                        getBaseContext(), Locale.getDefault());
-                try {
-                    //List<Address> addresses = geoCoder.getFromLocation(
-                    //    p.getLatitudeE6()  / 1E6, 
-                    //    p.getLongitudeE6() / 1E6, 1);
-                    //Getting Latitude and Longitude from a name.
-                    List<Address> addresses = geoCoder.getFromLocationName("empire state building", 5);
-
-                    String add = "";
-                    if (addresses.size() > 0) {
-                        //    for (int i = 0; i < addresses.get(0).getMaxAddressLineIndex(); i++) {
-                        //        add += addresses.get(0).getAddressLine(i) + "\n";
-                        //    }
-                        //Using address grabbed from the name and relocates map to that location.
-                        p = new GeoPoint(
-                                (int) (addresses.get(0).getLatitude() * 1E6),
-                                (int) (addresses.get(0).getLongitude() * 1E6));
-
-                        mapControl.animateTo(p);
-                        mapView.invalidate();
-                    }
-
-                    //Toast.makeText(getBaseContext(), add, Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return true;
-            } else {
-                return false;
-            }
-        }
-    }
-
-    @Override
-    protected boolean isRouteDisplayed() {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
+		public void onStatusChanged(String s, int i, Bundle b) {}
+		public void onProviderDisabled(String s) {}
+		public void onProviderEnabled(String s) {}
+	};
+    
     public void purchaseTools() {
         Intent intent = new Intent(this, Tools.class);
         startActivityForResult(intent, 0);
     }
-
+    
     private void refreshCall() {
-        activity = GETCLUE;
-        new NetworkCall().execute(server + "CLUE<CMD>");
+    	activity = GETCLUE;
+		new NetworkCall().execute();
     }
-
+    
     private void setUserAccountInfo() {
-        userNameText.setText(name);
-        balanceText.setText("Balance: " + balance + " pts");
+    	userNameText.setText(name);
+    	balanceText.setText("Balance: " + balance + " pts");
     }
-
+    
     /*
-     * Processes what happens after returning from a network call.
-     */
-    protected void onNetworkResult() {
-        switch (activity) {
-            case GETCLUE:
-                //Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
-                textMessages.setText(passData);
-                break;
-        }
-    }
-
+	 * Processes what happens after returning from a network call.
+	 */
+	protected void onNetworkResult() {
+		switch (activity) {
+		case GETCLUE:
+			//Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
+			textMessages.setVisibility(View.VISIBLE);
+			textMessages.setText("Testing");
+			break;
+		}
+	}
+    
     public class NetworkCall extends AsyncTask<String, Void, String> {
 
         private final ProgressDialog dialog = new ProgressDialog(
@@ -318,8 +344,9 @@ public class MapsActivity extends MapActivity {
              */
 
             // Debugging Hard-coded JSON
-            String stringToJson = "{\"playerID\":\"testID\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
-
+            //String stringToJson = "{\"playerID\":\"testID\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
+            String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
+            
             JSONObject jsonToSend;
             try {
                 jsonToSend = new JSONObject(stringToJson);
@@ -346,6 +373,7 @@ public class MapsActivity extends MapActivity {
             if (this.dialog.isShowing()) {
                 this.dialog.dismiss();
             }
+            Log.d("Networking", "result = " + result);
             passData = result;
             onNetworkResult();
         }

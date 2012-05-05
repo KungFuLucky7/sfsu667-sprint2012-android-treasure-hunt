@@ -1,30 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" 
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#FFFFFF"> 
-         <ListView
-         android:id="@+id/list"
-         android:layout_width="fill_parent"
-         android:layout_height="440dp" />
+    android:background="#FFFFFF"
+    android:orientation="vertical" >
 
-     <LinearLayout
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content" >
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="440dp"
+        android:layout_above="@+id/purchaseButton" />
 
-         <Button
-             android:id="@+id/purchaseButton"
-             android:layout_width="156dp"
-             android:layout_height="wrap_content"
-             android:text="@string/purchase" />
+    <Button
+        android:id="@+id/purchaseButton"
+        android:layout_width="156dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:text="@string/purchase" />
 
-         <Button
-             android:id="@+id/mapButton"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:text="@string/map" />
+    <Button
+        android:id="@+id/mapButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/purchaseButton"
+        android:text="@string/map" />
 
-     </LinearLayout>
-</LinearLayout>
+    <ImageView
+        android:id="@+id/monkeyHelpScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="491dp"
+        android:src="@drawable/info_monkey"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/tauntHelpScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="491dp"
+        android:src="@drawable/info_taunt"
+        android:visibility="gone" />
+    
+     <ImageView
+        android:id="@+id/smokescreenHelpScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="491dp"
+        android:src="@drawable/info_smokescreen"
+        android:visibility="gone" />
+     
+     <ImageView
+        android:id="@+id/clearskyHelpScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="491dp"
+        android:src="@drawable/info_clearsky"
+        android:visibility="gone" />
+     
+     <ImageView
+        android:id="@+id/compassHelpScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="491dp"
+        android:src="@drawable/info_compass"
+        android:visibility="gone" />
+     
+     <ImageView
+        android:id="@+id/stealerHelpScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="491dp"
+        android:src="@drawable/info_stealer"
+        android:visibility="gone" />
+     
+      <ImageView
+        android:id="@+id/lockoutHelpScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="491dp"
+        android:src="@drawable/info_lockout"
+        android:visibility="gone" />
+
+      <Button
+          android:id="@+id/buyButton"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          android:layout_alignParentTop="true"
+          android:layout_marginRight="54dp"
+          android:layout_marginTop="52dp"
+          android:text="@string/buy"
+          android:visibility="gone" />
+
+</RelativeLayout>
