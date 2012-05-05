@@ -9,7 +9,7 @@ package sfsumapserver;
 public class PlayerStats {
 
     private String playerID = "", currentLocation = "", playerGoal = "", currentClue = "", toolInEffect = "", stealer = "";
-    private int playerPoints = 0;
+    private int playerPoints = 500;
     private float playerDistance;
     private boolean HotOnce = false, WarmOnce = false, isTaunt = false, stolenWin = false;
     private long startTime = 0, effectStartTime = 0, effectDuration = 0;
