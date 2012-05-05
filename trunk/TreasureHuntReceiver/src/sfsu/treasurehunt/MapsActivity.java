@@ -28,9 +28,12 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /*
  * Treasure Hunt Receiver.
@@ -81,9 +84,10 @@ public class MapsActivity extends MapActivity {
 	// Screen buttons.
     private Button tools;
     private Button refresh;
+    private Button clue;
     
     // Screen Text Boxes for messages, clues, name, account balance.
-    private TextView textMessages;
+    //private TextView textMessages;
     private TextView userNameText;
     private TextView balanceText;
     
@@ -107,37 +111,64 @@ public class MapsActivity extends MapActivity {
         myContext = this;
 
 		mapView = (MapView) findViewById(R.id.mapView);
-		//textBox = (TextView) findViewById(R.id.addressBox);
 		
 		server = webAddress2;
 		
-        textMessages = (TextView) findViewById(R.id.clueText);
+        //textMessages = (TextView) findViewById(R.id.clueText);
         userNameText = (TextView) findViewById(R.id.nameText);
         balanceText = (TextView) findViewById(R.id.balanceText);
         setUserAccountInfo();
         
-        tools = (Button) findViewById(R.id.toolsButton);
         refresh = (Button) findViewById(R.id.refreshButton);
-
-        tools.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				purchaseToolsScreen();
-			}
-		});
+        refresh.setOnTouchListener(new OnTouchListener() {
+        	public boolean onTouch(View v, MotionEvent event) {
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                //mSoundManager.playSound(1);
+        			refresh.setBackgroundResource(R.drawable.wooden_frame2_pressed);
+        		}
+        		else if (event.getAction() == MotionEvent.ACTION_UP) {
+        			refresh.setBackgroundResource(R.drawable.wooden_frame2);
+        			//refreshCall();
+        		}
+        		return false;
+         	}
+     	});
         
-        refresh.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				//Toast.makeText(getBaseContext(), "Refresh Call", Toast.LENGTH_LONG).show();
-				refreshCall();
-			}
-		});
+        clue = (Button) findViewById(R.id.clueButton);
+        clue.setOnTouchListener(new OnTouchListener() {
+        	public boolean onTouch(View v, MotionEvent event) {
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                //mSoundManager.playSound(1);
+        			clue.setBackgroundResource(R.drawable.treasure_map_pressed);
+        		}
+        		else if (event.getAction() == MotionEvent.ACTION_UP) {
+        			clue.setBackgroundResource(R.drawable.treasure_map);
+        		}
+        		return false;
+         	}
+     	});
         
-        textMessages = (TextView) findViewById(R.id.clueText);
-        textMessages.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				textMessages.setVisibility(View.GONE);
-			}
-		});
+        tools = (Button) findViewById(R.id.toolsButton);
+        tools.setOnTouchListener(new OnTouchListener() {
+        	public boolean onTouch(View v, MotionEvent event) {
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                //mSoundManager.playSound(1);
+        			tools.setBackgroundResource(R.drawable.tools_button_pressed);
+        		}
+        		else if (event.getAction() == MotionEvent.ACTION_UP) {
+        			tools.setBackgroundResource(R.drawable.tools_button);
+        			purchaseToolsScreen();
+        		}
+        		return false;
+         	}
+     	});
+        
+        //textMessages = (TextView) findViewById(R.id.clueText);
+        //textMessages.setOnClickListener(new View.OnClickListener() {
+			//public void onClick(View view) {
+				//textMessages.setVisibility(View.GONE);
+			//}
+		//});
 		
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -156,7 +187,7 @@ public class MapsActivity extends MapActivity {
 		mapController.setZoom(14);
 		
 		setLocationColor(point, HOT);
-		reverseGeoLocation(myLocation);
+		//reverseGeoLocation(myLocation);
 		
 		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
         
@@ -306,7 +337,7 @@ public class MapsActivity extends MapActivity {
      */
     private void setUserAccountInfo() {
     	userNameText.setText(name);
-    	balanceText.setText("Balance: " + balance + " pts");
+    	balanceText.setText(balance + " pts");
     }
     
     /*
@@ -316,8 +347,8 @@ public class MapsActivity extends MapActivity {
 		switch (activity) {
 		case GETCLUE:
 			//Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
-			textMessages.setVisibility(View.VISIBLE);
-			textMessages.setText("Testing");
+			//textMessages.setVisibility(View.VISIBLE);
+			//textMessages.setText("Testing");
 			break;
 		}
 	}

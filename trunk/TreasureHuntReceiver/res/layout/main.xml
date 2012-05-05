@@ -1,70 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="#FFFFFF"
     android:orientation="vertical" >
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="20dp" >
-
-        <TextView
-            android:id="@+id/nameText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.53"
-            android:textSize="15dp" />
-
-        <TextView
-            android:id="@+id/balanceText"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right"
-            android:textSize="15dp" />
-    </LinearLayout>
 
     <com.google.android.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="fill_parent"
-        android:layout_height="321dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true"
         android:apiKey="0TfvsAqP3tJMEuZuVjuUtCc84uARu7YKpflgbwA"
         android:clickable="true"
         android:state_enabled="true" />
 
     <TextView
+        android:id="@+id/nameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/spacingLeft"
+        android:layout_below="@+id/spacingLeft"
+        android:layout_toRightOf="@+id/skull"
+        android:text="@string/name"
+        android:textColor="#000000"
+        android:textSize="23dp"
+        android:textStyle="bold" />
+
+    <TextView
         android:id="@+id/clueText"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:textColor="#FFFFFF"
+        android:layout_above="@+id/textBox"
+        android:layout_alignParentLeft="true"
+        android:text="@string/clue"
+        android:textColor="#000000"
         android:textSize="20dip"
         android:visibility="gone" />
 
-    <LinearLayout
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="156dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginBottom="46dp"
+        android:layout_toLeftOf="@+id/spacingLeft"
+        android:background="@drawable/wooden_frame2"
+        android:paddingLeft="5dip"
+        android:text="@string/check"
+        android:textColor="#FFFFFF"
+        android:textSize="20dip" />
+
+    <Button
+        android:id="@+id/toolsButton"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/refreshButton"
+        android:layout_toRightOf="@+id/spacingRight"
+        android:background="@drawable/tools_button" />
 
-        <Button
-            android:id="@+id/refreshButton"
-            android:layout_width="156dp"
-            android:layout_height="wrap_content"
-            android:text="@string/getclue"
-            android:background="@drawable/wooden_frame"
-            android:textColor="#FFFFFF"
-            android:textSize="20dip" />
+    <TextView
+        android:id="@+id/spacingMid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/spacing"
+        android:visibility="invisible" />
 
-        <TextView
-            android:id="@+id/textBox"
-            android:layout_width="96dp"
-            android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textColor="#000000"
-            android:textSize="25dip" />
+    <TextView
+        android:id="@+id/spacingLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/spacingMid"
+        android:text="@string/spacing"
+        android:visibility="invisible" />
 
-        <Button
-            android:id="@+id/toolsButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/tools_button" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/spacingRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/spacingMid"
+        android:paddingLeft="25dip"
+        android:text="@string/spacing"
+        android:visibility="invisible" />
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/skull"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/spacingLeft"
+        android:src="@drawable/skull" />
+
+    <ImageView
+        android:id="@+id/chest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/nameText"
+        android:layout_alignTop="@+id/nameText"
+        android:layout_toRightOf="@+id/spacingMid"
+        android:src="@drawable/chest" />
+
+    <TextView
+        android:id="@+id/balanceText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/chest"
+        android:layout_toRightOf="@+id/chest"
+        android:text="@string/balance"
+        android:textColor="#000000"
+        android:textSize="23dp"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/clueButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/toolsButton"
+        android:layout_alignLeft="@+id/toolsButton"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/treasure_map" />
+
+</RelativeLayout>

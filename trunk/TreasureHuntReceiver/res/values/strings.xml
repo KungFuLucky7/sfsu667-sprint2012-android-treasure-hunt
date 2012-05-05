@@ -7,4 +7,9 @@
     <string name="map">Map</string>
     <string name="price">Price</string>
     <string name="buy">Buy</string>
+    <string name="name">Name</string>
+    <string name="clue">Clue</string>
+    <string name="balance">Balance</string>
+    <string name="check">Check\nHere</string>
+    <string name="spacing">Spacing</string>
 </resources>
