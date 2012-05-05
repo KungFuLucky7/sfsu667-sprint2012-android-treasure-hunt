@@ -1,12 +1,6 @@
 package sfsu.treasurehunt;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,10 +18,6 @@ import com.google.android.maps.OverlayItem;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
@@ -38,11 +28,9 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /*
  * Treasure Hunt Receiver.
@@ -105,8 +93,9 @@ public class MapsActivity extends MapActivity {
     
     // Network passing variables.
     public static String passData;
-    private String webAddress = "http://thecity.sfsu.edu:9226/";
-	private String localHost = "http://10.0.2.2:9226/";
+    private String webAddress = "http://thecity.sfsu.edu:9226";
+    private String webAddress2 = "http://thecity.sfsu.edu:9255";
+	private String localHost = "http://10.0.2.2:9226";
 	private String server;
     private int activity;
     private static final int GETCLUE = 1;
@@ -120,7 +109,8 @@ public class MapsActivity extends MapActivity {
 		mapView = (MapView) findViewById(R.id.mapView);
 		//textBox = (TextView) findViewById(R.id.addressBox);
 		
-		server = webAddress;
+		server = webAddress2;
+		
         textMessages = (TextView) findViewById(R.id.clueText);
         userNameText = (TextView) findViewById(R.id.nameText);
         balanceText = (TextView) findViewById(R.id.balanceText);
@@ -131,7 +121,7 @@ public class MapsActivity extends MapActivity {
 
         tools.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				purchaseTools();
+				purchaseToolsScreen();
 			}
 		});
         
@@ -238,7 +228,8 @@ public class MapsActivity extends MapActivity {
 	}
     
     /*
-	 * Utilize MyMarkerLayer for map overlays.
+	 * Utilize MyMarkerLayer for map overlays. Changes the icon of the current location
+	 * along with it's message based on the conditions: HOT/WARMER/WARM/COLD
 	 */
     private void setLocationColor(GeoPoint point, int condition) {
 		mapOverlays = mapView.getOverlays();
@@ -292,17 +283,27 @@ public class MapsActivity extends MapActivity {
 		public void onProviderDisabled(String s) {}
 		public void onProviderEnabled(String s) {}
 	};
-    
-    public void purchaseTools() {
+	
+	/*
+	 * Switches to the Tools activity.
+	 */
+    public void purchaseToolsScreen() {
         Intent intent = new Intent(this, Tools.class);
         startActivityForResult(intent, 0);
     }
     
+    /*
+     * Requests server to check location or get clue if starting the game for the
+     * first time.
+     */
     private void refreshCall() {
     	activity = GETCLUE;
 		new NetworkCall().execute();
     }
     
+    /*
+     * Refreshes the text for User name and the user's account balance.
+     */
     private void setUserAccountInfo() {
     	userNameText.setText(name);
     	balanceText.setText("Balance: " + balance + " pts");
@@ -320,9 +321,11 @@ public class MapsActivity extends MapActivity {
 			break;
 		}
 	}
-    
-    public class NetworkCall extends AsyncTask<String, Void, String> {
 
+	/*
+	 * Makes a network request to the server.
+	 */
+    public class NetworkCall extends AsyncTask<String, Void, String> {
         private final ProgressDialog dialog = new ProgressDialog(
                 MapsActivity.this);
 
@@ -335,7 +338,8 @@ public class MapsActivity extends MapActivity {
         @Override
         protected String doInBackground(String... sendingInfo) {
 
-            String URL = "http://thecity.sfsu.edu:9255";
+            //String URL = "http://thecity.sfsu.edu:9255";
+        	String URL = server;
 
             /*
              * JSON for sending to server String stringToJson =

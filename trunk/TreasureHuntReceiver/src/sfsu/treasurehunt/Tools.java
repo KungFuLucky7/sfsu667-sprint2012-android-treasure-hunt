@@ -11,14 +11,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.TextView;
-import android.widget.Toast;
 
+/*
+ * Tools menu. A list of tools you can purchase is shown on the screen.  When user selects
+ * a tool on a particular line, a tool information image pops up with a "buy" button.  User
+ * can tap on anywhere on the image to make it and the "buy" button disappear or hit the
+ * button to purchase the item.  Addition actions may occur depending on the tool purchased
+ * before sending the request to the server. 
+ */
 public class Tools extends Activity {
-
 	private Button returnToMap;
 	private Button buy;
 	private ListView listView1;
@@ -45,6 +48,7 @@ public class Tools extends Activity {
 
 		buy = (Button) findViewById(R.id.buyButton);
 
+		// Add tools to the tools list.
 		toolListData.add(new ToolList(R.drawable.laugh, "Taunt", 10));
 		toolListData.add(new ToolList(R.drawable.monkey, "Dizzy Monkey", 100));
 		toolListData.add(new ToolList(R.drawable.smoke, "Smoke Screen", 500));
@@ -64,6 +68,7 @@ public class Tools extends Activity {
 
 		listView1.setAdapter(adapter);
 
+		// Handles the different tool help screens.
 		listView1.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
@@ -99,11 +104,11 @@ public class Tools extends Activity {
 					}
 				});
 
-				purchaseItem = position;
+				purchaseItem = position; // Global variable set for what tool is selected.
 				buy.setVisibility(View.VISIBLE);
 				buy.setOnClickListener(new View.OnClickListener() {
 					public void onClick(View v) {
-						makePurchase(purchaseItem);
+						confirmToolPurchase();
 					}
 				});
 				// Toast.makeText(getApplicationContext(), toolListData.get(position-1).title, Toast.LENGTH_LONG).show();
@@ -119,28 +124,31 @@ public class Tools extends Activity {
 		});
 	}
 
-	public void makePurchase(int purchaseItem) {
+	/*
+	 * Confirm box for each individual tool to ensure user wishes to purchase tool.
+	 */
+	public void confirmToolPurchase() {
 		switch (purchaseItem) {
 		case Taunt:
-			callPurchaseBox("Taunt");
+			callConfirmBox("Taunt");
 			break;
 		case Monkey:
-			callPurchaseBox("Monkey");
+			callConfirmBox("Monkey");
 			break;
 		case SmokeScreen:
-			callPurchaseBox("SmokeScreen");
+			callConfirmBox("SmokeScreen");
 			break;
 		case ClearSky:
-			callPurchaseBox("ClearSky");
+			callConfirmBox("ClearSky");
 			break;
 		case Compass:
-			callPurchaseBox("Compass");
+			callConfirmBox("Compass");
 			break;
 		case Stealer:
-			callPurchaseBox("Stealer");
+			callConfirmBox("Stealer");
 			break;
 		case Lockout:
-			callPurchaseBox("Lockout");
+			callConfirmBox("Lockout");
 			break;
 		}
 
@@ -148,7 +156,10 @@ public class Tools extends Activity {
 		buy.setVisibility(View.GONE);
 	}
 
-	public void callPurchaseBox(String item) {
+	/*
+	 * Alert box pops up asking the user to confirm or cancel the purchase.
+	 */
+	public void callConfirmBox(String item) {
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
 
 		// set title
@@ -163,6 +174,7 @@ public class Tools extends Activity {
 							public void onClick(DialogInterface dialog, int id) {
 								// if this button is clicked, close current activity
 								// AlertBoxActivity.this.finish();
+								makeToolPurchase();
 								dialog.cancel();
 							}
 						})
@@ -180,5 +192,35 @@ public class Tools extends Activity {
 
 		// show it
 		alertDialog.show();
+	}
+	
+	/*
+	 * After the user has confirmed to purchase a particular tool, this method handles
+	 * all actions related to executing that request. 
+	 */
+	private void makeToolPurchase() {
+		switch (purchaseItem) {
+		case Taunt:
+			// Actions for purchasing Taunt.
+			break;
+		case Monkey:
+			// Actions for purchasing Monkey.
+			break;
+		case SmokeScreen:
+			// Actions for purchasing SmokeScreen.
+			break;
+		case ClearSky:
+			// Actions for purchasing ClearSky.
+			break;
+		case Compass:
+			// Actions for purchasing Compass.
+			break;
+		case Stealer:
+			// Actions for purchasing Stealer.
+			break;
+		case Lockout:
+			// Actions for purchasing Lockout.
+			break;
+		}
 	}
 }
