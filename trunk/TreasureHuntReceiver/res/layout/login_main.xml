@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/intro"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/title" />
+
+    <Button
+        android:id="@+id/actionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/wooden_frame"
+        android:paddingLeft="10dip"
+        android:text="@string/getClue"
+        android:textColor="#FFFFFF"
+        android:textSize="30dip" />
+
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="18dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/settings" />
+
+    <ImageView
+        android:id="@+id/parchmentImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/parchment"
+        android:visibility="invisible" />
+
+    <EditText
+        android:id="@+id/userNameBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/passwordBox"
+        android:layout_alignTop="@+id/parchmentImage"
+        android:layout_marginTop="25dp"
+        android:ems="10"
+        android:hint="@string/userName"
+        android:singleLine="true"
+        android:visibility="invisible" />
+
+    <EditText
+        android:id="@+id/passwordBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/userNameBox"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:singleLine="true"
+        android:visibility="invisible" >
+    </EditText>
+
+    <Button
+        android:id="@+id/cancelButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/settingsButton"
+        android:background="@drawable/wooden_frame"
+        android:paddingLeft="10dip"
+        android:text="@string/cancel"
+        android:textColor="#FFFFFF"
+        android:textSize="30dip"
+        android:visibility="invisible" />
+
+</RelativeLayout>
