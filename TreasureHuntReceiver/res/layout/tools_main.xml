@@ -8,24 +8,41 @@
     <ListView
         android:id="@+id/list"
         android:layout_width="fill_parent"
-        android:layout_height="440dp"
-        android:layout_above="@+id/purchaseButton" />
-
-    <Button
-        android:id="@+id/purchaseButton"
-        android:layout_width="156dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:text="@string/purchase" />
+        android:layout_height="440dp" />
 
     <Button
         android:id="@+id/mapButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/purchaseButton"
-        android:text="@string/map" />
+        android:layout_toLeftOf="@+id/chest"
+        android:background="@drawable/map"
+        android:text="@string/map"
+        android:textColor="#000000"
+        android:textSize="20dip"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/balanceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="5dip"
+        android:paddingRight="10dip"
+        android:text="$1234"
+        android:textColor="#000000"
+        android:textSize="25dip"
+        android:textStyle="bold" />
+
+    <ImageView
+        android:id="@+id/chest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/balanceText"
+        android:paddingLeft="115dip"
+        android:src="@drawable/chest" />
 
     <ImageView
         android:id="@+id/monkeyHelpScreen"
@@ -40,51 +57,51 @@
         android:layout_height="491dp"
         android:src="@drawable/info_taunt"
         android:visibility="gone" />
-    
-     <ImageView
+
+    <ImageView
         android:id="@+id/smokescreenHelpScreen"
         android:layout_width="wrap_content"
         android:layout_height="491dp"
         android:src="@drawable/info_smokescreen"
         android:visibility="gone" />
-     
-     <ImageView
+
+    <ImageView
         android:id="@+id/clearskyHelpScreen"
         android:layout_width="wrap_content"
         android:layout_height="491dp"
         android:src="@drawable/info_clearsky"
         android:visibility="gone" />
-     
-     <ImageView
+
+    <ImageView
         android:id="@+id/compassHelpScreen"
         android:layout_width="wrap_content"
         android:layout_height="491dp"
         android:src="@drawable/info_compass"
         android:visibility="gone" />
-     
-     <ImageView
+
+    <ImageView
         android:id="@+id/stealerHelpScreen"
         android:layout_width="wrap_content"
         android:layout_height="491dp"
         android:src="@drawable/info_stealer"
         android:visibility="gone" />
-     
-      <ImageView
+
+    <ImageView
         android:id="@+id/lockoutHelpScreen"
         android:layout_width="wrap_content"
         android:layout_height="491dp"
         android:src="@drawable/info_lockout"
         android:visibility="gone" />
 
-      <Button
-          android:id="@+id/buyButton"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_alignParentRight="true"
-          android:layout_alignParentTop="true"
-          android:layout_marginRight="54dp"
-          android:layout_marginTop="52dp"
-          android:text="@string/buy"
-          android:visibility="gone" />
+    <Button
+        android:id="@+id/buyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="54dp"
+        android:layout_marginTop="52dp"
+        android:text="@string/buy"
+        android:visibility="gone" />
 
 </RelativeLayout>

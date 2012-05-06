@@ -18,6 +18,7 @@ import com.google.android.maps.OverlayItem;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Criteria;
@@ -33,7 +34,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /*
  * Treasure Hunt Receiver.
@@ -58,6 +58,9 @@ import android.widget.Toast;
  */
 
 public class MapsActivity extends MapActivity {
+	// Preferences file
+	public static final String PREFS_NAME = "MyPrefsFile";
+	
 	// For Google maps.
 	private LocationManager myLocationManager;
 	private Location myLocation;
@@ -76,6 +79,9 @@ public class MapsActivity extends MapActivity {
 	private static final int WARM = 1;
 	private static final int WARMER = 2;
 	private static final int HOT = 3;
+	
+	//For testing.
+	private int currentColor;
 
     // For receiving and handling new geolocation.
     private static final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 1; // Meters
@@ -92,7 +98,7 @@ public class MapsActivity extends MapActivity {
     private TextView balanceText;
     
     // User Account Info.
-    private String name = "Dennis";
+    private String userName = "Dennis";
     private int balance = 100;
     
     // Network passing variables.
@@ -106,6 +112,10 @@ public class MapsActivity extends MapActivity {
 	// Network result status codes.
 	private static final int GETCLUE = 1;
 	
+	// Activities
+	private static final int LOGIN_SCREEN = 0;
+	private static final int TOOLS_SCREEN = 1;
+	
 	// Screen access variables.
 	private boolean clueOn;
 	
@@ -115,10 +125,10 @@ public class MapsActivity extends MapActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         myContext = this;
+        
+        server = webAddress2;
 
 		mapView = (MapView) findViewById(R.id.mapView);
-		
-		server = webAddress2;
 		
         userNameText = (TextView) findViewById(R.id.nameText);
         balanceText = (TextView) findViewById(R.id.balanceText);
@@ -141,7 +151,7 @@ public class MapsActivity extends MapActivity {
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
         			refresh.setBackgroundResource(R.drawable.wooden_frame2);
-        			//refreshCall();
+        			refreshCall();
         		}
         		return false;
          	}
@@ -177,7 +187,7 @@ public class MapsActivity extends MapActivity {
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
         			tools.setBackgroundResource(R.drawable.tools_button);
-        			purchaseToolsScreen();
+        			goToPurchaseToolsScreen();
         		}
         		return false;
          	}
@@ -199,11 +209,13 @@ public class MapsActivity extends MapActivity {
 		mapController.animateTo(point);
 		mapController.setZoom(14);
 		
-		setLocationColor(point, HOT);
+		setLocationColor(point, COLD);
+		currentColor = HOT;
 		//reverseGeoLocation(myLocation);
 		
 		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
         
+		goToLoginScreen();
         //mapView.invalidate();
     }
     
@@ -277,6 +289,7 @@ public class MapsActivity extends MapActivity {
 	 */
     private void setLocationColor(GeoPoint point, int condition) {
 		mapOverlays = mapView.getOverlays();
+		mapOverlays.clear();
 		Drawable drawable;
 		OverlayItem overlayItem;
 		
@@ -331,9 +344,17 @@ public class MapsActivity extends MapActivity {
 	/*
 	 * Switches to the Tools activity.
 	 */
-    public void purchaseToolsScreen() {
+    public void goToPurchaseToolsScreen() {
         Intent intent = new Intent(this, Tools.class);
-        startActivityForResult(intent, 0);
+        startActivityForResult(intent, TOOLS_SCREEN);
+    }
+    
+    /*
+	 * Switches to the Tools activity.
+	 */
+    public void goToLoginScreen() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, LOGIN_SCREEN);
     }
     
     /*
@@ -341,18 +362,89 @@ public class MapsActivity extends MapActivity {
      * first time.
      */
     private void refreshCall() {
-    	networkActivity = GETCLUE;
-		new NetworkCall().execute();
+    	//networkActivity = GETCLUE;
+		//new NetworkCall().execute();
+    	cycleIcons();
     }
+    
+    /*
+     * FOR TESTING ONLY! Cycles through user icons.
+     */
+    private void cycleIcons() {
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		criteria.setPowerRequirement(Criteria.POWER_LOW);
+		
+    	myLocationOverlay = new MyLocationOverlay(this, mapView);
+        mapView.setBuiltInZoomControls(true);
+ 		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		String locationProvider = myLocationManager.getBestProvider(criteria, true);
+		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
+		
+		GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
+    	
+		mapController = mapView.getController();
+		mapController.animateTo(point);
+		
+		switch(currentColor) {
+		case HOT:
+			setLocationColor(point, COLD);
+			currentColor = COLD;
+			Log.d("Treasure Hunt", "Set to Cold.");
+			break;
+		case WARMER:
+			setLocationColor(point, HOT);
+			currentColor = HOT;
+			Log.d("Treasure Hunt", "Set to Hot.");
+			break;
+		case WARM:
+			setLocationColor(point, WARMER);
+			currentColor = WARMER;
+			Log.d("Treasure Hunt", "Set to Warmer.");
+			break;
+		case COLD:
+			setLocationColor(point, WARM);
+			currentColor = WARM;
+			Log.d("Treasure Hunt", "Set to Warm.");
+			break;
+		}
+    }
+    
+    /*
+	 * Get preferences.
+	 */
+	private void getPreferences() {
+	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	    userName = settings.getString("USERNAME", "NONE");
+	    balance = settings.getInt("BALANCE", 0);
+	    Log.d("Treasure Hunt", "User: " + userName + " signed on.");
+	    Log.d("Treasure Hunt", "Balance: " + balance);
+	}
     
     /*
      * Refreshes the text for User name and the user's account balance.
      */
     private void setUserAccountInfo() {
-    	userNameText.setText(name);
+    	userNameText.setText(userName);
     	balanceText.setText(balance + " pts");
     	textMessages.setText("No Clue!");
     }
+    
+    /*
+     * Handles what happens immediately after returning from another activity that was
+     * called from this one.
+     */
+    @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		switch (requestCode) {
+		case LOGIN_SCREEN:
+			getPreferences();
+			setUserAccountInfo();
+			break;
+		case TOOLS_SCREEN:
+			break;
+		}
+	}
     
     /*
 	 * Processes what happens after returning from a network call.
