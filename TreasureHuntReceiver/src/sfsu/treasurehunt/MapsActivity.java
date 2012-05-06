@@ -210,7 +210,7 @@ public class MapsActivity extends MapActivity {
 		mapController.setZoom(14);
 		
 		setLocationColor(point, COLD);
-		currentColor = HOT;
+		currentColor = COLD;
 		//reverseGeoLocation(myLocation);
 		
 		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
