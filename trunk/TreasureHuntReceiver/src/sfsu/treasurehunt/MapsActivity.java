@@ -87,7 +87,7 @@ public class MapsActivity extends MapActivity {
     private Button clue;
     
     // Screen Text Boxes for messages, clues, name, account balance.
-    //private TextView textMessages;
+    private TextView textMessages;
     private TextView userNameText;
     private TextView balanceText;
     
@@ -101,8 +101,14 @@ public class MapsActivity extends MapActivity {
     private String webAddress2 = "http://thecity.sfsu.edu:9255";
 	private String localHost = "http://10.0.2.2:9226";
 	private String server;
-    private int activity;
-    private static final int GETCLUE = 1;
+	private int networkActivity;
+	
+	// Network result status codes.
+	private static final int GETCLUE = 1;
+	
+	// Screen access variables.
+	private boolean clueOn;
+	
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -114,11 +120,18 @@ public class MapsActivity extends MapActivity {
 		
 		server = webAddress2;
 		
-        //textMessages = (TextView) findViewById(R.id.clueText);
         userNameText = (TextView) findViewById(R.id.nameText);
         balanceText = (TextView) findViewById(R.id.balanceText);
+        textMessages = (TextView) findViewById(R.id.textMessages);
+        textMessages.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				textMessages.setVisibility(View.GONE);
+				clueOn = false;
+			}
+		});
+		
         setUserAccountInfo();
-        
+                
         refresh = (Button) findViewById(R.id.refreshButton);
         refresh.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
@@ -143,6 +156,13 @@ public class MapsActivity extends MapActivity {
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
         			clue.setBackgroundResource(R.drawable.treasure_map);
+        			if (clueOn) {
+        				textMessages.setVisibility(View.GONE);
+        				clueOn = false;
+        			} else {
+        				textMessages.setVisibility(View.VISIBLE);
+        				clueOn = true;
+        			}
         		}
         		return false;
          	}
@@ -163,13 +183,6 @@ public class MapsActivity extends MapActivity {
          	}
      	});
         
-        //textMessages = (TextView) findViewById(R.id.clueText);
-        //textMessages.setOnClickListener(new View.OnClickListener() {
-			//public void onClick(View view) {
-				//textMessages.setVisibility(View.GONE);
-			//}
-		//});
-		
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		criteria.setPowerRequirement(Criteria.POWER_LOW);
@@ -328,7 +341,7 @@ public class MapsActivity extends MapActivity {
      * first time.
      */
     private void refreshCall() {
-    	activity = GETCLUE;
+    	networkActivity = GETCLUE;
 		new NetworkCall().execute();
     }
     
@@ -338,13 +351,14 @@ public class MapsActivity extends MapActivity {
     private void setUserAccountInfo() {
     	userNameText.setText(name);
     	balanceText.setText(balance + " pts");
+    	textMessages.setText("No Clue!");
     }
     
     /*
 	 * Processes what happens after returning from a network call.
 	 */
 	protected void onNetworkResult() {
-		switch (activity) {
+		switch (networkActivity) {
 		case GETCLUE:
 			//Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
 			//textMessages.setVisibility(View.VISIBLE);
