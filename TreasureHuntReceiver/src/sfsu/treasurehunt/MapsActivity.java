@@ -200,7 +200,9 @@ public class MapsActivity extends MapActivity {
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
         mapView.setBuiltInZoomControls(true);
  		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		String locationProvider = myLocationManager.getBestProvider(criteria, true);
+ 		myLocationManager.requestLocationUpdates(
+				LocationManager.NETWORK_PROVIDER, 60000, 10, listener);
+		String locationProvider = LocationManager.NETWORK_PROVIDER;
 		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
 			
 		GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
