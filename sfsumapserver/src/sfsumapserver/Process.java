@@ -67,12 +67,8 @@ public class Process {
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				client.getInputStream()));
 		requestline = in.readLine();
-		while (!(requestline.isEmpty())) {
-			// Debug
-			// System.out.println("requestline : "+requestline);
-			requestline = in.readLine();
-		}
-		requestline = in.readLine();
+		// Debug
+		System.out.println("requestline : " + requestline);
 
 		JsonObject jsonReceived = new JsonParser().parse(requestline)
 				.getAsJsonObject();
@@ -127,17 +123,20 @@ public class Process {
 	}
 
 	public synchronized void processRequest() throws IOException {
+
 		if (option.equalsIgnoreCase("signUp")) {
 			if (!ServerTable.playerInfoContains(playerID)) {
 				loggedPlayer = new PlayerLog(playerID, password, "500");
 				loggedPlayer.add();
 				ServerTable.setPlayerInfo(playerID);
+				ServerTable.getPlayerInfo(playerID).setPlayerPoints(500);
 			} else {
 				playerIDInUse = true;
 			}
 		} else if (option.equalsIgnoreCase("signIn")) {
 			authen = new Authentication(playerID, password);
 			String ID = authen.checkAuth();
+			System.out.println("signIn response: " + ID);
 			if (ID == null || !ServerTable.playerInfoContains(playerID)) {
 				authenticationFailure = true;
 			}
@@ -346,7 +345,7 @@ public class Process {
 			}
 			output += "\"";
 		} else if (option.equalsIgnoreCase("getClue")) {
-			output += ",\"clue\":\"" + clue + "\"";
+			output += "\"clue\":\"" + clue + "\"";
 			output += ",\"distance\":\"" + distance + "\"";
 			output += ",\"goalLocation\":\"" + goalLocation + "\"";
 
@@ -356,7 +355,7 @@ public class Process {
 
 			output += ",\"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (option.equalsIgnoreCase("setTool")) {
-			output += ",\"tool\":\"" + tool + "\"";
+			output += "\"tool\":\"" + tool + "\"";
 			output += ",\"distance\":\"" + distance + "\"";
 			output += ",\"goalLocation\":\"" + goalLocation + "\"";
 
@@ -367,22 +366,14 @@ public class Process {
 			output += ",\"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (getTopThree) {
 
-			output += ",\"TopTeam1\":\"" + topThreeTeams[0] + " "
+			output += "\"TopTeam1\":\"" + topThreeTeams[0] + " "
 					+ topThreeClues[0] + " " + topThreeDistances[0] + "\n\"";
-			output += ",\"TopTeam2\":\"" + topThreeTeams[1] + " "
+			output += "\"TopTeam2\":\"" + topThreeTeams[1] + " "
 					+ topThreeClues[1] + " " + topThreeDistances[1] + "\n\"";
-			output += ",\"TopTeam3\":\"" + topThreeTeams[2] + " "
+			output += "\"TopTeam3\":\"" + topThreeTeams[2] + " "
 					+ topThreeClues[2] + " " + topThreeDistances[2] + "\n\"";
-
-			// output += "1. " + topThreeTeams[0] + " " + topThreeClues[0] + " "
-			// + topThreeDistances[0] + "\n";
-			// output += "2. " + topThreeTeams[1] + " " + topThreeClues[1] + " "
-			// + topThreeDistances[1] + "\n";
-			// output += "3. " + topThreeTeams[2] + " " + topThreeClues[2] + " "
-			// + topThreeDistances[2] + "\n";
 		}
 		output += "}";
-		System.out.println("output" + output);
 		writer.println("Content-Length: " + output.length());
 		System.out.println("Content-Length: " + output.length());
 		writer.println("");
@@ -395,7 +386,9 @@ public class Process {
 
 	public synchronized void writeToLog() throws Exception {
 		try {
+			player = ServerTable.getPlayerInfo(playerID);
 			loggedPlayer = new PlayerLog(playerID);
+			System.out.println("player points: " + player.getPlayerPoints());
 			loggedPlayer.update(String.valueOf(player.getPlayerPoints()));
 			String log = "";
 			for (Map.Entry<String, Integer> entry : topScoreTeams.entrySet()) {

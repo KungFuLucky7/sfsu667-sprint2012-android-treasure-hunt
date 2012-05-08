@@ -30,8 +30,7 @@ import java.util.StringTokenizer;
  */
 public class Authentication {
 
-	private String line, playerID = "", password = "", points = "",
-			IDPassPoints[];
+	private String line, item, playerID = "", password = "", IDPassPoints[];
 
 	public Authentication(String ID, String pw) {
 		playerID = ID;
@@ -73,8 +72,8 @@ public class Authentication {
 				}
 				StringTokenizer stringTokenizer = new StringTokenizer(line);
 				while (stringTokenizer.hasMoreTokens()) {
-					line = stringTokenizer.nextToken();
-					IDPassPoints = line.split(":");
+					item = stringTokenizer.nextToken();
+					IDPassPoints = item.split(":");
 					if (playerID.equals(IDPassPoints[0])) {
 						decoder = new Base64Decoder(IDPassPoints[1]);
 						String tmp = decoder.processString();
@@ -88,6 +87,7 @@ public class Authentication {
 				line = authUserFileReader.readLine();
 			}
 			authUserFileReader.close();
+			return null;
 		} catch (FileNotFoundException e) {
 			System.err.println("Error opening AuthUserFile: " + e);
 			throw new IOException();
@@ -98,6 +98,5 @@ public class Authentication {
 			System.err.println("Incorrectly formatted password string: " + e);
 			throw new IOException();
 		}
-		return null;
 	}
 }

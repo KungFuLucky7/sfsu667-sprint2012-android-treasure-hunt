@@ -11,10 +11,11 @@ import java.util.StringTokenizer;
 public class PlayerLog {
 
 	File file;
-	private String userInfoString, line, playerID = "", IDPassPoints[],
+	private String userInfoString, line, item, playerID = "", IDPassPoints[],
 			fileholder = "";
 
 	public PlayerLog(String ID) {
+		file = new File("htpasswd.log");
 		playerID = ID;
 	}
 
@@ -26,7 +27,6 @@ public class PlayerLog {
 
 	public void add() {
 		try {
-
 			if (!file.exists()) {
 				file.createNewFile();
 			}
@@ -45,27 +45,39 @@ public class PlayerLog {
 	}
 
 	public void update(String ps) throws Exception {
-		BufferedReader reader = new BufferedReader(new FileReader(file));
-		line = reader.readLine();
-		while (line != null) {
-			if (line.length() == 0) {
-				line = reader.readLine();
-				continue;
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
 			}
-			StringTokenizer stringTokenizer = new StringTokenizer(line);
-			while (stringTokenizer.hasMoreTokens()) {
-				line = stringTokenizer.nextToken();
-				IDPassPoints = line.split(":");
-				if (playerID.equals(IDPassPoints[0])) {
-					line = IDPassPoints[0] + IDPassPoints[1] + ps;
-				}
-				fileholder += line + " ";
-			}
+			BufferedReader reader = new BufferedReader(new FileReader(file));
 			line = reader.readLine();
+			while (line != null) {
+				if (line.length() == 0) {
+					fileholder += "\n";
+					line = reader.readLine();
+					continue;
+				}
+				StringTokenizer stringTokenizer = new StringTokenizer(line);
+				while (stringTokenizer.hasMoreTokens()) {
+					item = stringTokenizer.nextToken();
+					IDPassPoints = item.split(":");
+					if (playerID.equals(IDPassPoints[0])) {
+						item = IDPassPoints[0] + ":" + IDPassPoints[1] + ":"
+								+ ps;
+					}
+					fileholder += item + " ";
+				}
+				fileholder += "\n";
+				line = reader.readLine();
+			}
+			if (!fileholder.equals("")) {
+				BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+				bw.write(fileholder);
+				bw.flush();
+				bw.close();
+			}
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
 		}
-		BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-		bw.write(fileholder);
-		bw.flush();
-		bw.close();
 	}
 }
