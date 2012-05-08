@@ -8,15 +8,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import sfsumapserver.Encrypt;
-
 /**
  * 
  * @author acer
  */
-public class Tryput_2 {
+public class Tryput_4 {
 
-	public Tryput_2() {
+	public Tryput_4() {
 	}
 
 	public static void main(String[] args) {
@@ -27,12 +25,10 @@ public class Tryput_2 {
 				Socket server = new Socket("localhost", 9255);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
-				String password = new Encrypt("1234").getPassword();
 				PrintWriter toServer = new PrintWriter(
 						server.getOutputStream(), true);
 
-				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\",\"password\":\""
-						+ password + "\"}";
+				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"37.723413,-122.480602\", \"option\":\"GetClue\"}";
 
 				toServer.println(stringToJson);
 				toServer.println("");

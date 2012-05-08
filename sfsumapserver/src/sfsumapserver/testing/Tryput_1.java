@@ -31,7 +31,7 @@ public class Tryput_1 {
 				PrintWriter toServer = new PrintWriter(
 						server.getOutputStream(), true);
 
-				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\",\"password\":\""
+				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\",\"password\":\""
 						+ password + "\"}";
 
 				toServer.println(stringToJson);
