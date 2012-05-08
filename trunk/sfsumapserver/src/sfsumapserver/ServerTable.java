@@ -110,75 +110,74 @@ public class ServerTable extends Object {
 		try {
 			int index, points, score;
 			long time;
-			String line, ID, IDPassPoints[];
+			String line, item, ID, IDPassPoints[];
 			File file = new File("htpasswd.log");
-			if (file.exists()) {
-				BufferedReader fileReader = new BufferedReader(new FileReader(
-						file));
-				line = fileReader.readLine();
-				while (line != null) {
-					if (line.length() == 0) {
-						line = fileReader.readLine();
-						continue;
-					}
-					StringTokenizer stringTokenizer = new StringTokenizer(line);
-					while (stringTokenizer.hasMoreTokens()) {
-						line = stringTokenizer.nextToken();
-						IDPassPoints = line.split(":");
-						ID = IDPassPoints[0];
-						points = Integer.valueOf(IDPassPoints[2]);
-						ServerTable.setPlayerInfo(ID);
-						ServerTable.getPlayerInfo(ID).setPlayerPoints(points);
-					}
-					line = fileReader.readLine();
-				}
-				fileReader.close();
+			if (!file.exists()) {
+				file.createNewFile();
 			}
+			BufferedReader fileReader = new BufferedReader(new FileReader(file));
+			line = fileReader.readLine();
+			while (line != null) {
+				if (line.length() == 0) {
+					line = fileReader.readLine();
+					continue;
+				}
+				StringTokenizer stringTokenizer = new StringTokenizer(line);
+				while (stringTokenizer.hasMoreTokens()) {
+					item = stringTokenizer.nextToken();
+					IDPassPoints = item.split(":");
+					ID = IDPassPoints[0];
+					points = Integer.valueOf(IDPassPoints[2]);
+					setPlayerInfo(ID);
+					getPlayerInfo(ID).setPlayerPoints(points);
+				}
+				line = fileReader.readLine();
+			}
+			fileReader.close();
 			file = new File("score rankings.log");
-			if (file.exists()) {
-				BufferedReader fileReader = new BufferedReader(new FileReader(
-						file));
-				line = fileReader.readLine();
-				while (line != null) {
-					if (line.length() == 0) {
-						line = fileReader.readLine();
-						continue;
-					}
-					StringTokenizer stringTokenizer = new StringTokenizer(line);
-					while (stringTokenizer.hasMoreTokens()) {
-						line = stringTokenizer.nextToken();
-						index = line.indexOf(":");
-						ID = line.substring(0, index);
-						score = Integer.valueOf(line.substring(index + 1));
-						Process.topScoreTeams.put(ID, score);
-					}
-					line = fileReader.readLine();
-				}
-				fileReader.close();
+			if (!file.exists()) {
+				file.createNewFile();
 			}
+			fileReader = new BufferedReader(new FileReader(file));
+			line = fileReader.readLine();
+			while (line != null) {
+				if (line.length() == 0) {
+					line = fileReader.readLine();
+					continue;
+				}
+				StringTokenizer stringTokenizer = new StringTokenizer(line);
+				while (stringTokenizer.hasMoreTokens()) {
+					item = stringTokenizer.nextToken();
+					index = item.indexOf(":");
+					ID = item.substring(0, index);
+					score = Integer.valueOf(item.substring(index + 1));
+					Process.topScoreTeams.put(ID, score);
+				}
+				line = fileReader.readLine();
+			}
+			fileReader.close();
 			file = new File("time rankings.log");
-			if (file.exists()) {
-				BufferedReader fileReader = new BufferedReader(new FileReader(
-						file));
-				line = fileReader.readLine();
-				while (line != null) {
-					if (line.length() == 0) {
-						line = fileReader.readLine();
-						continue;
-					}
-					StringTokenizer stringTokenizer = new StringTokenizer(line);
-					while (stringTokenizer.hasMoreTokens()) {
-						line = stringTokenizer.nextToken();
-						index = line.indexOf(":");
-						ID = line.substring(0, index);
-						time = Long.valueOf(line.substring(index + 1));
-						Process.topTimeTeams.put(ID, time);
-					}
-					line = fileReader.readLine();
-				}
-				fileReader.close();
+			if (!file.exists()) {
+				file.createNewFile();
 			}
-
+			fileReader = new BufferedReader(new FileReader(file));
+			line = fileReader.readLine();
+			while (line != null) {
+				if (line.length() == 0) {
+					line = fileReader.readLine();
+					continue;
+				}
+				StringTokenizer stringTokenizer = new StringTokenizer(line);
+				while (stringTokenizer.hasMoreTokens()) {
+					item = stringTokenizer.nextToken();
+					index = item.indexOf(":");
+					ID = item.substring(0, index);
+					time = Long.valueOf(item.substring(index + 1));
+					Process.topTimeTeams.put(ID, time);
+				}
+				line = fileReader.readLine();
+			}
+			fileReader.close();
 		} catch (Exception e) {
 			System.err.println("Error opening user file: " + e);
 		}
