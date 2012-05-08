@@ -160,6 +160,7 @@ public class Process {
 			setClue();
 			updateTopThree();
 		} else if (option.equalsIgnoreCase("setTool")) {
+			player = ServerTable.getPlayerInfo(playerID);
 			totalPoints -= ServerTable.getToolPrice(tool);
 			ServerTable.getPlayerInfo(targetPlayer).activateTool(tool);
 			if (tool.equals("steal")) {
@@ -370,6 +371,7 @@ public class Process {
 					+ dateFormat.format(new Date(elapsedTime)) + "\"";
 
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
+			output += ", \"targetPlayer\":\"" + targetPlayer + "\"";
 		} else if (getTopThree) {
 
 			output += "\"TopTeam1\":\"" + topThreeTeams[0] + " "
