@@ -157,8 +157,8 @@ public class Process {
 			computeDistance();
 			computeElapsedTime();
 			player.setDistance(distance);
-			updateTopThree();
 			setClue();
+			updateTopThree();
 		} else if (option.equalsIgnoreCase("setTool")) {
 			totalPoints -= ServerTable.getToolPrice(tool);
 			ServerTable.getPlayerInfo(targetPlayer).activateTool(tool);
@@ -195,22 +195,28 @@ public class Process {
 	}
 
 	private synchronized void updateTopThree() {
-		int i = 2;
 		float ld = distance, tmpd;
 		String lid = playerID, tmpn, lc = clue, tmpc;
-		while (i >= 0) {
-			if (ld < topThreeDistances[i]) {
-				tmpn = topThreeTeams[i];
-				topThreeTeams[i] = lid;
-				lid = tmpn;
-				tmpc = topThreeClues[i];
-				topThreeClues[i] = lc;
-				lc = tmpc;
-				tmpd = topThreeDistances[i];
-				topThreeDistances[i] = ld;
-				ld = tmpd;
+		if (clue.equals("Win")) {
+			for (int i = 0; i < 3; i++) {
+				topThreeTeams[i] = "*****";
+				topThreeClues[i] = "****";
+				topThreeDistances[i] = 1000;
 			}
-			i--;
+		} else {
+			for (int i = 0; i < 3; i++) {
+				if (ld < topThreeDistances[i]) {
+					tmpn = topThreeTeams[i];
+					tmpc = topThreeClues[i];
+					tmpd = topThreeDistances[i];
+					topThreeTeams[i] = lid;
+					topThreeClues[i] = lc;
+					topThreeDistances[i] = ld;
+					lid = tmpn;
+					lc = tmpc;
+					ld = tmpd;
+				}
+			}
 		}
 	}
 
@@ -346,39 +352,39 @@ public class Process {
 			output += "\"";
 		} else if (option.equalsIgnoreCase("getClue")) {
 			output += "\"clue\":\"" + clue + "\"";
-			output += ",\"distance\":\"" + distance + "\"";
-			output += ",\"goalLocation\":\"" + goalLocation + "\"";
+			output += ", \"distance\":\"" + distance + "\"";
+			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 
 			// What is this for
-			output += ",\"elapsedTime\":\""
+			output += ", \"elapsedTime\":\""
 					+ dateFormat.format(new Date(elapsedTime)) + "\"";
 
-			output += ",\"playerPoints\":\"" + player.getPlayerPoints() + "\"";
+			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (option.equalsIgnoreCase("setTool")) {
 			output += "\"tool\":\"" + tool + "\"";
-			output += ",\"distance\":\"" + distance + "\"";
-			output += ",\"goalLocation\":\"" + goalLocation + "\"";
+			output += ", \"distance\":\"" + distance + "\"";
+			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 
 			// What is this for
-			output += ",\"elapsedTime\":\""
+			output += ", \"elapsedTime\":\""
 					+ dateFormat.format(new Date(elapsedTime)) + "\"";
 
-			output += ",\"playerPoints\":\"" + player.getPlayerPoints() + "\"";
+			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (getTopThree) {
 
 			output += "\"TopTeam1\":\"" + topThreeTeams[0] + " "
-					+ topThreeClues[0] + " " + topThreeDistances[0] + "\n\"";
-			output += "\"TopTeam2\":\"" + topThreeTeams[1] + " "
-					+ topThreeClues[1] + " " + topThreeDistances[1] + "\n\"";
-			output += "\"TopTeam3\":\"" + topThreeTeams[2] + " "
-					+ topThreeClues[2] + " " + topThreeDistances[2] + "\n\"";
+					+ topThreeClues[0] + " " + topThreeDistances[0] + "\"";
+			output += ", \"TopTeam2\":\"" + topThreeTeams[1] + " "
+					+ topThreeClues[1] + " " + topThreeDistances[1] + "\"";
+			output += ", \"TopTeam3\":\"" + topThreeTeams[2] + " "
+					+ topThreeClues[2] + " " + topThreeDistances[2] + "\"";
 		}
 		output += "}";
 		writer.println("Content-Length: " + output.length());
 		System.out.println("Content-Length: " + output.length());
 		writer.println("");
 		writer.println(output);
-		System.out.println("\n" + output);
+		System.out.println("\n" + output + "\n");
 		writer.flush();
 		writer.close();
 		out.close();

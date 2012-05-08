@@ -28,7 +28,7 @@ public class Tryput_3 {
 				PrintWriter toServer = new PrintWriter(
 						server.getOutputStream(), true);
 
-				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"37.723413,-122.480602\", \"option\":\"GetClue\"}";
+				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"37.723598,-122.480807\", \"option\":\"GetClue\"}";
 
 				toServer.println(stringToJson);
 				toServer.println("");
