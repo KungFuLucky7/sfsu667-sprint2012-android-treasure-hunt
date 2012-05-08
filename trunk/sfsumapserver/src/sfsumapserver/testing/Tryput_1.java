@@ -8,9 +8,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import sfsumapserver.Encrypt;
 
 /**
