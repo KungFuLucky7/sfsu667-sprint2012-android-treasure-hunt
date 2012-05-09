@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
+ * This class is for processing the request input stream.
  * 
  * @author Terry Wong
  */
@@ -33,8 +34,8 @@ public class Process {
 	private float distance;
 	private long startTime, currentTime, elapsedTime;
 	private PlayerStats player;
-	private boolean playerIDInUse = false, authenticationFailure = false,
-			getTopThree = false;
+	private boolean authenticationFailure = false, getTopThree = false,
+			getTopScores = false, getTopTime = false;
 	private static String[] topThreeTeams = { "*****", "*****", "*****" };
 	private static String[] topThreeClues = { "****", "****", "****" };
 	private static float[] topThreeDistances = { 1000, 1000, 1000 };
@@ -122,23 +123,23 @@ public class Process {
 		}
 	}
 
+	/**
+	 * function to process each specific request
+	 */
 	public synchronized void processRequest() throws IOException {
-
-		if (option.equalsIgnoreCase("signUp")) {
+		if (option.equalsIgnoreCase("signIn")) {
 			if (!ServerTable.playerInfoContains(playerID)) {
 				loggedPlayer = new PlayerLog(playerID, password, "500");
 				loggedPlayer.add();
 				ServerTable.setPlayerInfo(playerID);
 				ServerTable.getPlayerInfo(playerID).setPlayerPoints(500);
 			} else {
-				playerIDInUse = true;
-			}
-		} else if (option.equalsIgnoreCase("signIn")) {
-			authen = new Authentication(playerID, password);
-			String ID = authen.checkAuth();
-			System.out.println("signIn response: " + ID);
-			if (ID == null || !ServerTable.playerInfoContains(playerID)) {
-				authenticationFailure = true;
+				authen = new Authentication(playerID, password);
+				String ID = authen.checkAuth();
+				System.out.println("signIn response: " + ID);
+				if (ID == null || !ServerTable.playerInfoContains(playerID)) {
+					authenticationFailure = true;
+				}
 			}
 		} else if (option.equalsIgnoreCase("getClue")) {
 			player = ServerTable.getPlayerInfo(playerID);
@@ -170,9 +171,17 @@ public class Process {
 					ServerTable.getToolDamage(tool));
 		} else if (option.equalsIgnoreCase("getTopThree")) {
 			getTopThree = true;
+		} else if (option.equalsIgnoreCase("getTopScores")) {
+			getTopScores = true;
+		} else if (option.equalsIgnoreCase("getTopTime")) {
+			getTopTime = true;
 		}
 	}
 
+	/**
+	 * function to computer the distance between player's current position and
+	 * the goal position.
+	 */
 	private void computeDistance() {
 		index = currentLocation.indexOf(",");
 		float longitude1 = Float.valueOf(currentLocation.substring(0, index));
@@ -185,6 +194,9 @@ public class Process {
 		System.out.println("distance: " + distance + " degrees");
 	}
 
+	/**
+	 * function to computer the player's elapsed time.
+	 */
 	private long computeElapsedTime() {
 		currentTime = System.currentTimeMillis();
 		if (player.getStartTime() != 0) {
@@ -195,6 +207,9 @@ public class Process {
 		return elapsedTime;
 	}
 
+	/**
+	 * function to update the top three teams closest to the goal
+	 */
 	private synchronized void updateTopThree() {
 		float ld = distance, tmpd;
 		String lid = playerID, tmpn, lc = clue, tmpc;
@@ -221,6 +236,9 @@ public class Process {
 		}
 	}
 
+	/**
+	 * function to update the top score teams
+	 */
 	private synchronized void updateTopScoreTeams() {
 		if (topScoreTeams.size() <= 5) {
 			topScoreTeams.put(playerID, player.getPlayerPoints());
@@ -240,6 +258,9 @@ public class Process {
 		}
 	}
 
+	/**
+	 * function to update the top time ranked teams
+	 */
 	private synchronized void updateTopTimeTeams() {
 		if (topTimeTeams.size() <= 5) {
 			topTimeTeams.put(playerID, elapsedTime / 1000);
@@ -259,6 +280,9 @@ public class Process {
 		}
 	}
 
+	/**
+	 * function to generate the proper clue
+	 */
 	private synchronized void setClue() {
 		if (player.checkStolenWin()) {
 			clue = "Win";
@@ -324,6 +348,9 @@ public class Process {
 		updateTopScoreTeams();
 	}
 
+	/**
+	 * function to write the proper response
+	 */
 	public void writeResponse() throws IOException {
 		BufferedOutputStream out = new BufferedOutputStream(
 				client.getOutputStream());
@@ -335,15 +362,7 @@ public class Process {
 		writer.println("Content-Type: text/plain");
 		writer.println("Connection: close");
 		String output = "{";
-		if (option.equalsIgnoreCase("signUp")) {
-			output += "\"signUp\":\"";
-			if (!playerIDInUse) {
-				output += "Good";
-			} else {
-				output += "Bad";
-			}
-			output += "\"";
-		} else if (option.equalsIgnoreCase("signIn")) {
+		if (option.equalsIgnoreCase("signIn")) {
 			output += "\"signIn\":\"";
 			if (!authenticationFailure) {
 				output += "Good";
@@ -356,7 +375,7 @@ public class Process {
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 
-			// What is this for
+			// for elapsed time
 			output += ", \"elapsedTime\":\""
 					+ dateFormat.format(new Date(elapsedTime)) + "\"";
 
@@ -366,20 +385,62 @@ public class Process {
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 
-			// What is this for
+			// for elapsed time
 			output += ", \"elapsedTime\":\""
 					+ dateFormat.format(new Date(elapsedTime)) + "\"";
 
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 			output += ", \"targetPlayer\":\"" + targetPlayer + "\"";
 		} else if (getTopThree) {
-
+			// get each top 3 team's clue and distance by using keywords
+			// "TopTeam1",
+			// "TopTeam2", "TopTeam3"
 			output += "\"TopTeam1\":\"" + topThreeTeams[0] + " "
 					+ topThreeClues[0] + " " + topThreeDistances[0] + "\"";
 			output += ", \"TopTeam2\":\"" + topThreeTeams[1] + " "
 					+ topThreeClues[1] + " " + topThreeDistances[1] + "\"";
 			output += ", \"TopTeam3\":\"" + topThreeTeams[2] + " "
 					+ topThreeClues[2] + " " + topThreeDistances[2] + "\"";
+		} else if (getTopScores) {
+			// get each top 5 team's top score by using keywords "TopTeam1",
+			// "TopTeam2", "TopTeam3", etc.
+			HashMap<String, Integer> tmp = new HashMap<String, Integer>();
+			tmp.putAll(topScoreTeams);
+			String key = "";
+			Integer max = Integer.valueOf(Integer.MIN_VALUE);
+			for (int i = 0; i < 5; i++) {
+				for (Map.Entry<String, Integer> entry : tmp.entrySet()) {
+					if (max.compareTo(entry.getValue()) < 0) {
+						key = entry.getKey();
+						max = entry.getValue();
+					}
+				}
+				if (tmp.get(key) != null) {
+					output += "\"TopTeam" + (i + 1) + "\":\"" + key + ": "
+							+ tmp.get(key) + " points\", ";
+					tmp.remove(key);
+				}
+			}
+		} else if (getTopTime) {
+			// get each top 5 team's top time by using keywords "TopTeam1",
+			// "TopTeam2", "TopTeam3", etc.
+			HashMap<String, Long> tmp = new HashMap<String, Long>();
+			tmp.putAll(topTimeTeams);
+			String key = "";
+			Long min = Long.valueOf(Long.MAX_VALUE);
+			for (int i = 0; i < 5; i++) {
+				for (Map.Entry<String, Long> entry : tmp.entrySet()) {
+					if (min.compareTo(entry.getValue()) > 0) {
+						key = entry.getKey();
+						min = entry.getValue();
+					}
+				}
+				if (tmp.get(key) != null) {
+					output += "\"TopTeam" + (i + 1) + "\":\"" + key + ": "
+							+ tmp.get(key) + " seconds\", ";
+					tmp.remove(key);
+				}
+			}
 		}
 		output += "}";
 		writer.println("Content-Length: " + output.length());
@@ -392,6 +453,9 @@ public class Process {
 		out.close();
 	}
 
+	/**
+	 * function to record all the stats to log files
+	 */
 	public synchronized void writeToLog() throws Exception {
 		try {
 			player = ServerTable.getPlayerInfo(playerID);
