@@ -9,19 +9,10 @@ import java.util.StringTokenizer;
  * </p>
  * 
  * <p>
- * Description: Used when authentication of the user is needed before access is
- * given to certain files. This class will take the information submitted by the
- * user and check the .htaccess file to see if that user has access to the file
- * he/she is trying to view. Two main functions exist in this class. One
- * function to check if authentication is needed, and another to decode and
- * validate the authentication data once it has been received by the server.
+ * Description: Used when authentication of the player is needed before access
+ * is given to certain files.
  * </p>
  * 
- * <p>
- * Copyright: Copyright (c) 2005
- * </p>
- * 
- * This is an enhanced version.
  * <p>
  * Copyright: Copyright (c) 2012
  * </p>

@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.StringTokenizer;
 
 /**
- * Add new username/password pair to the user.txt file.
+ * A class for logging of a player's stats.
  * 
  * @author Terry Wong
  */
