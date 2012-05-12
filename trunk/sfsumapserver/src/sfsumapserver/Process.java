@@ -239,15 +239,17 @@ public class Process {
 		} else {
 			for (int i = 0; i < 3; i++) {
 				if (ld < topThreeDistances[i]) {
-					tmpn = topThreeTeams[i];
 					tmpc = topThreeClues[i];
 					tmpd = topThreeDistances[i];
-					topThreeTeams[i] = lid;
 					topThreeClues[i] = lc;
 					topThreeDistances[i] = ld;
-					lid = tmpn;
+					if (lid.equals(topThreeTeams[i]))
+						break;
+					tmpn = topThreeTeams[i];
+					topThreeTeams[i] = lid;
 					lc = tmpc;
 					ld = tmpd;
+					lid = tmpn;
 				}
 			}
 		}
