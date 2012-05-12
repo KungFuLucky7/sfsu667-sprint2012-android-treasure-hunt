@@ -60,6 +60,11 @@ public class SFSUMapServer {
 	}
 
 	public static void main(String[] args) {
+		if (args.length == 0) {
+			System.out.println("Incorrect usage: "
+					+ "need one argument for a port number");
+			System.exit(1);
+		}
 		new SFSUMapServer(Integer.valueOf(args[0])).runServer();
 	}
 }

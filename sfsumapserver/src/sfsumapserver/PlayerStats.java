@@ -27,6 +27,10 @@ public class PlayerStats {
 		currentLocation = location;
 	}
 
+	public String getCurrentLocation() {
+		return currentLocation;
+	}
+
 	public void setGoal(String goal) {
 		playerGoal = goal;
 	}
