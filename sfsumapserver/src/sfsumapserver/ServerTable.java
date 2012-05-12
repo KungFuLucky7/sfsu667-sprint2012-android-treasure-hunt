@@ -52,10 +52,10 @@ public class ServerTable extends Object {
 	private static String goal = "";
 
 	public static String setNewGoal() {
-		//int randomIndex = (int) (Math.random() * buildingName.length);
-		//goal = buildingName[randomIndex];
+		int randomIndex = (int) (Math.random() * buildingName.length);
+		goal = buildingName[randomIndex];
 		// Debug
-		 goal = "Student Services Building";
+		// goal = "Student Services Building";
 		return goal;
 	}
 
