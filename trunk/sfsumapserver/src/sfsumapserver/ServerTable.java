@@ -54,6 +54,8 @@ public class ServerTable extends Object {
 	public static String setNewGoal() {
 		int randomIndex = (int) (Math.random() * buildingName.length);
 		goal = buildingName[randomIndex];
+		// Debug
+		// goal = "Student Services Building";
 		return goal;
 	}
 
