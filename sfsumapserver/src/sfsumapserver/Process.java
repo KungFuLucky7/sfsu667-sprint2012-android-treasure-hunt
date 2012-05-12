@@ -162,6 +162,17 @@ public class Process {
 			updateTopThree();
 		} else if (option.equalsIgnoreCase("setTool")) {
 			player = ServerTable.getPlayerInfo(playerID);
+			goal = ServerTable.getGoal();
+			if (goal.equals("")) {
+				goal = ServerTable.setNewGoal();
+			}
+			System.out.println("goal: " + goal);
+			if (player.getGoal().equals("")) {
+				player.setGoal(goal);
+				startTime = System.currentTimeMillis();
+				System.out.println("player startTime: " + startTime);
+				player.setStartTime(startTime);
+			}
 			totalPoints -= ServerTable.getToolPrice(tool);
 			ServerTable.getPlayerInfo(targetPlayer).activateTool(tool);
 			if (tool.equals("steal")) {
@@ -169,6 +180,12 @@ public class Process {
 			}
 			ServerTable.getPlayerInfo(targetPlayer).setPlayerPoints(
 					ServerTable.getToolDamage(tool));
+			goalLocation = ServerTable.getGoalLocation();
+			computeDistance();
+			computeElapsedTime();
+			player.setDistance(distance);
+			setClue();
+			updateTopThree();
 		} else if (option.equalsIgnoreCase("getTopThree")) {
 			getTopThree = true;
 		} else if (option.equalsIgnoreCase("getTopScores")) {
