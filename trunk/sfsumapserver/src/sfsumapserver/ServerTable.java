@@ -38,12 +38,12 @@ public class ServerTable extends Object {
 			"37.722356,-122.480953", "37.721391,-122.477954",
 			"37.721198,-122.476739", "37.722083,-122.476737",
 			"37.721889,-122.476074" };
-	private static String toolName[] = { "taunt", "smokeBomb", "drunkMonkey",
+	private static String toolName[] = { "taunt", "drunkMonkey", "smokeBomb",
 			"clearSky", "steal", "lock-out", "compass" };
-	private static String toolWithDuration[] = { "smokeBomb", "drunkMonkey",
-			"lock-out", "steal", "compass" };
-	private static Integer toolPrice[] = { 10, 20, 30, 15, 80, 100, 100 };
-	private static Integer toolDamage[] = { -5, -5, -10, 5, -30, -20, 0 };
+	private static String toolWithDuration[] = { "drunkMonkey", "smokeBomb",
+			"steal", "lock-out", "compass" };
+	private static Integer toolPrice[] = { 10, 100, 500, 700, 900, 950, 700 };
+	private static Integer toolDamage[] = { -5, -20, -50, 200, -300, -200, 0 };
 	private static HashMap<String, String> buildingInfo = new HashMap<String, String>();
 	private static HashMap<String, Integer> toolsCosts = new HashMap<String, Integer>();
 	private static HashMap<String, Integer> toolsEffects = new HashMap<String, Integer>();
@@ -52,11 +52,8 @@ public class ServerTable extends Object {
 	private static String goal = "";
 
 	public static String setNewGoal() {
-		// int randomIndex = (int) (Math.random() * buildingName.length);
-		// System.out.println("Random Des: " + randomIndex + " " +
-		// buildingName[randomIndex]);
-		// goal = buildingName[randomIndex];
-		goal = "Student Services Building";
+		int randomIndex = (int) (Math.random() * buildingName.length);
+		goal = buildingName[randomIndex];
 		return goal;
 	}
 
