@@ -20,9 +20,10 @@ public class SFSUMapServer {
 	// class variable to keep track of number of threads created
 
 	public static int numThreadsCreated = 0;
-	private static final int portNumber = 9255, maxThreads = 100;
+	private static int portNumber, maxThreads = 100;
 
-	public SFSUMapServer() {
+	public SFSUMapServer(int port) {
+		portNumber = port;
 		ServerTable.init();
 	}
 
@@ -59,7 +60,7 @@ public class SFSUMapServer {
 	}
 
 	public static void main(String[] args) {
-		new SFSUMapServer().runServer();
+		new SFSUMapServer(Integer.valueOf(args[0])).runServer();
 	}
 }
 
