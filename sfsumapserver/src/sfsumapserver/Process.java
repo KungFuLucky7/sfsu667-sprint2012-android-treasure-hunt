@@ -36,9 +36,8 @@ public class Process {
 	private PlayerStats player;
 	private boolean authenticationFailure = false, getTopThree = false,
 			getTopScores = false, getTopTime = false;
-	private static String[] topThreeTeams = { "*****", "*****", "*****" };
-	private static String[] topThreeClues = { "****", "****", "****" };
-	private static float[] topThreeDistances = { 1000, 1000, 1000 };
+	private static HashMap<String, Float> topThreeTeams = new HashMap<String, Float>();
+	private static HashMap<String, String> topThreeClues = new HashMap<String, String>();
 	public static HashMap<String, Integer> topScoreTeams = new HashMap<String, Integer>();
 	public static HashMap<String, Long> topTimeTeams = new HashMap<String, Long>();
 	private PlayerLog loggedPlayer;
@@ -228,29 +227,30 @@ public class Process {
 	 * function to update the top three teams closest to the goal
 	 */
 	private synchronized void updateTopThree() {
-		float ld = distance, tmpd;
-		String lid = playerID, tmpn, lc = clue, tmpc;
 		if (clue.equals("Win")) {
-			for (int i = 0; i < 3; i++) {
-				topThreeTeams[i] = "*****";
-				topThreeClues[i] = "****";
-				topThreeDistances[i] = 1000;
+			for (Map.Entry<String, Float> entry : topThreeTeams.entrySet()) {
+				topThreeTeams.remove(entry.getKey());
+				topThreeClues.remove(entry.getKey());
 			}
+		} else if (topThreeTeams.size() <= 3) {
+			topThreeTeams.put(playerID, distance);
+			topThreeClues.put(playerID, clue);
 		} else {
-			for (int i = 0; i < 3; i++) {
-				if (ld < topThreeDistances[i]) {
-					tmpc = topThreeClues[i];
-					tmpd = topThreeDistances[i];
-					topThreeClues[i] = lc;
-					topThreeDistances[i] = ld;
-					if (lid.equals(topThreeTeams[i]))
-						break;
-					tmpn = topThreeTeams[i];
-					topThreeTeams[i] = lid;
-					lc = tmpc;
-					ld = tmpd;
-					lid = tmpn;
+			String key = "";
+			Float max = Float.valueOf(Float.MIN_VALUE);
+			for (Map.Entry<String, Float> entry : topThreeTeams.entrySet()) {
+				if (max.compareTo(entry.getValue()) < 0) {
+					key = entry.getKey();
+					max = entry.getValue();
 				}
+			}
+			if (distance < max && !topThreeTeams.containsKey(playerID)) {
+				topThreeTeams.put(playerID, distance);
+				topThreeClues.put(playerID, clue);
+				topThreeTeams.remove(key);
+			} else if (distance < max && topThreeTeams.containsKey(playerID)) {
+				topThreeTeams.put(playerID, distance);
+				topThreeClues.put(playerID, clue);
 			}
 		}
 	}
@@ -414,12 +414,24 @@ public class Process {
 			// get each top 3 team's clue and distance by using keywords
 			// "TopTeam1",
 			// "TopTeam2", "TopTeam3"
-			output += "\"TopTeam1\":\"" + topThreeTeams[0] + " "
-					+ topThreeClues[0] + " " + topThreeDistances[0] + "\"";
-			output += ", \"TopTeam2\":\"" + topThreeTeams[1] + " "
-					+ topThreeClues[1] + " " + topThreeDistances[1] + "\"";
-			output += ", \"TopTeam3\":\"" + topThreeTeams[2] + " "
-					+ topThreeClues[2] + " " + topThreeDistances[2] + "\"";
+			HashMap<String, Float> tmp = new HashMap<String, Float>();
+			tmp.putAll(topThreeTeams);
+			String key = "";
+			Float min = Float.valueOf(Integer.MAX_VALUE);
+			for (int i = 0; i < 3; i++) {
+				for (Map.Entry<String, Float> entry : tmp.entrySet()) {
+					if (min.compareTo(entry.getValue()) > 0) {
+						key = entry.getKey();
+						min = entry.getValue();
+					}
+				}
+				if (tmp.get(key) != null) {
+					output += "\"TopTeam" + (i + 1) + "\":\"" + key + " "
+							+ topThreeClues.get(key) + " " + tmp.get(key)
+							+ "\",";
+					tmp.remove(key);
+				}
+			}
 		} else if (getTopScores) {
 			// get each top 5 team's top score by using keywords "TopTeam1",
 			// "TopTeam2", "TopTeam3", etc.
