@@ -286,9 +286,9 @@ public class Process {
 	private synchronized void setClue() {
 		if (player.checkStolenWin()) {
 			clue = "Win";
-			totalPoints += 50;
+			totalPoints += 500;
 			if (elapsedTime <= 60000) {
-				totalPoints += 50;
+				totalPoints += 500;
 			}
 			player.resetStolenWin();
 			updateTopTimeTeams();
@@ -310,9 +310,9 @@ public class Process {
 					clue = "lock-out";
 				} else {
 					clue = "Win";
-					totalPoints += 50;
+					totalPoints += 500;
 					if (elapsedTime <= 60000) {
-						totalPoints += 50;
+						totalPoints += 500;
 					}
 					updateTopTimeTeams();
 					ServerTable.removeGoal();
@@ -321,13 +321,13 @@ public class Process {
 			} else if (distance <= 0.00050) {
 				clue = "Hot";
 				if (currentEffect.equals("") && !player.checkHotOnce()) {
-					totalPoints += 20;
+					totalPoints += 200;
 					player.setHotOnce();
 				}
 			} else if (distance <= 0.00100) {
 				clue = "Warm";
 				if (currentEffect.equals("") && !player.checkWarmOnce()) {
-					totalPoints += 20;
+					totalPoints += 100;
 					player.setWarmOnce();
 				}
 			} else {
