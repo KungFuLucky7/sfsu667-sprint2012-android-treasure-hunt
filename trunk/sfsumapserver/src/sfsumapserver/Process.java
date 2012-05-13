@@ -67,8 +67,12 @@ public class Process {
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				client.getInputStream()));
 		requestline = in.readLine();
-		// Debug
-		System.out.println("requestline : " + requestline);
+		while (!(requestline.isEmpty())) {
+			// Debug
+			System.out.println("requestline : " + requestline);		
+			requestline = in.readLine();		
+		}		
+		requestline = in.readLine();
 
 		JsonObject jsonReceived = new JsonParser().parse(requestline)
 				.getAsJsonObject();
