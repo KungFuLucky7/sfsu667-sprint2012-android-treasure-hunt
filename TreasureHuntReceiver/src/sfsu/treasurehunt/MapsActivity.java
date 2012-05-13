@@ -41,24 +41,6 @@ import android.widget.Toast;
 
 /*
  * Treasure Hunt Receiver.
- * Send to server:
- * GET /<USER><CR><LONG>,<LAT><CR><CMD><CR><EXTRA?>
- * 
- * Commands:
- * SIGNUP -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
- * SIGNIN -> <USER><CR><LONG>,<LAT><CR>SIGNUP<CR>password
- * GETCLUE -> <USER><CR><LONG>,<LAT><CR>GETCLUE
- * SETTOOL -> <USER><CR><LONG>,<LAT><CR>SETTOOL<CR>toolname
- * GETTOPTHREE -> <USER><CR><LONG>,<LAT><CR>GETTOPTHREE
- * 
- * Receive:
- * SIGNUP -> GOOD / BAD
- * SIGNIN -> GOOD / BAD
- * GETCLUE -> <CLUE><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
- * SETTOOL -> <TOOL><CR><(float)DISTANCE><CR><(float)GOAL_LONG,(float)GOAL_LAT><CR><ELAPSED_TIME -> HH:MM:SS><CR><PLAYER_POINTS>
- * GETTOPTHREE -> <USER1><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
- *                <USER2><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
- *                <USER3><CR><HOT/WARM/COLD><CR><USER1_DISTANCE>
  */
 
 public class MapsActivity extends MapActivity {
@@ -516,8 +498,8 @@ public class MapsActivity extends MapActivity {
 
             // Debugging Hard-coded JSON
             //String stringToJson = "{\"playerID\":\"testID\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
-            //String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
-        	String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}";
+            //String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\"}";
+        	String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}";
             
             JSONObject jsonToSend;
             try {
