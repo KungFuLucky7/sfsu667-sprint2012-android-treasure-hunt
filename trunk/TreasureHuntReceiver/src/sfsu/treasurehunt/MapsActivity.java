@@ -88,7 +88,8 @@ public class MapsActivity extends MapActivity {
     private TextView balanceText;
     
     // User Account Info.
-    private String userName = "Dennis";
+    private String userName = "test";
+    private String userPassword = "test";
     private int balance = 100;
     
     // Network related variables.
@@ -201,7 +202,7 @@ public class MapsActivity extends MapActivity {
 		mapController.animateTo(point);
 		mapController.setZoom(14);
 		
-		setLocationColor(point, SMOKE);
+		setLocationColor(point, "Smoke");
 		
 		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
         
@@ -230,12 +231,15 @@ public class MapsActivity extends MapActivity {
 	 * Utilize MyMarkerLayer for map overlays. Changes the icon of the current location
 	 * along with it's message based on the conditions: HOT/WARMER/WARM/COLD
 	 */
-    private void setLocationColor(GeoPoint point, int condition) {
+    private void setLocationColor(GeoPoint point, String status) {
 		mapOverlays = mapView.getOverlays();
 		mapOverlays.clear();
 		Drawable drawable;
 		OverlayItem overlayItem;
-		
+
+		// Change string to uppercase and convert to global static variable. "Hot" would become HOT global variable.
+		status = status.toUpperCase();
+		int condition = ((status.contentEquals("HOT"))?HOT:(status.contentEquals("WARMER")?WARMER:(status.contentEquals("WARM")?WARM:(status.contentEquals("COLD")?COLD:SMOKE))));
 		currentColor = condition;
 		
 		switch (condition) {
@@ -321,7 +325,15 @@ public class MapsActivity extends MapActivity {
 		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
 		
     	networkActivity = GETCLUE;
-		new NetworkCall().execute("{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}");
+    	String networkSend = "{";
+    	networkSend += "\"playerID\":\"" + "DF" + "\"";
+    	networkSend += ", \"password\":\"" + "testpass" + "\"";
+    	networkSend += ", \"currentLocation\":\"" + myLocation.getLatitude() + "," + myLocation.getLongitude() + "\"";
+    	networkSend += ", \"option\":\"getClue\""; 
+    	networkSend += "}";
+		//new NetworkCall().execute("{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}");
+    	Log.d("Treasure Hunt", "Getting Clue. (" + myLocation.getLatitude() + "," + myLocation.getLongitude() + ")");
+    	new NetworkCall().execute(networkSend);
     }
     
     /*
@@ -330,6 +342,7 @@ public class MapsActivity extends MapActivity {
 	private void getPreferences() {
 	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 	    userName = settings.getString("USERNAME", "NONE");
+	    userPassword = settings.getString("PASSWORD", "NONE");
 	    balance = settings.getInt("BALANCE", 0);
 	    Log.d("Treasure Hunt", "User: " + userName + " signed on.");
 	    Log.d("Treasure Hunt", "Balance: " + balance);
@@ -392,6 +405,10 @@ public class MapsActivity extends MapActivity {
 		switch (networkActivity) {
 		case GETCLUE:
 			try {
+				GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
+				String status = responseJSON.getString("clue");
+				setLocationColor(point, status);
+				
 				textMessages.setText(responseJSON.getString("clue"));
 				balance = Integer.valueOf(responseJSON.getString("playerPoints"));
 				balanceText.setText(responseJSON.getString("playerPoints"));
@@ -424,17 +441,10 @@ public class MapsActivity extends MapActivity {
 
         @Override
         protected String doInBackground(String... sendingInfo) {
-        	String URL = server;
-
             /*
              * JSON for sending to server String stringToJson = "{\"playerID\":\"" + sendingInfo[0] + "\", \"latitude\":\"" + sendingInfo[2] + "\", \"longitude\":\"" + sendingInfo[3] + "\"}";
              */
 
-            // Debugging Hard-coded JSON
-            //String stringToJson = "{\"playerID\":\"testID\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
-            //String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\"}";
-        	//String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}";
-        	
         	String stringToJson = sendingInfo[0];
             JSONObject jsonToSend;
             try {
@@ -443,6 +453,7 @@ public class MapsActivity extends MapActivity {
                 throw new RuntimeException(e);
             }
 
+        	String URL = server;
             HttpClient httpClient = new HttpClient();
             responseJSON = httpClient.httpPost(URL, jsonToSend);
 

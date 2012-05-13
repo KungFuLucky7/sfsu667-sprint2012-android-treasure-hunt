@@ -22,8 +22,8 @@ public class LoginActivity extends Activity {
 	public static final String PREFS_NAME = "MyPrefsFile";
 	
 	// Main login screen buttons
-    private Button settings;
-    private Button action;
+    private Button settingsButton;
+    private Button actionButton;
     
     // Login screen buttons and images.
     private ImageView parchment;
@@ -62,16 +62,16 @@ public class LoginActivity extends Activity {
          	}
      	});
         
-        action = (Button) findViewById(R.id.actionButton);
-        action.setText("Login");
-        action.setOnTouchListener(new OnTouchListener() {
+        actionButton = (Button) findViewById(R.id.actionButton);
+        actionButton.setText("Login");
+        actionButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 //mSoundManager.playSound(1);
-        			action.setBackgroundResource(R.drawable.wooden_frame_pressed);
+        			actionButton.setBackgroundResource(R.drawable.wooden_frame_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
-        			action.setBackgroundResource(R.drawable.wooden_frame);
+        			actionButton.setBackgroundResource(R.drawable.wooden_frame);
         			if (isUserLoggedIn) {
         				savePreferences();
         				finish();
@@ -87,15 +87,15 @@ public class LoginActivity extends Activity {
          	}
      	});
         
-        settings = (Button) findViewById(R.id.settingsButton);
-        settings.setOnTouchListener(new OnTouchListener() {
+        settingsButton = (Button) findViewById(R.id.settingsButton);
+        settingsButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 //mSoundManager.playSound(1);
-        			settings.setBackgroundResource(R.drawable.settings_pressed);
+        			settingsButton.setBackgroundResource(R.drawable.settings_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
-        			settings.setBackgroundResource(R.drawable.settings);
+        			settingsButton.setBackgroundResource(R.drawable.settings);
         			settingsScreen();
         		}
         		return false;
@@ -152,7 +152,7 @@ public class LoginActivity extends Activity {
 	 */
 	protected void onNetworkResult() {
 		if(isUserLoggedIn) {
-			action.setText("Start");
+			actionButton.setText("Start");
 			Toast.makeText(this, "Log-In Succesful", Toast.LENGTH_SHORT).show();
 			Log.d("Login", "Login to the server.");
 			closeLoginScreen();
@@ -176,6 +176,7 @@ public class LoginActivity extends Activity {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("USERNAME", userName);
+        editor.putString("PASSWORD", password);
         editor.putInt("BALANCE", balance);
         editor.commit();
         Log.d("Login", "Setting USERNAME = " + userName);
@@ -195,16 +196,12 @@ public class LoginActivity extends Activity {
 
         @Override
         protected String doInBackground(String... sendingInfo) {
-
-        	SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        	String URL = settings.getString("SERVER", "Error");
-
-            /*
+          	SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+           	String URL = settings.getString("SERVER", "Error");
+ 
+        	/*
              * JSON for sending to server
-             * 
-             * String stringToJson = "{\"playerID\":\"" + sendingInfo[0] + "\", \"password\":\"" + sendingInfo[1]
-             * 	+ "\", \"currentLocation\":\"0,0\", \"option\":\"signIn\"}";
-             * 
+             * String stringToJson = "{\"playerID\":\"" + sendingInfo[0] + "\", \"password\":\"" + sendingInfo[1] + "\", \"currentLocation\":\"0,0\", \"option\":\"signIn\"}";
              */
 
             // Debugging Hard-coded JSON
@@ -215,13 +212,10 @@ public class LoginActivity extends Activity {
             String signInStatus;
             try {
                 jsonToSend = new JSONObject(stringToJson);
-            
+                HttpClient httpClient = new HttpClient();
 
-            HttpClient httpClient = new HttpClient();
-            responseJSON = httpClient.httpPost(URL, jsonToSend);
-
-            signInStatus = responseJSON.getString("signIn");
-            
+                responseJSON = httpClient.httpPost(URL, jsonToSend);
+                signInStatus = responseJSON.getString("signIn");
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
