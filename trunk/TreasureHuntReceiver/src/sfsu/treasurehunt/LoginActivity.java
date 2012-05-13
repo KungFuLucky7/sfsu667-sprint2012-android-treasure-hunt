@@ -144,6 +144,28 @@ public class LoginActivity extends Activity {
      			runTutorial();
      		}
      	});
+     	
+     // Open Settings Menu
+        settingsButton = (Button) findViewById(R.id.settingsButton);
+        settingsButton.setOnTouchListener(new OnTouchListener() {
+        	public boolean onTouch(View v, MotionEvent event) {
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                //mSoundManager.playSound(1);
+        			settingsButton.setBackgroundResource(R.drawable.settings_pressed);
+        		}
+        		else if (event.getAction() == MotionEvent.ACTION_UP) {
+        			settingsButton.setBackgroundResource(R.drawable.settings);
+        			if (isSettingsScreenOn) {
+        				isSettingsScreenOn = false;
+        				closeSettingsScreen();
+        			} else {
+        				isSettingsScreenOn = true;
+        				openSettingsScreen();
+        			}
+        		}
+        		return false;
+         	}
+     	});
     }
     
     /*

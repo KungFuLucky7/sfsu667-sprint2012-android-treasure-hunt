@@ -276,6 +276,7 @@ public class MapsActivity extends MapActivity {
 		}
 		
 		mapOverlays.add(markerlayer);
+		mapView.invalidate();
     }
 
     /*
@@ -321,7 +322,9 @@ public class MapsActivity extends MapActivity {
     	myLocationOverlay = new MyLocationOverlay(this, mapView);
         mapView.setBuiltInZoomControls(true);
  		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		String locationProvider = myLocationManager.getBestProvider(criteria, true);
+ 		//myLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 10, listener);
+		String locationProvider = LocationManager.NETWORK_PROVIDER;
+		//String locationProvider = myLocationManager.getBestProvider(criteria, true);
 		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
 		
     	networkActivity = GETCLUE;
