@@ -22,13 +22,14 @@ public class LoginActivity extends Activity {
     
     // Login screen buttons and images.
     private ImageView parchment;
+    private ImageView settingsFrame;
     private EditText userNameBox;
     private EditText passwordBox;
     private Button cancel;
     
     private String userName;
     private String password;
-    private int balance = 100;
+    private int balance = 1234;
     private boolean loginState = false;
     private boolean isUserLoggedIn = false;
     
@@ -38,6 +39,7 @@ public class LoginActivity extends Activity {
         setContentView(R.layout.login_main);
         
         parchment = (ImageView) findViewById(R.id.parchmentImage);
+        settingsFrame = (ImageView) findViewById(R.id.settingsFrame);
         userNameBox = (EditText) findViewById(R.id.userNameBox);
         passwordBox = (EditText) findViewById(R.id.passwordBox);
         cancel = (Button) findViewById(R.id.cancelButton);
@@ -45,10 +47,10 @@ public class LoginActivity extends Activity {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 //mSoundManager.playSound(1);
-        			action.setBackgroundResource(R.drawable.wooden_frame_pressed);
+        			cancel.setBackgroundResource(R.drawable.wooden_frame_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
-        			action.setBackgroundResource(R.drawable.wooden_frame);
+        			cancel.setBackgroundResource(R.drawable.wooden_frame);
         				closeLoginScreen();
         		}
         		return false;
@@ -147,7 +149,7 @@ public class LoginActivity extends Activity {
      * Bring up settings screen and associated buttons.
      */
     private void settingsScreen() {
-    	
+    	settingsFrame.setVisibility(View.VISIBLE);
     }
     
 	/*

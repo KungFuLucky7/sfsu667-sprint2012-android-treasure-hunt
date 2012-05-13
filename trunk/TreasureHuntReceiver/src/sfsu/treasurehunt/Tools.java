@@ -6,13 +6,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Toast;
 
 /*
  * Tools menu. A list of tools you can purchase is shown on the screen.  When user selects
@@ -22,12 +28,16 @@ import android.widget.AdapterView.OnItemClickListener;
  * before sending the request to the server. 
  */
 public class Tools extends Activity {
+	// Preferences file
+	public static final String PREFS_NAME = "MyPrefsFile";
+	
+	// Layout objects.
 	private Button returnToMap;
 	private Button buy;
-	private ListView listView1;
+	private Button sendTaunt;
 	private ImageView helpScreen;
-	private ArrayList<ToolList> toolListData = new ArrayList<ToolList>();
-
+	private EditText tauntScreen;
+	
 	// Static tools guide
 	private static final int Taunt = 0;
 	private static final int Monkey = 1;
@@ -37,8 +47,12 @@ public class Tools extends Activity {
 	private static final int Stealer = 5;
 	private static final int Lockout = 6;
 
+    // Tools Activity global variables.
+	private ListView listView1;
+	private ArrayList<ToolList> toolListData = new ArrayList<ToolList>();
 	private int purchaseItem;
 	final Context context = this;
+	private int balance = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,7 +60,9 @@ public class Tools extends Activity {
 		setContentView(R.layout.tools_main);
 		setTitle(R.string.tools);
 
+		getPreferences();
 		buy = (Button) findViewById(R.id.buyButton);
+		tauntScreen = (EditText) findViewById(R.id.tauntText);
 
 		// Add tools to the tools list.
 		toolListData.add(new ToolList(R.drawable.laugh, "Taunt", 10));
@@ -113,17 +129,44 @@ public class Tools extends Activity {
 				});
 				// Toast.makeText(getApplicationContext(), toolListData.get(position-1).title, Toast.LENGTH_LONG).show();
 			}
-
 		});
 
 		returnToMap = (Button) findViewById(R.id.mapButton);
-		returnToMap.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				finish();
-			}
-		});
+		returnToMap.setOnTouchListener(new OnTouchListener() {
+        	public boolean onTouch(View v, MotionEvent event) {
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        			//mSoundManager.playSound(1);
+        			returnToMap.setBackgroundResource(R.drawable.map_pressed);
+        		}
+        		else if (event.getAction() == MotionEvent.ACTION_UP) {
+        			returnToMap.setBackgroundResource(R.drawable.map);
+        			finish();
+        		}
+        		return false;
+         	}
+     	});
+		
+		// Confirms text to be sent to the server for a taunt.
+		sendTaunt = (Button) findViewById(R.id.sendTauntButton);
+		sendTaunt.setOnTouchListener(new OnTouchListener() {
+        	public boolean onTouch(View v, MotionEvent event) {
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        			//mSoundManager.playSound(1);
+        			//returnToMap.setBackgroundResource(R.drawable.map_pressed);
+        		}
+        		else if (event.getAction() == MotionEvent.ACTION_UP) {
+        			//sendTaunt.setBackgroundResource(R.drawable.map);
+        			String tauntText = tauntScreen.getText().toString();
+        			Log.d("Tools", "Sending taunt: " + tauntText);
+        			tauntScreen.setText("");
+        			sendTaunt.setVisibility(View.INVISIBLE);
+        			tauntScreen.setVisibility(View.INVISIBLE);
+        		}
+        		return false;
+         	}
+     	});
 	}
-
+	
 	/*
 	 * Confirm box for each individual tool to ensure user wishes to purchase tool.
 	 */
@@ -201,7 +244,12 @@ public class Tools extends Activity {
 	private void makeToolPurchase() {
 		switch (purchaseItem) {
 		case Taunt:
-			// Actions for purchasing Taunt.
+			/*
+			 *  Make taunt text box and send button visible.  Return to onCreate() where sendTaunt button
+			 *  is listening for user to confirm to send the taunt text to the server.
+			 */
+			tauntScreen.setVisibility(View.VISIBLE);
+			sendTaunt.setVisibility(View.VISIBLE);
 			break;
 		case Monkey:
 			// Actions for purchasing Monkey.
@@ -222,5 +270,13 @@ public class Tools extends Activity {
 			// Actions for purchasing Lockout.
 			break;
 		}
+	}
+	
+    /*
+	 * Get preferences.
+	 */
+	private void getPreferences() {
+	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	    balance = settings.getInt("BALANCE", -1);
 	}
 }

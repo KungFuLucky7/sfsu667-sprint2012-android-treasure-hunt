@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -29,11 +30,14 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /*
  * Treasure Hunt Receiver.
@@ -80,6 +84,10 @@ public class MapsActivity extends MapActivity {
 	private static final int WARMER = 2;
 	private static final int HOT = 3;
 	
+	// Menu Id Numbers.
+	private static final int LOGIN_MENU = Menu.FIRST;
+	private static final int TOOLS_MENU = Menu.FIRST + 1;
+		
 	//For testing.
 	private int currentColor;
 
@@ -126,7 +134,7 @@ public class MapsActivity extends MapActivity {
         setContentView(R.layout.main);
         myContext = this;
         
-        server = webAddress2;
+        server = webAddress;
 
 		mapView = (MapView) findViewById(R.id.mapView);
 		
@@ -139,8 +147,6 @@ public class MapsActivity extends MapActivity {
 				clueOn = false;
 			}
 		});
-		
-        setUserAccountInfo();
                 
         refresh = (Button) findViewById(R.id.refreshButton);
         refresh.setOnTouchListener(new OnTouchListener() {
@@ -200,8 +206,7 @@ public class MapsActivity extends MapActivity {
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
         mapView.setBuiltInZoomControls(true);
  		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
- 		myLocationManager.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 60000, 10, listener);
+ 		myLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 10, listener);
 		String locationProvider = LocationManager.NETWORK_PROVIDER;
 		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
 			
@@ -364,9 +369,9 @@ public class MapsActivity extends MapActivity {
      * first time.
      */
     private void refreshCall() {
-    	//networkActivity = GETCLUE;
-		//new NetworkCall().execute();
-    	cycleIcons();
+    	networkActivity = GETCLUE;
+		new NetworkCall().execute();
+    	//cycleIcons();
     }
     
     /*
@@ -428,9 +433,32 @@ public class MapsActivity extends MapActivity {
      */
     private void setUserAccountInfo() {
     	userNameText.setText(userName);
-    	balanceText.setText(balance + " pts");
+    	balanceText.setText(Integer.toString(balance));
     	textMessages.setText("No Clue!");
     }
+ 
+ // Menu created when you push the menu button.
+ 	@Override
+ 	public boolean onCreateOptionsMenu(Menu menu) {
+ 		super.onCreateOptionsMenu(menu);
+ 		menu.add(0, LOGIN_MENU, 0, R.string.login);
+ 		menu.add(0, TOOLS_MENU, 1, R.string.tools);
+ 		return true;
+ 	}
+
+ 	// Actions for when a menu item is selected.
+ 	@Override
+ 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+ 		switch (item.getItemId()) {
+ 		case LOGIN_MENU: // Switch to login menu.
+ 			goToLoginScreen();
+ 			return true;
+ 		case TOOLS_MENU: // Switch to tools menu.
+ 			goToPurchaseToolsScreen();
+ 			return true;
+ 		}
+ 		return super.onMenuItemSelected(featureId, item);
+ 	}
     
     /*
      * Handles what happens immediately after returning from another activity that was
@@ -454,9 +482,9 @@ public class MapsActivity extends MapActivity {
 	protected void onNetworkResult() {
 		switch (networkActivity) {
 		case GETCLUE:
-			//Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
+			Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
 			//textMessages.setVisibility(View.VISIBLE);
-			//textMessages.setText("Testing");
+			textMessages.setText("Testing");
 			break;
 		}
 	}
@@ -488,7 +516,8 @@ public class MapsActivity extends MapActivity {
 
             // Debugging Hard-coded JSON
             //String stringToJson = "{\"playerID\":\"testID\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
-            String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
+            //String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
+        	String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}";
             
             JSONObject jsonToSend;
             try {
