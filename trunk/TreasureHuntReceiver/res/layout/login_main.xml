@@ -80,13 +80,93 @@
         android:textColor="#FFFFFF"
         android:textSize="30dip"
         android:visibility="invisible" />
-    <ImageView
+
+    <ImageView
         android:id="@+id/settingsFrame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:src="@drawable/settings_frame"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/settingsBackgroundImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/parchment_vertical"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/passwordBox"
+        android:layout_alignRight="@+id/userNameBox"
+        android:layout_alignTop="@+id/parchmentImage"
+        android:shadowColor="#FFFFFF"
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01"
+        android:text="@string/logout"
+        android:textSize="20dip"
+        android:textStyle="bold|italic"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/rankingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/passwordBox"
+        android:layout_alignRight="@+id/userNameBox"
+        android:layout_below="@+id/logoutButton"
+        android:shadowColor="#FFFFFF"
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01"
+        android:text="@string/rankings"
+        android:textSize="20dip"
+        android:textStyle="bold|italic"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/tutorialButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/passwordBox"
+        android:layout_alignRight="@+id/passwordBox"
+        android:layout_below="@+id/rankingsButton"
+        android:shadowColor="#FFFFFF"
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01"
+        android:text="@string/tutorial"
+        android:textSize="20dip"
+        android:textStyle="bold|italic"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/settingsTextBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/actionButton"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/parchment_vertical"
+        android:shadowColor="#FFFFFF"
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01"
+        android:text="@string/settingsTextBox"
+        android:textColor="#000000"
+        android:textSize="20dip"
+        android:textStyle="bold|italic"
+        android:paddingLeft = "40dip"
+        android:paddingRight = "40dip"
+        android:paddingTop = "80dip"
         android:visibility="invisible" />
 
 </RelativeLayout>

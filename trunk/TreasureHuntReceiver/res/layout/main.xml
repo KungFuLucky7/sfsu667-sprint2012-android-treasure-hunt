@@ -27,9 +27,9 @@
         android:textSize="23dp"
         android:textStyle="bold"
         android:shadowColor="#FFFFFF"
-        android:shadowDx="5"
-        android:shadowDy="5"
-        android:shadowRadius="1" />
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01" />
 
     <Button
         android:id="@+id/refreshButton"
@@ -108,8 +108,12 @@
         android:text="@string/balance"
         android:textColor="#000000"
         android:textSize="23dp"
-        android:textStyle="bold" />
-
+        android:textStyle="bold"
+        android:shadowColor="#FFFFFF"
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01" />
+
     <Button
         android:id="@+id/clueButton"
         android:layout_width="wrap_content"
@@ -121,7 +125,12 @@
         android:background="@drawable/treasure_map"
         android:text="@string/clue"
         android:textSize="20dip"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold|italic"
+        android:textColor="#FFFFFF"
+        android:shadowColor="#000000"
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01" />
 
     <TextView
         android:id="@+id/textMessages"

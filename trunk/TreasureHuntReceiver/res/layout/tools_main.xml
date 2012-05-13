@@ -18,9 +18,13 @@
         android:layout_toLeftOf="@+id/chest"
         android:background="@drawable/map"
         android:text="@string/map"
-        android:textColor="#000000"
+        android:textColor="#FFFFFF"
         android:textSize="20dip"
-        android:textStyle="bold|italic" />
+        android:textStyle="bold|italic"
+        android:shadowColor="#000000"
+        android:shadowDx="-1"
+        android:shadowDy="1"
+        android:shadowRadius=".01" />
 
     <TextView
         android:id="@+id/balanceText"

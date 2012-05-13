@@ -21,5 +21,9 @@
     <string name="enterTaunt">Enter the taunt you wish to send.</string>
     <string name="send">Send</string>
     <string name="touch">Touch to select tool.</string>
+    <string name="logout">Logout</string>
+    <string name="rankings">Rankings</string>
+    <string name="tutorial">Tutorial</string>
+    <string name="settingsTextBox">Settings text display.</string>
 
 </resources>
