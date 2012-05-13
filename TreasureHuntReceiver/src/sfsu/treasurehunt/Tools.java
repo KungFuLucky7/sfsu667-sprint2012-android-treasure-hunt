@@ -2,11 +2,16 @@ package sfsu.treasurehunt;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,7 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Toast;
+import android.widget.TextView;
 
 /*
  * Tools menu. A list of tools you can purchase is shown on the screen.  When user selects
@@ -31,12 +36,20 @@ public class Tools extends Activity {
 	// Preferences file
 	public static final String PREFS_NAME = "MyPrefsFile";
 	
+	// Network related variables.
+    private JSONObject responseJSON;
+	private int networkActivity;
+ 
+    // Network result status codes.
+ 	private static final int PURCHASE = 1;
+	
 	// Layout objects.
 	private Button returnToMap;
 	private Button buy;
 	private Button sendTaunt;
 	private ImageView helpScreen;
 	private EditText tauntScreen;
+	private TextView balanceText;
 	
 	// Static tools guide
 	private static final int Taunt = 0;
@@ -60,9 +73,11 @@ public class Tools extends Activity {
 		setContentView(R.layout.tools_main);
 		setTitle(R.string.tools);
 
-		getPreferences();
 		buy = (Button) findViewById(R.id.buyButton);
 		tauntScreen = (EditText) findViewById(R.id.tauntText);
+		balanceText = (TextView) findViewById(R.id.balanceText);
+		
+		getPreferences();
 
 		// Add tools to the tools list.
 		toolListData.add(new ToolList(R.drawable.laugh, "Taunt", 10));
@@ -73,14 +88,13 @@ public class Tools extends Activity {
 		toolListData.add(new ToolList(R.drawable.thief, "Stealer", 900));
 		toolListData.add(new ToolList(R.drawable.lockout, "Lockout", 950));
 
-		ToolListAdapter adapter = new ToolListAdapter(this,
-				R.layout.listview_item_row, toolListData);
+		ToolListAdapter adapter = new ToolListAdapter(this,	R.layout.listview_item_row, toolListData);
 
 		listView1 = (ListView) findViewById(R.id.list);
 
-		// View header = (View)
-		// getLayoutInflater().inflate(R.layout.listview_header_row, null);
-		// listView1.addHeaderView(header);
+		//View header = (View)
+		//getLayoutInflater().inflate(R.layout.listview_header_row, null);
+		//listView1.addHeaderView(header);
 
 		listView1.setAdapter(adapter);
 
@@ -167,6 +181,16 @@ public class Tools extends Activity {
      	});
 	}
 	
+	 /*
+	  * Get preferences.
+	  */
+	private void getPreferences() {
+	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	    balance = settings.getInt("BALANCE", -1);
+	    Log.d("Treasure Hunt", "Tools: balance = " + balance);
+	    balanceText.setText(Integer.toString(balance));
+	}
+	
 	/*
 	 * Confirm box for each individual tool to ensure user wishes to purchase tool.
 	 */
@@ -242,6 +266,8 @@ public class Tools extends Activity {
 	 * all actions related to executing that request. 
 	 */
 	private void makeToolPurchase() {
+		networkActivity = PURCHASE;
+		
 		switch (purchaseItem) {
 		case Taunt:
 			/*
@@ -273,10 +299,81 @@ public class Tools extends Activity {
 	}
 	
     /*
-	 * Get preferences.
+	 * Processes what happens after returning from a network call.
 	 */
-	private void getPreferences() {
-	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-	    balance = settings.getInt("BALANCE", -1);
+	protected void onNetworkResult() {
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	    SharedPreferences.Editor editor = settings.edit();
+		switch (networkActivity) {
+		case PURCHASE:
+			try {
+				String status = responseJSON.getString("status");
+				
+				if (status.contentEquals("OK")) {
+					balance = Integer.valueOf(responseJSON.getString("playerPoints"));
+					balanceText.setText(responseJSON.getString("playerPoints"));
+				
+					editor.putInt("BALANCE", balance);
+			    	editor.commit();
+				}
+			} catch (JSONException e) {
+				Log.e("Treasure Hunt", "Tools -> PURCHASE JSON error: " + e);
+			}
+			
+			break;
+		}
 	}
+
+	/*
+	 * Makes a network request to the server.
+	 */
+    public class NetworkCall extends AsyncTask<String, Void, String> {
+        private final ProgressDialog dialog = new ProgressDialog(Tools.this);
+
+        @Override
+        protected void onPreExecute() {
+            this.dialog.setMessage("Updating location....");
+            Log.i("AsyncTask", "onPreExecute");
+        }
+
+        @Override
+        protected String doInBackground(String... sendingInfo) {
+          	SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+           	String URL = settings.getString("SERVER", "Error");
+ 
+        	/*
+             * JSON for sending to server String stringToJson = "{\"playerID\":\"" + sendingInfo[0] + "\", \"latitude\":\"" + sendingInfo[2] + "\", \"longitude\":\"" + sendingInfo[3] + "\"}";
+             */
+
+        	String stringToJson = sendingInfo[0];
+            JSONObject jsonToSend;
+            try {
+                jsonToSend = new JSONObject(stringToJson);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+
+            HttpClient httpClient = new HttpClient();
+            responseJSON = httpClient.httpPost(URL, jsonToSend);
+
+            String responseString = responseJSON.toString();
+
+            Log.i("NetworkCall", "doInBackgroup: " + URL);
+
+            return responseString;
+        }
+
+        /*
+         * On completion of Async task, the string pulled from the server is
+         * saved in passData.
+         */
+        @Override
+        protected void onPostExecute(String result) {
+            if (this.dialog.isShowing()) {
+                this.dialog.dismiss();
+            }
+            Log.d("Networking", "result = " + result);
+            onNetworkResult();
+        }
+    }
 }

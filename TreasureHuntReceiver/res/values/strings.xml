@@ -20,5 +20,6 @@
     <string name="login">Login</string>
     <string name="enterTaunt">Enter the taunt you wish to send.</string>
     <string name="send">Send</string>
+    <string name="touch">Touch to select tool.</string>
 
 </resources>
