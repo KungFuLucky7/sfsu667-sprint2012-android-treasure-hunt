@@ -44,8 +44,10 @@ import android.widget.Toast;
  */
 
 public class MapsActivity extends MapActivity {
-	// Preferences file
+	// For Saved Preferences 
 	public static final String PREFS_NAME = "MyPrefsFile";
+	//private SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+    //private SharedPreferences.Editor editor = settings.edit();
 	
 	// For Google maps.
 	private LocationManager myLocationManager;
@@ -78,9 +80,9 @@ public class MapsActivity extends MapActivity {
 	private static final long MINIMUM_TIME_BETWEEN_UPDATE = 10000; // Milliseconds
 	
 	// Screen buttons.
-    private Button tools;
-    private Button refresh;
-    private Button clue;
+    private Button toolsButton;
+    private Button getClueButton;
+    private Button clueButton;
     
     // Screen Text Boxes for messages, clues, name, account balance.
     private TextView textMessages;
@@ -91,13 +93,12 @@ public class MapsActivity extends MapActivity {
     private String userName = "Dennis";
     private int balance = 100;
     
-    // Network passing variables.
-    public static String passData;
-    private String webAddress = "http://thecity.sfsu.edu:9226";
-    private String webAddress2 = "http://thecity.sfsu.edu:9255";
-	private String localHost = "http://10.0.2.2:9226";
-	private String server;
+    // Network related variables.
+    private JSONObject responseJSON;
 	private int networkActivity;
+    private String server = "http://thecity.sfsu.edu:9226";
+    //private String server = "http://thecity.sfsu.edu:9255";
+	//private String server = "http://10.0.2.2:9226";
 	
 	// Network result status codes.
 	private static final int GETCLUE = 1;
@@ -116,7 +117,11 @@ public class MapsActivity extends MapActivity {
         setContentView(R.layout.main);
         myContext = this;
         
-        server = webAddress;
+        // Save server web address as a shared preference.
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("SERVER", server);
+        editor.commit();
 
 		mapView = (MapView) findViewById(R.id.mapView);
 		
@@ -130,30 +135,30 @@ public class MapsActivity extends MapActivity {
 			}
 		});
                 
-        refresh = (Button) findViewById(R.id.refreshButton);
-        refresh.setOnTouchListener(new OnTouchListener() {
+        getClueButton = (Button) findViewById(R.id.refreshButton);
+        getClueButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                //mSoundManager.playSound(1);
-        			refresh.setBackgroundResource(R.drawable.wooden_frame2_pressed);
+        			//mSoundManager.playSound(1);
+        			getClueButton.setBackgroundResource(R.drawable.wooden_frame2_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
-        			refresh.setBackgroundResource(R.drawable.wooden_frame2);
-        			refreshCall();
+        			getClueButton.setBackgroundResource(R.drawable.wooden_frame2);
+        			getClueFromServer();
         		}
         		return false;
          	}
      	});
         
-        clue = (Button) findViewById(R.id.clueButton);
-        clue.setOnTouchListener(new OnTouchListener() {
+        clueButton = (Button) findViewById(R.id.clueButton);
+        clueButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 //mSoundManager.playSound(1);
-        			clue.setBackgroundResource(R.drawable.treasure_map_pressed);
+        			clueButton.setBackgroundResource(R.drawable.treasure_map_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
-        			clue.setBackgroundResource(R.drawable.treasure_map);
+        			clueButton.setBackgroundResource(R.drawable.treasure_map);
         			if (clueOn) {
         				textMessages.setVisibility(View.GONE);
         				clueOn = false;
@@ -166,15 +171,15 @@ public class MapsActivity extends MapActivity {
          	}
      	});
         
-        tools = (Button) findViewById(R.id.toolsButton);
-        tools.setOnTouchListener(new OnTouchListener() {
+        toolsButton = (Button) findViewById(R.id.toolsButton);
+        toolsButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                //mSoundManager.playSound(1);
-        			tools.setBackgroundResource(R.drawable.tools_button_pressed);
+        			//mSoundManager.playSound(1);
+        			toolsButton.setBackgroundResource(R.drawable.tools_button_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
-        			tools.setBackgroundResource(R.drawable.tools_button);
+        			toolsButton.setBackgroundResource(R.drawable.tools_button);
         			goToPurchaseToolsScreen();
         		}
         		return false;
@@ -200,12 +205,10 @@ public class MapsActivity extends MapActivity {
 		
 		setLocationColor(point, COLD);
 		currentColor = COLD;
-		//reverseGeoLocation(myLocation);
 		
 		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
         
 		goToLoginScreen();
-        //mapView.invalidate();
     }
     
     protected boolean isRouteDisplayed() {
@@ -226,52 +229,6 @@ public class MapsActivity extends MapActivity {
 	    myLocationOverlay.disableMyLocation();
 	}
 
-	/*
-	 * Reverse geolocation using given location parameter resulting in actual address.
-	 */
-	private void reverseGeoLocation(Location location) {
-		List<Address> addresses;
-		StringBuilder label = new StringBuilder("");
-		try {
-			Geocoder geoCoder = new Geocoder(this, Locale.ENGLISH);
-			addresses = geoCoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-			
-			if(addresses != null) {
-				Address currentAddress = addresses.get(0);
-				for(int x = 0; x < currentAddress.getMaxAddressLineIndex(); x++) {
-					label.append(currentAddress.getAddressLine(x)).append(", ");
-				}
-				label.deleteCharAt(label.length()-1);
-				label.deleteCharAt(label.length()-1);
-				label.append("\nLat: " + location.getLatitude() + "\nLng: " + location.getLongitude());
-				//textBox.setText(label.toString());
-			}
-		} catch(IOException e) {
-			//textBox.setText("Error in reverse geolocation: " + e.getMessage());
-		}
-		//return label.toString();
-	}
-	
-	/*
-	 * Geolocation using location to get latitude and longitude from an address.
-	 */
-	private void getGeoLocation(String myAddress) {
-		List<Address> addresses;
-		StringBuilder label = new StringBuilder("myAddress");
-		Geocoder geoCoder = new Geocoder(this);
-		try {
-			addresses = geoCoder.getFromLocationName(myAddress, 1);
-			if(addresses != null) {
-				Address x = addresses.get(0);
-				label.append("\nlatitude: ").append(x.getLatitude());
-				label.append("\nlongitude: ").append(x.getLongitude());
-				//textBox.setText(label.toString());
-			}
-		} catch(IOException e) {
-			//textBox.setText("Error getting geolocation: " + e.getMessage());
-		}
-	}
-    
     /*
 	 * Utilize MyMarkerLayer for map overlays. Changes the icon of the current location
 	 * along with it's message based on the conditions: HOT/WARMER/WARM/COLD
@@ -320,9 +277,6 @@ public class MapsActivity extends MapActivity {
 			myLocation = location;
 			GeoPoint newGeoPoint = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
 			mapController.animateTo(newGeoPoint);
-			//textBox.setText("Location changed.");
-			//reverseGeoLocation(location);
-			//mapView.invalidate();
 		}
 
 		public void onStatusChanged(String s, int i, Bundle b) {}
@@ -350,9 +304,19 @@ public class MapsActivity extends MapActivity {
      * Requests server to check location or get clue if starting the game for the
      * first time.
      */
-    private void refreshCall() {
+    private void getClueFromServer() {
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		criteria.setPowerRequirement(Criteria.POWER_LOW);
+		
+    	myLocationOverlay = new MyLocationOverlay(this, mapView);
+        mapView.setBuiltInZoomControls(true);
+ 		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		String locationProvider = myLocationManager.getBestProvider(criteria, true);
+		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
+		
     	networkActivity = GETCLUE;
-		new NetworkCall().execute();
+		new NetworkCall().execute("{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}");
     	//cycleIcons();
     }
     
@@ -462,11 +426,25 @@ public class MapsActivity extends MapActivity {
 	 * Processes what happens after returning from a network call.
 	 */
 	protected void onNetworkResult() {
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	    SharedPreferences.Editor editor = settings.edit();
 		switch (networkActivity) {
 		case GETCLUE:
-			Toast.makeText(getBaseContext(), passData, Toast.LENGTH_LONG).show();
-			//textMessages.setVisibility(View.VISIBLE);
-			textMessages.setText("Testing");
+			try {
+				textMessages.setText(responseJSON.getString("clue"));
+				balance = Integer.valueOf(responseJSON.getString("playerPoints"));
+				balanceText.setText(responseJSON.getString("playerPoints"));
+				
+				editor.putInt("BALANCE", balance);
+			    editor.commit();
+			    
+			    Log.d("Treasure Hunt", "GETCLUE: Balance = " + balance);
+			    Log.d("Treasure Hunt", "GETCLUE: Clue = " + textMessages.getText().toString());
+			} catch (JSONException e) {
+				Log.e("Treasure Hunt", "MapsActivity -> GETCLUE JSON error: " + e);
+			}
+			
+			textMessages.setVisibility(View.VISIBLE);
 			break;
 		}
 	}
@@ -475,8 +453,7 @@ public class MapsActivity extends MapActivity {
 	 * Makes a network request to the server.
 	 */
     public class NetworkCall extends AsyncTask<String, Void, String> {
-        private final ProgressDialog dialog = new ProgressDialog(
-                MapsActivity.this);
+        private final ProgressDialog dialog = new ProgressDialog(MapsActivity.this);
 
         @Override
         protected void onPreExecute() {
@@ -486,8 +463,6 @@ public class MapsActivity extends MapActivity {
 
         @Override
         protected String doInBackground(String... sendingInfo) {
-
-            //String URL = "http://thecity.sfsu.edu:9255";
         	String URL = server;
 
             /*
@@ -499,8 +474,9 @@ public class MapsActivity extends MapActivity {
             // Debugging Hard-coded JSON
             //String stringToJson = "{\"playerID\":\"testID\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signUp\"}";
             //String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\"}";
-        	String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}";
-            
+        	//String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}";
+        	
+        	String stringToJson = sendingInfo[0];
             JSONObject jsonToSend;
             try {
                 jsonToSend = new JSONObject(stringToJson);
@@ -509,7 +485,7 @@ public class MapsActivity extends MapActivity {
             }
 
             HttpClient httpClient = new HttpClient();
-            JSONObject responseJSON = httpClient.httpPost(URL, jsonToSend);
+            responseJSON = httpClient.httpPost(URL, jsonToSend);
 
             String responseString = responseJSON.toString();
 
@@ -528,7 +504,6 @@ public class MapsActivity extends MapActivity {
                 this.dialog.dismiss();
             }
             Log.d("Networking", "result = " + result);
-            passData = result;
             onNetworkResult();
         }
     }
