@@ -46,13 +46,10 @@ import android.widget.Toast;
 public class MapsActivity extends MapActivity {
 	// For Saved Preferences 
 	public static final String PREFS_NAME = "MyPrefsFile";
-	//private SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-    //private SharedPreferences.Editor editor = settings.edit();
 	
 	// For Google maps.
 	private LocationManager myLocationManager;
 	private Location myLocation;
-	//private TextView textBox;
 	private MapView mapView;
 	
 	// For Map Overlay.
@@ -67,6 +64,7 @@ public class MapsActivity extends MapActivity {
 	private static final int WARM = 1;
 	private static final int WARMER = 2;
 	private static final int HOT = 3;
+	private static final int SMOKE = 4;
 	
 	// Menu Id Numbers.
 	private static final int LOGIN_MENU = Menu.FIRST;
@@ -154,7 +152,7 @@ public class MapsActivity extends MapActivity {
         clueButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                //mSoundManager.playSound(1);
+        			//mSoundManager.playSound(1);
         			clueButton.setBackgroundResource(R.drawable.treasure_map_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -203,8 +201,7 @@ public class MapsActivity extends MapActivity {
 		mapController.animateTo(point);
 		mapController.setZoom(14);
 		
-		setLocationColor(point, COLD);
-		currentColor = COLD;
+		setLocationColor(point, SMOKE);
 		
 		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
         
@@ -239,6 +236,8 @@ public class MapsActivity extends MapActivity {
 		Drawable drawable;
 		OverlayItem overlayItem;
 		
+		currentColor = condition;
+		
 		switch (condition) {
 			case HOT:
 				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_flame);
@@ -261,6 +260,12 @@ public class MapsActivity extends MapActivity {
 			case COLD:
 				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_blue);
 				overlayItem = new OverlayItem(point, "Here", "You're Cold!");
+				markerlayer = new MyMarkerLayer(drawable);
+		    	markerlayer.addOverlayItem(overlayItem);
+				break;
+			case SMOKE:
+				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_smoke);
+				overlayItem = new OverlayItem(point, "Here", "You've Been Smoke-Screened!");
 				markerlayer = new MyMarkerLayer(drawable);
 		    	markerlayer.addOverlayItem(overlayItem);
 				break;
@@ -293,7 +298,7 @@ public class MapsActivity extends MapActivity {
     }
     
     /*
-	 * Switches to the Tools activity.
+	 * Switches to the Login activity.
 	 */
     public void goToLoginScreen() {
         Intent intent = new Intent(this, LoginActivity.class);
@@ -317,50 +322,6 @@ public class MapsActivity extends MapActivity {
 		
     	networkActivity = GETCLUE;
 		new NetworkCall().execute("{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}");
-    	//cycleIcons();
-    }
-    
-    /*
-     * FOR TESTING ONLY! Cycles through user icons.
-     */
-    private void cycleIcons() {
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		criteria.setPowerRequirement(Criteria.POWER_LOW);
-		
-    	myLocationOverlay = new MyLocationOverlay(this, mapView);
-        mapView.setBuiltInZoomControls(true);
- 		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		String locationProvider = myLocationManager.getBestProvider(criteria, true);
-		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
-		
-		GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
-    	
-		mapController = mapView.getController();
-		mapController.animateTo(point);
-		
-		switch(currentColor) {
-		case HOT:
-			setLocationColor(point, COLD);
-			currentColor = COLD;
-			Log.d("Treasure Hunt", "Set to Cold.");
-			break;
-		case WARMER:
-			setLocationColor(point, HOT);
-			currentColor = HOT;
-			Log.d("Treasure Hunt", "Set to Hot.");
-			break;
-		case WARM:
-			setLocationColor(point, WARMER);
-			currentColor = WARMER;
-			Log.d("Treasure Hunt", "Set to Warmer.");
-			break;
-		case COLD:
-			setLocationColor(point, WARM);
-			currentColor = WARM;
-			Log.d("Treasure Hunt", "Set to Warm.");
-			break;
-		}
     }
     
     /*
@@ -466,9 +427,7 @@ public class MapsActivity extends MapActivity {
         	String URL = server;
 
             /*
-             * JSON for sending to server String stringToJson =
-             * "{\"playerID\":\"" + sendingInfo[0] + "\", \"latitude\":\"" +
-             * sendingInfo[2] + "\", \"longitude\":\"" + sendingInfo[3] + "\"}";
+             * JSON for sending to server String stringToJson = "{\"playerID\":\"" + sendingInfo[0] + "\", \"latitude\":\"" + sendingInfo[2] + "\", \"longitude\":\"" + sendingInfo[3] + "\"}";
              */
 
             // Debugging Hard-coded JSON
