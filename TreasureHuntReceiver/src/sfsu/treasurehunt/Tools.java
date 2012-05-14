@@ -5,11 +5,14 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import sfsu.treasurehunt.MapsActivity.NetworkCall;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,10 +42,14 @@ public class Tools extends Activity {
 	// Network related variables.
     private JSONObject responseJSON;
 	private int networkActivity;
+	private String networkSend = "";
  
     // Network result status codes.
  	private static final int PURCHASE = 1;
-	
+ 	
+ 	// Activity Call IDs.
+ 	private static final int SELECT_TARGET = 0;
+ 	
 	// Layout objects.
 	private Button returnToMap;
 	private Button buy;
@@ -51,7 +58,7 @@ public class Tools extends Activity {
 	private EditText tauntScreen;
 	private TextView balanceText;
 	
-	// Static tools guide
+	// Static tools guide.
 	private static final int Taunt = 0;
 	private static final int Monkey = 1;
 	private static final int SmokeScreen = 2;
@@ -65,6 +72,8 @@ public class Tools extends Activity {
 	private ArrayList<ToolList> toolListData = new ArrayList<ToolList>();
 	private int purchaseItem;
 	final Context context = this;
+	private String userName = "";
+	private String userPassword = "";
 	private int balance = 0;
 
 	@Override
@@ -171,10 +180,14 @@ public class Tools extends Activity {
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
         			//sendTaunt.setBackgroundResource(R.drawable.map);
         			String tauntText = tauntScreen.getText().toString();
-        			Log.d("Tools", "Sending taunt: " + tauntText);
+        			
+        			Log.d("Tools", "Taunt to send: " + tauntText);
         			tauntScreen.setText("");
         			sendTaunt.setVisibility(View.INVISIBLE);
         			tauntScreen.setVisibility(View.INVISIBLE);
+        			
+        	    	//networkSend += ", \"taunt\":\"" + tauntText + "\"";
+        			goToSelectTargetScreen();
         		}
         		return false;
          	}
@@ -186,6 +199,8 @@ public class Tools extends Activity {
 	  */
 	private void getPreferences() {
 	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+	    userName = settings.getString("USERNAME", "NONE");
+	    userPassword = settings.getString("PASSWORD", "NONE");
 	    balance = settings.getInt("BALANCE", -1);
 	    Log.d("Treasure Hunt", "Tools: balance = " + balance);
 	    balanceText.setText(Integer.toString(balance));
@@ -263,10 +278,16 @@ public class Tools extends Activity {
 	
 	/*
 	 * After the user has confirmed to purchase a particular tool, this method handles
-	 * all actions related to executing that request. 
+	 * all actions related to executing that request. JSON string is built and sent
+	 * to networkCall() for each specific tool.
 	 */
 	private void makeToolPurchase() {
 		networkActivity = PURCHASE;
+		networkSend = "{";
+		
+		// For debugging purposes		
+		userName = "DF";
+		userPassword = "testpass";
 		
 		switch (purchaseItem) {
 		case Taunt:
@@ -276,24 +297,107 @@ public class Tools extends Activity {
 			 */
 			tauntScreen.setVisibility(View.VISIBLE);
 			sendTaunt.setVisibility(View.VISIBLE);
+			
+			networkSend += "\"playerID\":\"" + userName + "\"";
+	    	networkSend += ", \"password\":\"" + userPassword + "\"";
+	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+	    	networkSend += ", \"option\":\"setTool\"";
+	    	networkSend += ", \"tool\":\"taunt\"";
+	    	
+	    	Log.d("Tools", "Purchasing Taunt.");
 			break;
 		case Monkey:
-			// Actions for purchasing Monkey.
+			networkSend += "\"playerID\":\"" + userName + "\"";
+	    	networkSend += ", \"password\":\"" + userPassword + "\"";
+	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+	    	networkSend += ", \"option\":\"setTool\"";
+	    	networkSend += ", \"tool\":\"dizzyMonkey\"";
+	    	goToSelectTargetScreen();
+	    	
+	    	Log.d("Tools", "Purchasing Confused Monkey.");
 			break;
 		case SmokeScreen:
-			// Actions for purchasing SmokeScreen.
+	    	networkSend += "\"playerID\":\"" + userName + "\"";
+	    	networkSend += ", \"password\":\"" + userPassword + "\"";
+	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+	    	networkSend += ", \"option\":\"setTool\"";
+	    	networkSend += ", \"tool\":\"smokeBomb\"";
+	    	networkSend += ", \"targetPlayer\":\"DF\"";
+	    	networkSend += "}";
+	    	
+	    	Log.d("Tools", "Purchasing SmokeScreen.");
+	    	new NetworkCall().execute(networkSend);
 			break;
 		case ClearSky:
-			// Actions for purchasing ClearSky.
+	    	networkSend += "\"playerID\":\"" + userName + "\"";
+	    	networkSend += ", \"password\":\"" + userPassword + "\"";
+	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+	    	networkSend += ", \"option\":\"setTool\"";
+	    	networkSend += ", \"tool\":\"clearSky\""; 
+	    	networkSend += "}";
+	    	
+	    	Log.d("Tools", "Purchasing Clear Sky.");
+	    	new NetworkCall().execute(networkSend);
 			break;
 		case Compass:
-			// Actions for purchasing Compass.
+	    	networkSend += "\"playerID\":\"" + userName + "\"";
+	    	networkSend += ", \"password\":\"" + userPassword + "\"";
+	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+	    	networkSend += ", \"option\":\"setTool\"";
+	    	networkSend += ", \"tool\":\"compass\""; 
+	    	networkSend += "}";
+	    	
+	    	Log.d("Tools", "Purchasing Compass.");
+	    	new NetworkCall().execute(networkSend);
 			break;
 		case Stealer:
-			// Actions for purchasing Stealer.
+			networkSend += "\"playerID\":\"" + userName + "\"";
+	    	networkSend += ", \"password\":\"" + userPassword + "\"";
+	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+	    	networkSend += ", \"option\":\"setTool\"";
+	    	networkSend += ", \"tool\":\"stealer\""; 
+	    	networkSend += "}";
+	    	
+	    	Log.d("Tools", "Purchasing Stealer.");
+	    	new NetworkCall().execute(networkSend);
 			break;
 		case Lockout:
-			// Actions for purchasing Lockout.
+			networkSend += "\"playerID\":\"" + userName + "\"";
+	    	networkSend += ", \"password\":\"" + userPassword + "\"";
+	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+	    	networkSend += ", \"option\":\"setTool\"";
+	    	networkSend += ", \"tool\":\"lockout\""; 
+	    	networkSend += "}";
+	    	
+	    	Log.d("Tools", "Purchasing Lockout.");
+	    	new NetworkCall().execute(networkSend);
+			break;
+		}
+	}
+	
+	/*
+	 * Sends you to the Select Target Activity to choose a target for the tool being
+	 * purchased.
+	 */
+	private void goToSelectTargetScreen() {
+        Intent intent = new Intent(this, SelectTargetActivity.class);
+        startActivityForResult(intent, SELECT_TARGET);
+	}
+	
+	/*
+     * Handles what happens immediately after returning from another activity that was
+     * called from this one.
+     */
+    @Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+		switch (requestCode) {
+		case SELECT_TARGET:
+			String targetPlayer = intent.getExtras().getString("TARGET");
+			targetPlayer = "DF";
+			networkSend += ", \"targetPlayer\":\"" + targetPlayer + "\"";
+	    	networkSend += "}";
+	    
+	    	new NetworkCall().execute(networkSend);
 			break;
 		}
 	}
@@ -307,7 +411,7 @@ public class Tools extends Activity {
 		switch (networkActivity) {
 		case PURCHASE:
 			try {
-				String status = responseJSON.getString("status");
+				String status = responseJSON.getString("status").toUpperCase();
 				
 				if (status.contentEquals("OK")) {
 					balance = Integer.valueOf(responseJSON.getString("playerPoints"));
@@ -315,7 +419,8 @@ public class Tools extends Activity {
 				
 					editor.putInt("BALANCE", balance);
 			    	editor.commit();
-				}
+			    	Log.d("Tools", "Purchase Complete. New balance = " + balance);
+				} 
 			} catch (JSONException e) {
 				Log.e("Treasure Hunt", "Tools -> PURCHASE JSON error: " + e);
 			}
