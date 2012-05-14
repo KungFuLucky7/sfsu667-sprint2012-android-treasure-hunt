@@ -18,11 +18,10 @@
         android:layout_toLeftOf="@+id/chest"
         android:background="@drawable/map"
         android:text="@string/map"
-        android:textColor="#FFFFFF"
-        android:textSize="20dip"
-        android:textStyle="bold|italic"
-        android:shadowColor="#000000"
-        android:shadowDx="-1"
+        android:textColor="#8B0000"
+        android:textSize="30dip"
+        android:shadowColor="#FFFFFF"
+        android:shadowDx="-2"
         android:shadowDy="1"
         android:shadowRadius=".01" />
 
@@ -106,6 +105,7 @@
         android:layout_marginRight="54dp"
         android:layout_marginTop="52dp"
         android:text="@string/buy"
+        android:textSize="25dip"
         android:visibility="gone" />
     <EditText
         android:id="@+id/tauntText"

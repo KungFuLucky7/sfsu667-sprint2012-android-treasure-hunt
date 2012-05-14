@@ -25,5 +25,7 @@
     <string name="rankings">Rankings</string>
     <string name="tutorial">Tutorial</string>
     <string name="settingsTextBox">Settings text display.</string>
+    <string name="radioGroupTitle">Select Target Below</string>
+    <string name="confirmTarget">Confirm Target</string>
 
 </resources>

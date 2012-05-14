@@ -164,8 +164,8 @@
         android:textColor="#000000"
         android:textSize="20dip"
         android:textStyle="bold|italic"
-        android:paddingLeft = "40dip"
-        android:paddingRight = "40dip"
+        android:paddingLeft = "60dip"
+        android:paddingRight = "60dip"
         android:paddingTop = "80dip"
         android:visibility="invisible" />
 
