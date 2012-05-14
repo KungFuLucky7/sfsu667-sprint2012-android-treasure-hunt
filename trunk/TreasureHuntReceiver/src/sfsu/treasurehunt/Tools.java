@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import sfsu.treasurehunt.MapsActivity.NetworkCall;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
