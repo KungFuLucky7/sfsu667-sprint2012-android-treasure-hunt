@@ -43,7 +43,8 @@ public class Tools extends Activity {
 	private String networkSend = "";
  
     // Network result status codes.
- 	private static final int PURCHASE = 1;
+ 	private static final int PURCHASE = 0;
+ 	private static final int PURCHASE_COMPASS = 1;
  	
  	// Activity Call IDs.
  	private static final int SELECT_TARGET = 0;
@@ -184,7 +185,7 @@ public class Tools extends Activity {
         			sendTaunt.setVisibility(View.INVISIBLE);
         			tauntScreen.setVisibility(View.INVISIBLE);
         			
-        	    	//networkSend += ", \"taunt\":\"" + tauntText + "\"";
+        	    	networkSend += ", \"message\":\"" + tauntText + "\"";
         			goToSelectTargetScreen();
         		}
         		return false;
@@ -284,8 +285,8 @@ public class Tools extends Activity {
 		networkSend = "{";
 		
 		// For debugging purposes		
-		userName = "DF";
-		userPassword = "testpass";
+		//userName = "DF";
+		//userPassword = "testpass";
 		
 		switch (purchaseItem) {
 		case Taunt:
@@ -345,6 +346,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"tool\":\"compass\""; 
 	    	networkSend += "}";
 	    	
+	    	networkActivity = PURCHASE_COMPASS;
 	    	Log.d("Tools", "Purchasing Compass.");
 	    	new NetworkCall().execute(networkSend);
 			break;
@@ -391,7 +393,7 @@ public class Tools extends Activity {
 		switch (requestCode) {
 		case SELECT_TARGET:
 			String targetPlayer = intent.getExtras().getString("TARGET");
-			targetPlayer = "DF";
+			//targetPlayer = "DF";
 			networkSend += ", \"targetPlayer\":\"" + targetPlayer + "\"";
 	    	networkSend += "}";
 	    
@@ -406,24 +408,29 @@ public class Tools extends Activity {
 	protected void onNetworkResult() {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 	    SharedPreferences.Editor editor = settings.edit();
-		switch (networkActivity) {
-		case PURCHASE:
-			try {
-				String status = responseJSON.getString("status").toUpperCase();
-				
-				if (status.contentEquals("OK")) {
-					balance = Integer.valueOf(responseJSON.getString("playerPoints"));
-					balanceText.setText(responseJSON.getString("playerPoints"));
-				
-					editor.putInt("BALANCE", balance);
-			    	editor.commit();
-			    	Log.d("Tools", "Purchase Complete. New balance = " + balance);
-				} 
-			} catch (JSONException e) {
-				Log.e("Treasure Hunt", "Tools -> PURCHASE JSON error: " + e);
-			}
+	    
+	    try {
+			String status = responseJSON.getString("status").toUpperCase();
 			
-			break;
+			if (status.contentEquals("OK")) {
+				balance = Integer.valueOf(responseJSON.getString("playerPoints"));
+				balanceText.setText(responseJSON.getString("playerPoints"));
+			
+				editor.putInt("BALANCE", balance);
+		    	editor.commit();
+		    	Log.d("Tools", "Purchase Complete. New balance = " + balance);
+			 
+		    	switch (networkActivity) {
+		    	case PURCHASE:
+		    		break;
+		    	case PURCHASE_COMPASS:
+		    		editor.putBoolean("SHOWGOAL", true);
+			    	editor.commit();
+		    		break;
+		    	}
+			}
+	    } catch (JSONException e) {
+			Log.e("Treasure Hunt", "Tools -> PURCHASE JSON error: " + e);
 		}
 	}
 

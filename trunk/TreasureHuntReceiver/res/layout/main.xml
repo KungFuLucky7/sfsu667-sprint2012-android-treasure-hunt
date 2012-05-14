@@ -94,7 +94,7 @@
     <Button
         android:id="@+id/clueButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="60dip"
         android:layout_above="@+id/toolsButton"
         android:layout_alignLeft="@+id/toolsButton"
         android:layout_alignParentRight="true"
@@ -106,7 +106,8 @@
         android:shadowRadius=".01"
         android:text="@string/clue"
         android:textColor="#8B0000"
-        android:textSize="25dip" />
+        android:textSize="25dip"
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/textMessages"

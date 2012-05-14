@@ -102,6 +102,8 @@ public class MapsActivity extends MapActivity {
 	// Screen access variables.
 	private boolean clueOn;
 	
+	// Global variables.
+	private GeoPoint goalLocation;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -113,6 +115,7 @@ public class MapsActivity extends MapActivity {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("SERVER", server);
+        editor.putBoolean("SHOWGOAL", true);
         editor.commit();
 
 		mapView = (MapView) findViewById(R.id.mapView);
@@ -193,7 +196,7 @@ public class MapsActivity extends MapActivity {
     	
 		mapController = mapView.getController();
 		mapController.animateTo(point);
-		mapController.setZoom(14);
+		mapController.setZoom(18);
 		
 		setLocationColor(point, "Question");
 		
@@ -229,7 +232,7 @@ public class MapsActivity extends MapActivity {
 		mapOverlays.clear();
 		Drawable drawable;
 		OverlayItem overlayItem;
-
+    	
 		// Change string to uppercase and convert to global static variable. "Hot" would become HOT global variable.
 		status = status.toUpperCase();
 		int condition = ((status.contentEquals("WIN"))?WIN:(status.contentEquals("HOT"))?HOT:(status.contentEquals("WARMER")?WARMER:(status.contentEquals("WARM")?WARM:(status.contentEquals("COLD")?COLD:(status.contentEquals("SMOKEBOMB")?SMOKE:QUESTION)))));
@@ -281,8 +284,34 @@ public class MapsActivity extends MapActivity {
 		
 		mapOverlays.add(markerlayer);
 		mapView.invalidate();
+		
+		mapController.animateTo(point);
     }
 
+    /*
+     * Shows goal location and centers map view on goal.
+     */
+    private void showGoalLocationCheck() {
+    	SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+    	mapOverlays = mapView.getOverlays();
+		Drawable drawable;
+		OverlayItem overlayItem;
+		
+    	if ((goalLocation != null) && (settings.getBoolean("SHOWGOAL", false))) {
+    		drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_win);
+    		overlayItem = new OverlayItem(goalLocation, "Treasure Chest", "The Treasure is HERE!");
+    		markerlayer = new MyMarkerLayer(drawable);
+        	markerlayer.addOverlayItem(overlayItem);
+        	mapOverlays.add(markerlayer);
+        	
+        	mapController.animateTo(goalLocation);
+        	
+        	SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean("SHOWGOAL", false);
+            editor.commit();
+        	Log.d("Treasure Hunt", "setLocationColor -> Goal at " + goalLocation);
+    	}
+    }
     /*
      * Listens to location changes and centers the map to user's new location.
      */
@@ -324,11 +353,10 @@ public class MapsActivity extends MapActivity {
 		criteria.setPowerRequirement(Criteria.POWER_LOW);
 		
     	myLocationOverlay = new MyLocationOverlay(this, mapView);
-        mapView.setBuiltInZoomControls(true);
+        //mapView.setBuiltInZoomControls(true);
  		myLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
- 		//myLocationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60000, 10, listener);
-		String locationProvider = LocationManager.NETWORK_PROVIDER;
-		//String locationProvider = myLocationManager.getBestProvider(criteria, true);
+ 		String locationProvider = LocationManager.NETWORK_PROVIDER;
+ 		//String locationProvider = myLocationManager.getBestProvider(criteria, true);
 		myLocation = myLocationManager.getLastKnownLocation(locationProvider);
 		
     	networkActivity = GETCLUE;
@@ -339,7 +367,6 @@ public class MapsActivity extends MapActivity {
     	networkSend += ", \"option\":\"getClue\""; 
     	networkSend += "}";
 		
-    	//new NetworkCall().execute("{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}");
     	Log.d("Treasure Hunt", "Getting Clue. (" + myLocation.getLatitude() + "," + myLocation.getLongitude() + ")");
     	new NetworkCall().execute(networkSend);
     }
@@ -364,8 +391,27 @@ public class MapsActivity extends MapActivity {
     	balanceText.setText(Integer.toString(balance));
     	textMessages.setText("No Clue!");
     }
- 
- // Menu created when you push the menu button.
+
+    /*
+     * Parse through JSON response for goal location and turn it into a GeoPoint.
+     */
+    private GeoPoint processJSONForGoalLocation(){
+    	double goalLatitude = 0.0;
+    	double goalLongitude = 0.0;
+    	try {
+    		String location = responseJSON.getString("goalLocation");
+    		String points[] = location.split(",");
+    		goalLatitude = Double.valueOf(points[0]);
+    		goalLongitude = Double.valueOf(points[1]);
+		} catch (JSONException e) {
+			Log.e("Treasure Hunt", "processJSONForGoalLocation -> JSON error: " + e);
+		}
+		
+    	GeoPoint goal = new GeoPoint((int)(goalLatitude*1E6), (int)(goalLongitude*1E6));
+    	Log.d("Treasure Hunt", "processJSONForGoalLocation -> Goal: " + goal.toString());
+    	return goal;
+    }
+    // Menu created when you push the menu button.
  	@Override
  	public boolean onCreateOptionsMenu(Menu menu) {
  		super.onCreateOptionsMenu(menu);
@@ -415,7 +461,9 @@ public class MapsActivity extends MapActivity {
 			try {
 				GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
 				String status = responseJSON.getString("indicator");
+			    goalLocation = processJSONForGoalLocation();
 				setLocationColor(point, status);
+				showGoalLocationCheck();
 				
 				textMessages.setText(responseJSON.getString("clue"));
 				balance = Integer.valueOf(responseJSON.getString("playerPoints"));
@@ -423,7 +471,7 @@ public class MapsActivity extends MapActivity {
 				
 				editor.putInt("BALANCE", balance);
 			    editor.commit();
-			    
+				
 			    Log.d("Treasure Hunt", "GETCLUE: Balance = " + balance);
 			    Log.d("Treasure Hunt", "GETCLUE: Clue = " + textMessages.getText().toString());
 			} catch (JSONException e) {

@@ -2,6 +2,7 @@ package sfsu.treasurehunt;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,9 +55,9 @@ public class SelectTargetActivity extends Activity {
     	networkSend += "}";
     	
     	Log.d("SelectTargetActivity", "Requesting active players.");
-    	//new NetworkCall().execute(networkSend);
+    	new NetworkCall().execute(networkSend);
     	// For debugging only.  By-passing network call.
-    	generateTargetList();
+    	//generateTargetList();
 	}
 	
 	/*
@@ -64,21 +65,23 @@ public class SelectTargetActivity extends Activity {
 	 * into a radio group.
 	 */
 	private void generateTargetList() {
-		radioGroup = (RadioGroup) findViewById(R.id.targetRadioGroup);
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		String userName = settings.getString("USERNAME", "NONE");
+	    radioGroup = (RadioGroup) findViewById(R.id.targetRadioGroup);
 
-		targetList.add("Matt");
-		targetList.add("George");
-		targetList.add("Brad");
-		targetList.add("Henry");
-		targetList.add("Patrick");
-		targetList.add("Phil");
-		targetList.add("Jason");
-		targetList.add("Janice");
-		targetList.add("Mary");
-		targetList.add("Carrie");
-		targetList.add("Denise");		
-		targetList.add("Elise");
+		// Go through JSON response from server to add all active players to the target list used for radio buttons.
+		try {
+			JSONArray activePlayersList = responseJSON.getJSONArray("players");
+			for (int x = 0; x < activePlayersList.length(); x++) {
+				if (!userName.contentEquals(activePlayersList.getString(x))) {
+					targetList.add(activePlayersList.getString(x));
+				}
+			}
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
 		
+		// Build radio buttons.
 		for (int x = 0; x < targetList.size(); x++) {
 			RadioButton radioButton = new RadioButton(this);
 			radioButton.setText(targetList.get(x));
@@ -88,9 +91,11 @@ public class SelectTargetActivity extends Activity {
 			radioButton.setId(x);
 			radioGroup.addView(radioButton, x);
 		}
-		// default selection (or load from db/preferences/file/...)
+		
+		// Sets first player on radio list as checked.
 		radioGroup.check(0);
 		
+		// Confirms that checked player on the radio button is target, ends activity and returns result.
 		selectTargetButton = (Button) findViewById(R.id.selectTargetButton);
 		selectTargetButton.setOnClickListener(new View.OnClickListener() {
      		public void onClick(View view) {
