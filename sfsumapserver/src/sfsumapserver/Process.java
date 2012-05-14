@@ -13,8 +13,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -27,22 +29,29 @@ public class Process {
 
 	private final Socket client;
 	private int index, totalPoints = 0;
-	private String requestline, playerID, goal, currentLocation, goalLocation,
+	
+	private String requestline, playerID, goalName, currentLocation, goalLocation,
 			option, password = "", tool = "", targetPlayer = "", clue = "",
 			currentEffect = "";
+	
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 	private float distance;
 	private long startTime, currentTime, elapsedTime;
 	private PlayerStats player;
-	private boolean authenticationFailure = false, getTopThree = false,
-			getTopScores = false, getTopTime = false;
+	
+	private boolean authenticationFailure = false;
+	
 	private static HashMap<String, Float> topThreeTeams = new HashMap<String, Float>();
 	private static HashMap<String, String> topThreeClues = new HashMap<String, String>();
 	public static HashMap<String, Integer> topScoreTeams = new HashMap<String, Integer>();
 	public static HashMap<String, Long> topTimeTeams = new HashMap<String, Long>();
+	
 	private PlayerLog loggedPlayer;
 	private Authentication authen;
+	private boolean toolSuccess;
+	private String message;
 
+	
 	/**
 	 * Default constructor used to reset your variables and data structures for
 	 * each new incoming request.
@@ -50,22 +59,21 @@ public class Process {
 	public Process(Socket client) {
 		this.client = client;
 		dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+		targetPlayer = null;
+		toolSuccess = false;
+		message = null;
 	}
 
+	
 	/**
-	 * private function used by the request object to parse the rest of the
+	 * function used by the request object to parse the rest of the
 	 * request message (e.g. other headers and the body of the message) from the
 	 * client so it can be used later when actual processing of the request
 	 * happens.
 	 * 
-	 * @param inFile
-	 *            BufferedReader object that comes through the socket. Needs to
-	 *            be processed properly before the data stored within it can be
-	 *            used.
 	 */
 	public void readRequest() throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				client.getInputStream()));
+		BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
 		requestline = in.readLine();
 		while (!(requestline.isEmpty())) {
 			// Debug
@@ -73,69 +81,55 @@ public class Process {
 			requestline = in.readLine();		
 		}		
 		requestline = in.readLine();
+		
+		System.out.println("requestline : " + requestline);
 
-		JsonObject jsonReceived = new JsonParser().parse(requestline)
-				.getAsJsonObject();
-
-		// Debug
-		// System.out.println("json received : "+jsonReceived.toString());
-		// System.out.println("playerid : "+jsonReceived.getAsJsonPrimitive("playerID").getAsString());
+		JsonObject jsonReceived = new JsonParser().parse(requestline).getAsJsonObject();
 
 		if (jsonReceived.has("playerID")) {
-			playerID = jsonReceived.getAsJsonPrimitive("playerID")
-					.getAsString();
-			// Debug
-			// System.out.println("playerID : "+playerID);
+			playerID = jsonReceived.getAsJsonPrimitive("playerID").getAsString();
 		}
 
 		if (jsonReceived.has("currentLocation")) {
-			currentLocation = jsonReceived
-					.getAsJsonPrimitive("currentLocation").getAsString();
-			// Debug
-			// System.out.println("currentLocation : "+currentLocation);
+			currentLocation = jsonReceived.getAsJsonPrimitive("currentLocation").getAsString();
 		}
 
 		if (jsonReceived.has("option")) {
 			option = jsonReceived.getAsJsonPrimitive("option").getAsString();
-			// Debug
-			// System.out.println("option : "+option);
 		}
 
 		if (jsonReceived.has("password")) {
-			password = jsonReceived.getAsJsonPrimitive("password")
-					.getAsString();
-			// Debug
-			// System.out.println("password : "+password);
+			password = jsonReceived.getAsJsonPrimitive("password").getAsString();
 		}
 
 		if (jsonReceived.has("tool")) {
 			tool = jsonReceived.getAsJsonPrimitive("tool").getAsString();
-			// Debug
-			// System.out.println("tool : "+tool);
 		}
 
 		if (jsonReceived.has("targetPlayer")) {
-			targetPlayer = jsonReceived.getAsJsonPrimitive("targetPlayer")
-					.getAsString();
-			// Debug
-			// System.out.println("targetPlayer : "+targetPlayer);
-		} else {
+			targetPlayer = jsonReceived.getAsJsonPrimitive("targetPlayer").getAsString();
+		}
+		else {
 			targetPlayer = playerID;
-			// Debug
-			// System.out.println("targetPlayer : "+targetPlayer);
+		}
+		
+		if(jsonReceived.has("message")) {
+			message = jsonReceived.getAsJsonPrimitive("message").getAsString();
 		}
 	}
 
+	
 	/**
 	 * function to process each specific request
 	 */
 	public synchronized void processRequest() throws IOException {
+		
 		if (option.equalsIgnoreCase("signIn")) {
-			if (!ServerTable.playerInfoContains(playerID)) {
-				loggedPlayer = new PlayerLog(playerID, password, "500");
+			if (!(ServerTable.playerInfoContains(playerID))) {
+				loggedPlayer = new PlayerLog(playerID, password, "5000");
 				loggedPlayer.add();
 				ServerTable.setPlayerInfo(playerID);
-				ServerTable.getPlayerInfo(playerID).setPlayerPoints(500);
+				ServerTable.getPlayerInfo(playerID).setPlayerPoints(5000);
 			} else {
 				authen = new Authentication(playerID, password);
 				String ID = authen.checkAuth();
@@ -144,15 +138,13 @@ public class Process {
 					authenticationFailure = true;
 				}
 			}
+			player = ServerTable.getPlayerInfo(playerID);
 		} else if (option.equalsIgnoreCase("getClue")) {
 			player = ServerTable.getPlayerInfo(playerID);
-			goal = ServerTable.getGoal();
-			if (goal.equals("")) {
-				goal = ServerTable.setNewGoal();
-			}
-			System.out.println("goal: " + goal);
+			goalName = ServerTable.getGoal();			
+			System.out.println("goalName: " + goalName);
 			if (player.getGoal().equals("")) {
-				player.setGoal(goal);
+				player.setGoal(goalName);
 				startTime = System.currentTimeMillis();
 				System.out.println("player startTime: " + startTime);
 				player.setStartTime(startTime);
@@ -161,45 +153,61 @@ public class Process {
 			computeDistance();
 			computeElapsedTime();
 			player.setDistance(distance);
+			setIndicator();
 			setClue();
 			updateTopThree();
 		} else if (option.equalsIgnoreCase("setTool")) {
 			player = ServerTable.getPlayerInfo(playerID);
-			goal = ServerTable.getGoal();
-			if (goal.equals("")) {
-				goal = ServerTable.setNewGoal();
-			}
-			System.out.println("goal: " + goal);
+			goalName = ServerTable.getGoal();
+			System.out.println("goalName: " + goalName);
 			if (player.getGoal().equals("")) {
-				player.setGoal(goal);
+				player.setGoal(goalName);
 				startTime = System.currentTimeMillis();
 				System.out.println("player startTime: " + startTime);
 				player.setStartTime(startTime);
 			}
-			totalPoints -= ServerTable.getToolPrice(tool);
-			ServerTable.getPlayerInfo(targetPlayer).activateTool(tool);
 			if (tool.equals("steal")) {
-				ServerTable.getPlayerInfo(targetPlayer).setStealer(playerID);
+				if(ServerTable.isStealer()) {
+					ServerTable.setStealer(playerID);
+					toolSuccess = true;
+				}
+			} else if (tool.equals("lock-out")) {
+				if (ServerTable.isLockOut()) {
+					ServerTable.setLockOut();
+					toolSuccess = true;
+				}
+			} else {
+				if (!(tool.equals("compass")))
+					toolSuccess = ServerTable.getPlayerInfo(targetPlayer).activateTool(tool,message);
+				else
+					toolSuccess = true;
 			}
-			ServerTable.getPlayerInfo(targetPlayer).setPlayerPoints(
-					ServerTable.getToolDamage(tool));
+			
+			if(toolSuccess == true) {
+				totalPoints -= ServerTable.getToolPrice(tool);
+			}
+			
+			// Future Use. Not dealing damage to other players in this version of game
+			// ServerTable.getPlayerInfo(targetPlayer).setPlayerPoints(ServerTable.getToolDamage(tool));
+			
 			goalLocation = ServerTable.getGoalLocation();
 			computeDistance();
 			computeElapsedTime();
 			player.setDistance(distance);
+			setIndicator();
 			setClue();
 			updateTopThree();
-		} else if (option.equalsIgnoreCase("getTopThree")) {
-			getTopThree = true;
-		} else if (option.equalsIgnoreCase("getTopScores")) {
-			getTopScores = true;
-		} else if (option.equalsIgnoreCase("getTopTime")) {
-			getTopTime = true;
 		}
 	}
 
+	private void setClue() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 	/**
-	 * function to computer the distance between player's current position and
+	 * function to compute the distance between player's current position and
 	 * the goal position.
 	 */
 	private void computeDistance() {
@@ -215,7 +223,7 @@ public class Process {
 	}
 
 	/**
-	 * function to computer the player's elapsed time.
+	 * function to compute the player's elapsed time.
 	 */
 	private long computeElapsedTime() {
 		currentTime = System.currentTimeMillis();
@@ -304,9 +312,10 @@ public class Process {
 	}
 
 	/**
-	 * function to generate the proper clue
+	 * function to generate the indicator : WIN, HOT, WARM, COLD, SMOKE
 	 */
-	private synchronized void setClue() {
+	private synchronized void setIndicator() {
+		
 		if (player.checkStolenWin()) {
 			clue = "Win";
 			totalPoints += 500;
@@ -324,11 +333,10 @@ public class Process {
 			if (!player.getCurrentEffect().equals("")) {
 				currentEffect = player.getCurrentEffect();
 			}
-			if (distance <= 0.00005) {
+			if (distance <= 0.001) {
 				if (currentEffect.equals("steal")) {
 					clue = "steal";
-					ServerTable.getPlayerInfo(player.getStealer())
-							.setStolenWin();
+					ServerTable.getPlayerInfo(ServerTable.getStealerName()).setStolenWin();
 				} else if (currentEffect.equals("lock-out")) {
 					clue = "lock-out";
 				} else {
@@ -341,13 +349,13 @@ public class Process {
 					ServerTable.removeGoal();
 					ServerTable.resetGame();
 				}
-			} else if (distance <= 0.00050) {
+			} else if (distance <= 0.003) {
 				clue = "Hot";
 				if (currentEffect.equals("") && !player.checkHotOnce()) {
 					totalPoints += 200;
 					player.setHotOnce();
 				}
-			} else if (distance <= 0.00100) {
+			} else if (distance <= 0.006) {
 				clue = "Warm";
 				if (currentEffect.equals("") && !player.checkWarmOnce()) {
 					totalPoints += 100;
@@ -360,13 +368,14 @@ public class Process {
 				if (currentEffect.equals("smokeBomb")) {
 					distance = 1000000;
 					clue = "smokeBomb";
-				} else if (currentEffect.equals("drunkMonkey")) {
+				} else if (currentEffect.equals("dizzyMonkey")) {
 					distance = (float) 0.00200;
 					clue = "Cold";
 				}
 			}
 		}
-		player.setClue(clue);
+		
+		player.setIndicator(clue);
 		player.setPlayerPoints(totalPoints);
 		updateTopScoreTeams();
 	}
@@ -388,15 +397,17 @@ public class Process {
 		if (option.equalsIgnoreCase("signIn")) {
 			output += "\"signIn\":\"";
 			if (!authenticationFailure) {
-				output += "Good";
+				output += "Good\"";
+				output += ", \"playerPoints\":\"" + player.getPlayerPoints();
 			} else {
 				output += "Bad";
 			}
 			output += "\"";
 		} else if (option.equalsIgnoreCase("getClue")) {
-			output += "\"clue\":\"" + clue + "\"";
+			output += "\"clue\":\"" + "There is a Peet's Coffee there!" + "\"";
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
+			output += ", \"indicator\":\"" + clue + "\"";
 
 			// for elapsed time
 			output += ", \"elapsedTime\":\""
@@ -404,7 +415,13 @@ public class Process {
 
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (option.equalsIgnoreCase("setTool")) {
-			output += "\"tool\":\"" + tool + "\"";
+			output += "\"status\":\"";
+			if(toolSuccess)
+				output += "OK\"";
+			else
+				output += "BAD\"";
+			
+			output += ", \"tool\":\"" + tool + "\"";
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 
@@ -414,7 +431,7 @@ public class Process {
 
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 			output += ", \"targetPlayer\":\"" + targetPlayer + "\"";
-		} else if (getTopThree) {
+		} else if (option.equalsIgnoreCase("getTopThree")) {
 			// get each top 3 team's clue and distance by using keywords
 			// "TopTeam1",
 			// "TopTeam2", "TopTeam3"
@@ -436,7 +453,7 @@ public class Process {
 					tmp.remove(key);
 				}
 			}
-		} else if (getTopScores) {
+		} else if (option.equalsIgnoreCase("getTopScores")) {
 			// get each top 5 team's top score by using keywords "TopTeam1",
 			// "TopTeam2", "TopTeam3", etc.
 			HashMap<String, Integer> tmp = new HashMap<String, Integer>();
@@ -456,7 +473,7 @@ public class Process {
 					tmp.remove(key);
 				}
 			}
-		} else if (getTopTime) {
+		} else if (option.equalsIgnoreCase("getTopTime")) {
 			// get each top 5 team's top time by using keywords "TopTeam1",
 			// "TopTeam2", "TopTeam3", etc.
 			HashMap<String, Long> tmp = new HashMap<String, Long>();
@@ -475,6 +492,16 @@ public class Process {
 							+ tmp.get(key) + " seconds\", ";
 					tmp.remove(key);
 				}
+			}
+		} else if(option.equalsIgnoreCase("getPlayers")) {
+			Set<String> keySet = ServerTable.getAllPlayerNames();
+			String[] allPlayers = keySet.toArray(new String[0]);
+			if(allPlayers.length > 0) {
+				output += "\"players\":[\""+allPlayers[0];
+				for(int i=1; i < allPlayers.length; i++) {
+					output += "\", \"" + allPlayers[i];
+				}
+				output += "\"]";
 			}
 		}
 		output += "}";
