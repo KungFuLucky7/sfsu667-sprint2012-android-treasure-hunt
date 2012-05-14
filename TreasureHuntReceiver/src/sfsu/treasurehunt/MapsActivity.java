@@ -1,8 +1,6 @@
 package sfsu.treasurehunt;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Locale;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,10 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-
-import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -37,7 +32,6 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /*
  * Treasure Hunt Receiver.
@@ -72,9 +66,6 @@ public class MapsActivity extends MapActivity {
 	private static final int LOGIN_MENU = Menu.FIRST;
 	private static final int TOOLS_MENU = Menu.FIRST + 1;
 		
-	//For testing.
-	private int currentColor;
-
     // For receiving and handling new geolocation.
     private static final long MINIMUM_DISTANCECHANGE_FOR_UPDATE = 1; // Meters
 	private static final long MINIMUM_TIME_BETWEEN_UPDATE = 10000; // Milliseconds
@@ -242,7 +233,6 @@ public class MapsActivity extends MapActivity {
 		// Change string to uppercase and convert to global static variable. "Hot" would become HOT global variable.
 		status = status.toUpperCase();
 		int condition = ((status.contentEquals("WIN"))?WIN:(status.contentEquals("HOT"))?HOT:(status.contentEquals("WARMER")?WARMER:(status.contentEquals("WARM")?WARM:(status.contentEquals("COLD")?COLD:(status.contentEquals("SMOKEBOMB")?SMOKE:QUESTION)))));
-		currentColor = condition;
 		
 		switch (condition) {
 			case HOT:
