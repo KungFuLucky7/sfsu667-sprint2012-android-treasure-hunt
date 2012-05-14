@@ -3,8 +3,11 @@ package sfsu.treasurehunt;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.google.android.maps.GeoPoint;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +24,16 @@ import android.widget.Toast;
 public class LoginActivity extends Activity {
 	// Preferences file
 	public static final String PREFS_NAME = "MyPrefsFile";
+	
+    // Network related variables.
+    private JSONObject responseJSON;
+	private int networkActivity;
+	
+	// Network result status codes.
+	private static final int LOGIN = 0;
+	private static final int LOGOUT = 1;
+	private static final int RANKINGS = 2;
+	private static final int STATS = 3;
 	
 	// Main login screen buttons
     private Button settingsButton;
@@ -40,9 +53,9 @@ public class LoginActivity extends Activity {
     private Button tutorialButton;
     
     // Global variables.
-    private String userName;
-    private String password;
-    private int balance = 1234;
+    private String userName = "";
+    private String userPassword = "";
+    private int balance = 0;
     private boolean loginState = false;
     private boolean isUserLoggedIn = false;
     private boolean isSettingsScreenOn = false;
@@ -62,7 +75,7 @@ public class LoginActivity extends Activity {
         cancelButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                //mSoundManager.playSound(1);
+        			//mSoundManager.playSound(1);
         			cancelButton.setBackgroundResource(R.drawable.wooden_frame_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -79,11 +92,12 @@ public class LoginActivity extends Activity {
         actionButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                //mSoundManager.playSound(1);
+        			//mSoundManager.playSound(1);
         			actionButton.setBackgroundResource(R.drawable.wooden_frame_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
         			actionButton.setBackgroundResource(R.drawable.wooden_frame);
+        			closeSettingsScreen();
         			if (isUserLoggedIn) {
         				savePreferences();
         				finish();
@@ -104,7 +118,7 @@ public class LoginActivity extends Activity {
         settingsButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                //mSoundManager.playSound(1);
+        			//mSoundManager.playSound(1);
         			settingsButton.setBackgroundResource(R.drawable.settings_pressed);
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -145,29 +159,23 @@ public class LoginActivity extends Activity {
      		}
      	});
      	
-     // Open Settings Menu
-        settingsButton = (Button) findViewById(R.id.settingsButton);
-        settingsButton.setOnTouchListener(new OnTouchListener() {
-        	public boolean onTouch(View v, MotionEvent event) {
-        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                //mSoundManager.playSound(1);
-        			settingsButton.setBackgroundResource(R.drawable.settings_pressed);
-        		}
-        		else if (event.getAction() == MotionEvent.ACTION_UP) {
-        			settingsButton.setBackgroundResource(R.drawable.settings);
-        			if (isSettingsScreenOn) {
-        				isSettingsScreenOn = false;
-        				closeSettingsScreen();
-        			} else {
-        				isSettingsScreenOn = true;
-        				openSettingsScreen();
-        			}
-        		}
-        		return false;
-         	}
-     	});
+     	/* Displays settings text box that shows settings messages like
+         * Logout message, rankings, and any future messages for add-on.
+         */
+        settingsTextBox = (TextView) findViewById(R.id.settingsTextBox);
+        settingsTextBox.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				settingsTextBox.setVisibility(View.INVISIBLE);
+				openSettingsScreen();
+			}
+		});
     }
     
+	@Override
+	public void onBackPressed() {
+		finish();
+	}
+	
     /*
      * Bring up login screen and associated buttons.
      */
@@ -218,15 +226,26 @@ public class LoginActivity extends Activity {
     	if(userNameBox.getText().toString().contentEquals("")) {
     		Toast.makeText(getBaseContext(), "Enter a user name.", Toast.LENGTH_LONG).show();
     		Log.d("Login", "Blank user name field. ");
-    		
     	} else if (passwordBox.getText().toString().contentEquals("")) {
     		Toast.makeText(this, "Enter a password.", Toast.LENGTH_LONG).show();
     		Log.d("Login", "Blank password field.");
     	} else {
     		userName = userNameBox.getText().toString();
-    		password = passwordBox.getText().toString();
-    		String[] loginInfo = {userName, password};
-    		new NetworkCall().execute(loginInfo);
+    		userPassword = passwordBox.getText().toString();
+    		Log.d("Login", "requestLogin: " + userName + " / " + userPassword);
+    		
+    		//String[] loginInfo = {userName, password};
+
+    		// Debugging Hard-coded JSON
+            //String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\"}";
+    		networkActivity = LOGIN;
+        	String networkSend = "{";
+        	networkSend += "\"playerID\":\"" + userName + "\"";
+        	networkSend += ", \"password\":\"" + userPassword + "\"";
+        	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+        	networkSend += ", \"option\":\"signIn\""; 
+        	networkSend += "}";
+    		new NetworkCall().execute(networkSend);
     	}
     }
     
@@ -237,18 +256,19 @@ public class LoginActivity extends Activity {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("USERNAME", userName);
-        editor.putString("PASSWORD", password);
+        editor.putString("PASSWORD", userPassword);
         editor.putInt("BALANCE", balance);
         editor.commit();
-        Log.d("Login", "Setting USERNAME = " + userName);
+        Log.d("Login", "Saving " + userName + " / " + userPassword + " with a balance of " + balance);
 	}
 	
 	/*
 	 * User logout from server.
 	 */
 	private void logoutFromServer() {
-		Toast.makeText(getBaseContext(), "Logged Out", Toast.LENGTH_SHORT);
-
+		closeSettingsScreen();
+		settingsTextBox.setText("Logged Out.\n\n\nTouch to continue.");
+		settingsTextBox.setVisibility(View.VISIBLE);
 		//Below reseting of text should occur after network confirmation of logged procedure.
 		actionButton.setText("Login");
 	}
@@ -257,28 +277,44 @@ public class LoginActivity extends Activity {
 	 * Get rankings from server.
 	 */
 	private void getRankingsFromServer() {
-		Toast.makeText(getBaseContext(), "Top 3.", Toast.LENGTH_SHORT);
+		closeSettingsScreen();
+		settingsTextBox.setText("Top 3.\n\n\nTouch to continue.");
+		settingsTextBox.setVisibility(View.VISIBLE);
 	}
 	
     /*
      * Run the tutorial screen shots for the user.
      */
     private void runTutorial() {
-    	Toast.makeText(this, "Tutorial currently unavailable.", Toast.LENGTH_LONG);
+    	closeSettingsScreen();
+    	settingsTextBox.setText("Tutorial currently unavailable.\n\n\nTouch to continue.");
+		settingsTextBox.setVisibility(View.VISIBLE);
     }
     
     /*
 	 * Processes what happens after returning from a network call.
 	 */
 	protected void onNetworkResult() {
-		if(isUserLoggedIn) {
-			actionButton.setText("Start");
-			Toast.makeText(this, "Log-In Succesful", Toast.LENGTH_SHORT).show();
-			Log.d("Login", "Login to the server.");
-			closeLoginScreen();
-		} else {
-			Toast.makeText(this, "Log-In Failed", Toast.LENGTH_SHORT).show();
-			Log.d("Login", "Not Logged in to the server.");
+		try {
+			switch (networkActivity) {
+			case LOGIN:
+	            isUserLoggedIn = responseJSON.getString("signIn").equalsIgnoreCase("Good");
+	            
+				if(isUserLoggedIn) {
+					actionButton.setText("Start");
+					Toast.makeText(this, "Log-In Succesful", Toast.LENGTH_SHORT).show();
+					Log.d("Login", "Login to the server.");
+			    	balance = Integer.valueOf(responseJSON.getString("playerPoints"));
+					savePreferences();
+					closeLoginScreen();
+				} else {
+					Toast.makeText(this, "Log-In Failed", Toast.LENGTH_SHORT).show();
+					Log.d("Login", "Not Logged in to the server.");
+				}
+				break;
+			}
+		} catch (JSONException e) {
+			Log.e("Login", "onNetworkResult -> JSON error: " + e);
 		}
 	}
 	
@@ -303,26 +339,23 @@ public class LoginActivity extends Activity {
              * JSON for sending to server
              * String stringToJson = "{\"playerID\":\"" + sendingInfo[0] + "\", \"password\":\"" + sendingInfo[1] + "\", \"currentLocation\":\"0,0\", \"option\":\"signIn\"}";
              */
-
-            // Debugging Hard-coded JSON
-            String stringToJson = "{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\"}";
+           	
+           	String stringToJson = sendingInfo[0];
             
             JSONObject jsonToSend;
-            JSONObject responseJSON;
-            String signInStatus;
+            //JSONObject responseJSON;
             try {
                 jsonToSend = new JSONObject(stringToJson);
                 HttpClient httpClient = new HttpClient();
 
                 responseJSON = httpClient.httpPost(URL, jsonToSend);
-                signInStatus = responseJSON.getString("signIn");
             } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
 
             Log.i("NetworkCall", "doInBackgroup: " + URL);
 
-            return signInStatus;
+            return responseJSON.toString();
         }
 
         /*
@@ -335,7 +368,6 @@ public class LoginActivity extends Activity {
                 this.dialog.dismiss();
             }
             Log.d("Networking", "result = " + result);
-            isUserLoggedIn = result.equalsIgnoreCase("Good");
             onNetworkResult();
         }
     }
