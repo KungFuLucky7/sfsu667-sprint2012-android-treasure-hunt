@@ -27,5 +27,10 @@
     <string name="settingsTextBox">Settings text display.</string>
     <string name="radioGroupTitle">Select Target Below</string>
     <string name="confirmTarget">Confirm Target</string>
+    <string name="moneySign">Money Sign</string>
+    <string name="imageIcon">Icon</string>
+    <color name="grey">#808080</color>
+    <color name="blue">#0000FF</color>
+    <color name="white">#FFFFFF</color>
 
 </resources>
