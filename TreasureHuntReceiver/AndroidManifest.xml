@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sfsu.treasurehunt"
     android:versionCode="1"
-    android:versionName="1.6" >
+    android:versionName="1.8" >
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="9"/>
 
@@ -33,6 +33,9 @@
             android:screenOrientation="portrait"/>
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".SelectTargetActivity"
             android:screenOrientation="portrait"/>
     </application>
 
