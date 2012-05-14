@@ -65,6 +65,8 @@ public class MapsActivity extends MapActivity {
 	private static final int WARMER = 2;
 	private static final int HOT = 3;
 	private static final int SMOKE = 4;
+	private static final int QUESTION = 5;
+	private static final int WIN = 6;
 	
 	// Menu Id Numbers.
 	private static final int LOGIN_MENU = Menu.FIRST;
@@ -90,7 +92,7 @@ public class MapsActivity extends MapActivity {
     // User Account Info.
     private String userName = "test";
     private String userPassword = "test";
-    private int balance = 100;
+    private int balance = -1;
     
     // Network related variables.
     private JSONObject responseJSON;
@@ -102,7 +104,7 @@ public class MapsActivity extends MapActivity {
 	// Network result status codes.
 	private static final int GETCLUE = 1;
 	
-	// Activities
+	// Activity Call IDs.
 	private static final int LOGIN_SCREEN = 0;
 	private static final int TOOLS_SCREEN = 1;
 	
@@ -202,7 +204,7 @@ public class MapsActivity extends MapActivity {
 		mapController.animateTo(point);
 		mapController.setZoom(14);
 		
-		setLocationColor(point, "Smoke");
+		setLocationColor(point, "Question");
 		
 		myLocationManager.requestLocationUpdates(locationProvider, MINIMUM_TIME_BETWEEN_UPDATE, MINIMUM_DISTANCECHANGE_FOR_UPDATE, listener);
         
@@ -239,7 +241,7 @@ public class MapsActivity extends MapActivity {
 
 		// Change string to uppercase and convert to global static variable. "Hot" would become HOT global variable.
 		status = status.toUpperCase();
-		int condition = ((status.contentEquals("HOT"))?HOT:(status.contentEquals("WARMER")?WARMER:(status.contentEquals("WARM")?WARM:(status.contentEquals("COLD")?COLD:SMOKE))));
+		int condition = ((status.contentEquals("WIN"))?WIN:(status.contentEquals("HOT"))?HOT:(status.contentEquals("WARMER")?WARMER:(status.contentEquals("WARM")?WARM:(status.contentEquals("COLD")?COLD:(status.contentEquals("SMOKEBOMB")?SMOKE:QUESTION)))));
 		currentColor = condition;
 		
 		switch (condition) {
@@ -270,6 +272,18 @@ public class MapsActivity extends MapActivity {
 			case SMOKE:
 				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_smoke);
 				overlayItem = new OverlayItem(point, "Here", "You've Been Smoke-Screened!");
+				markerlayer = new MyMarkerLayer(drawable);
+		    	markerlayer.addOverlayItem(overlayItem);
+				break;
+			case QUESTION:
+				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_question_mark);
+				overlayItem = new OverlayItem(point, "Here", "You are not in a game.");
+				markerlayer = new MyMarkerLayer(drawable);
+		    	markerlayer.addOverlayItem(overlayItem);
+				break;
+			case WIN:
+				drawable = this.getResources().getDrawable(R.drawable.ic_maps_indicator_current_position_win);
+				overlayItem = new OverlayItem(point, "Here", "You WIN!!!");
 				markerlayer = new MyMarkerLayer(drawable);
 		    	markerlayer.addOverlayItem(overlayItem);
 				break;
@@ -329,12 +343,13 @@ public class MapsActivity extends MapActivity {
 		
     	networkActivity = GETCLUE;
     	String networkSend = "{";
-    	networkSend += "\"playerID\":\"" + "DF" + "\"";
-    	networkSend += ", \"password\":\"" + "testpass" + "\"";
+    	networkSend += "\"playerID\":\"" + userName + "\"";
+    	networkSend += ", \"password\":\"" + userPassword + "\"";
     	networkSend += ", \"currentLocation\":\"" + myLocation.getLatitude() + "," + myLocation.getLongitude() + "\"";
     	networkSend += ", \"option\":\"getClue\""; 
     	networkSend += "}";
-		//new NetworkCall().execute("{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}");
+		
+    	//new NetworkCall().execute("{\"playerID\":\"DF\", \"password\":\"testpass\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"getClue\"}");
     	Log.d("Treasure Hunt", "Getting Clue. (" + myLocation.getLatitude() + "," + myLocation.getLongitude() + ")");
     	new NetworkCall().execute(networkSend);
     }
@@ -409,7 +424,7 @@ public class MapsActivity extends MapActivity {
 		case GETCLUE:
 			try {
 				GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
-				String status = responseJSON.getString("clue");
+				String status = responseJSON.getString("indicator");
 				setLocationColor(point, status);
 				
 				textMessages.setText(responseJSON.getString("clue"));
