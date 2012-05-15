@@ -69,8 +69,9 @@ public class Process {
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				client.getInputStream()));
 		requestline = in.readLine();
-		while (requestline == null || requestline.isEmpty())
+		while (!requestline.isEmpty())
 			requestline = in.readLine();
+		requestline = in.readLine();
 		// Debug
 		System.out.println("requestline : " + requestline);
 
