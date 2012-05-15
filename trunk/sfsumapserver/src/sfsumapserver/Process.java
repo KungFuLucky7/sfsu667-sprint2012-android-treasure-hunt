@@ -303,7 +303,8 @@ public class Process {
 			ServerTable.resetGame();
 		} else if (player.checkTaunt()) {
 			indicator = "taunt";
-			message = ServerTable.getToolMessage("taunt");
+			if (message == null || message.equals(""))
+				message = ServerTable.getToolMessage("taunt");
 			player.resetTaunt();
 		} else {
 			if (player.getCurrentEffect().equals("")
