@@ -143,6 +143,7 @@ public class Process {
 				message = "Starting a new game, the last winner was "
 						+ lastWinner + ". ";
 			}
+			message += ServerTable.getBuildingClue(goalName) + " ";
 			totalPoints = player.getPlayerPoints();
 			goalLocation = ServerTable.getGoalLocation();
 			computeDistance();
