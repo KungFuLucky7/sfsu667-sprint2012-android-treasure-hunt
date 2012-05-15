@@ -19,7 +19,6 @@
         android:id="@+id/nameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/spacingLeft"
         android:layout_below="@+id/spacingLeft"
         android:layout_toRightOf="@+id/skull"
         android:paddingLeft="5dip"
@@ -27,6 +26,7 @@
         android:shadowDx="-1"
         android:shadowDy="1"
         android:shadowRadius=".01"
+        android:singleLine="true"
         android:text="@string/name"
         android:textColor="#000000"
         android:textSize="25dp"
@@ -100,14 +100,14 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="20dp"
         android:background="@drawable/treasure_map"
+        android:gravity="center"
         android:shadowColor="#000000"
         android:shadowDx="-1"
         android:shadowDy="1"
         android:shadowRadius=".01"
         android:text="@string/clue"
         android:textColor="#8B0000"
-        android:textSize="25dip"
-        android:gravity="center"/>
+        android:textSize="25dip" />
 
     <TextView
         android:id="@+id/textMessages"
@@ -152,5 +152,19 @@
         android:textColor="#000000"
         android:textSize="25dip"
         android:textStyle="bold" />
+
+    <ProgressBar
+        android:id="@+id/networkProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:maxHeight="90dip"
+        android:maxWidth="90dip"
+        android:minHeight="90dip"
+        android:minWidth="90dip"
+        android:visibility="invisible"
+        android:background = "@color/progress_gold" />
 
 </RelativeLayout>
