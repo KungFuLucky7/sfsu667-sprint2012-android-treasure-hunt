@@ -32,7 +32,7 @@ public class Tryput_6 {
 				String stringToJson = "Testing!\n"
 						+ "\n"
 						+ "{\"playerID\":\"DF\", \"currentLocation\":\"37.723598,-122.480807\","
-						+ " \"option\":\"setTool\", \"tool\":\"smokeBomb\", \"targetPlayer\":\"DF\"}";
+						+ " \"option\":\"setTool\", \"tool\":\"smokeBomb\", \"targetPlayer\":\"TW\"}";
 
 				toServer.println(stringToJson);
 				toServer.println("");
