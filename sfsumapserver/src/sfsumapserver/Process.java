@@ -157,8 +157,9 @@ public class Process {
 			totalPoints = player.getPlayerPoints();
 			if (totalPoints - ServerTable.getToolPrice(tool) >= 0)
 				if (tool.equals("taunt")) {
-					player.setTaunt();
-					player.setTauntMessage(message);
+					ServerTable.getPlayerInfo(targetPlayer).setTaunt();
+					ServerTable.getPlayerInfo(targetPlayer).setTauntMessage(
+							message);
 					isToolSet = true;
 				} else
 					isToolSet = ServerTable.getPlayerInfo(targetPlayer)
