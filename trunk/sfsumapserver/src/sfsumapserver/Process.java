@@ -139,7 +139,7 @@ public class Process {
 				System.out.println("player startTime: " + startTime);
 				player.setStartTime(startTime);
 				message = "You're starting a new game, the last winner was "
-						+ lastWinner + ".";
+						+ lastWinner + ".\n";
 			}
 			goalLocation = ServerTable.getGoalLocation();
 			computeDistance();
@@ -291,7 +291,7 @@ public class Process {
 	private synchronized void setIndicator() {
 		if (player.checkStolenWin()) {
 			indicator = "Win";
-			message = "You have a stolen win!";
+			message += "You have a stolen win!";
 			totalPoints += 500;
 			if (elapsedTime <= 120000) {
 				totalPoints += 500;
@@ -325,7 +325,7 @@ public class Process {
 					indicator = "lock-out";
 				} else {
 					indicator = "Win";
-					message = "Congratulations! You have won!";
+					message += "Congratulations! You have won!";
 					totalPoints += 500;
 					if (elapsedTime <= 120000) {
 						totalPoints += 500;
@@ -338,14 +338,14 @@ public class Process {
 			} else if (distance <= 0.003) {
 				indicator = "Hot";
 				if (currentEffect.equals("") && !player.checkHotOnce()) {
-					message = "You are hot!";
+					message += "You are hot!";
 					totalPoints += 200;
 					player.setHotOnce();
 				}
 			} else if (distance <= 0.006) {
 				indicator = "Warm";
 				if (currentEffect.equals("") && !player.checkWarmOnce()) {
-					message = "You are warm!";
+					message += "You are warm!";
 					totalPoints += 100;
 					player.setWarmOnce();
 				}
