@@ -43,8 +43,13 @@ public class Tools extends Activity {
 	private String networkSend = "";
  
     // Network result status codes.
- 	private static final int PURCHASE = 0;
- 	private static final int PURCHASE_COMPASS = 1;
+ 	private static final int PURCHASE_TAUNT = 0;
+ 	private static final int PURCHASE_MONKEY = 1;
+ 	private static final int PURCHASE_SMOKE = 2;
+ 	private static final int PURCHASE_CLEARSKY = 3;
+ 	private static final int PURCHASE_COMPASS = 4;
+ 	private static final int PURCHASE_STEAL = 5;
+ 	private static final int PURCHASE_LOCKOUT = 6;
  	
  	// Activity Call IDs.
  	private static final int SELECT_TARGET = 0;
@@ -54,6 +59,7 @@ public class Tools extends Activity {
 	private Button buy;
 	private Button sendTaunt;
 	private ImageView helpScreen;
+	private ImageView completePurchaseScreen;
 	private EditText tauntScreen;
 	private TextView balanceText;
 	
@@ -89,7 +95,7 @@ public class Tools extends Activity {
 
 		// Add tools to the tools list.
 		toolListData.add(new ToolList(R.drawable.laugh, "Taunt", 10));
-		toolListData.add(new ToolList(R.drawable.monkey, "Dizzy Monkey", 100));
+		toolListData.add(new ToolList(R.drawable.monkey, "Confused Monkey", 100));
 		toolListData.add(new ToolList(R.drawable.smoke, "Smoke Screen", 500));
 		toolListData.add(new ToolList(R.drawable.clearsky, "Clear Sky", 700));
 		toolListData.add(new ToolList(R.drawable.compass, "Compass", 700));
@@ -191,6 +197,14 @@ public class Tools extends Activity {
         		return false;
          	}
      	});
+		
+		// Image shows if purchase complete or failed.  Touch image to make it disappear.
+		completePurchaseScreen = (ImageView) findViewById(R.id.completePurchaseImage);
+		completePurchaseScreen.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				completePurchaseScreen.setVisibility(View.GONE);
+			}
+		});
 	}
 	
 	 /*
@@ -281,7 +295,6 @@ public class Tools extends Activity {
 	 * to networkCall() for each specific tool.
 	 */
 	private void makeToolPurchase() {
-		networkActivity = PURCHASE;
 		networkSend = "{";
 		
 		// For debugging purposes		
@@ -303,6 +316,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"option\":\"setTool\"";
 	    	networkSend += ", \"tool\":\"taunt\"";
 	    	
+	    	networkActivity = PURCHASE_TAUNT;
 	    	Log.d("Tools", "Purchasing Taunt.");
 			break;
 		case Monkey:
@@ -313,6 +327,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"tool\":\"dizzyMonkey\"";
 	    	goToSelectTargetScreen();
 	    	
+	    	networkActivity = PURCHASE_MONKEY;
 	    	Log.d("Tools", "Purchasing Confused Monkey.");
 			break;
 		case SmokeScreen:
@@ -324,6 +339,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"targetPlayer\":\"DF\"";
 	    	networkSend += "}";
 	    	
+	    	networkActivity = PURCHASE_SMOKE;
 	    	Log.d("Tools", "Purchasing SmokeScreen.");
 	    	new NetworkCall().execute(networkSend);
 			break;
@@ -335,6 +351,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"tool\":\"clearSky\""; 
 	    	networkSend += "}";
 	    	
+	    	networkActivity = PURCHASE_CLEARSKY;
 	    	Log.d("Tools", "Purchasing Clear Sky.");
 	    	new NetworkCall().execute(networkSend);
 			break;
@@ -345,7 +362,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"option\":\"setTool\"";
 	    	networkSend += ", \"tool\":\"compass\""; 
 	    	networkSend += "}";
-	    	
+	    
 	    	networkActivity = PURCHASE_COMPASS;
 	    	Log.d("Tools", "Purchasing Compass.");
 	    	new NetworkCall().execute(networkSend);
@@ -358,6 +375,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"tool\":\"stealer\""; 
 	    	networkSend += "}";
 	    	
+	    	networkActivity = PURCHASE_SMOKE;
 	    	Log.d("Tools", "Purchasing Stealer.");
 	    	new NetworkCall().execute(networkSend);
 			break;
@@ -369,6 +387,7 @@ public class Tools extends Activity {
 	    	networkSend += ", \"tool\":\"lockout\""; 
 	    	networkSend += "}";
 	    	
+	    	networkActivity = PURCHASE_LOCKOUT;
 	    	Log.d("Tools", "Purchasing Lockout.");
 	    	new NetworkCall().execute(networkSend);
 			break;
@@ -421,14 +440,59 @@ public class Tools extends Activity {
 		    	Log.d("Tools", "Purchase Complete. New balance = " + balance);
 			 
 		    	switch (networkActivity) {
-		    	case PURCHASE:
-		    		break;
-		    	case PURCHASE_COMPASS:
-		    		editor.putBoolean("SHOWGOAL", true);
-			    	editor.commit();
-		    		break;
+		    		case PURCHASE_TAUNT:
+		    			completePurchaseScreen.setImageResource(R.drawable.purchase_good_taunt);
+		    			break;
+		    		case PURCHASE_MONKEY:
+						completePurchaseScreen.setImageResource(R.drawable.purchase_good_monkey);
+					break;
+		    		case PURCHASE_SMOKE:
+		    			completePurchaseScreen.setImageResource(R.drawable.purchase_good_smoke);
+					break;
+		    		case PURCHASE_CLEARSKY:
+						completePurchaseScreen.setImageResource(R.drawable.purchase_good_clearsky);
+					break;
+		    		case PURCHASE_COMPASS:
+		    			editor.putBoolean("SHOWGOAL", true);
+			    		editor.commit();
+			    		completePurchaseScreen.setImageResource(R.drawable.purchase_good_compass);
+		    			break;
+		    		case PURCHASE_STEAL:
+						completePurchaseScreen.setImageResource(R.drawable.purchase_good_steal);
+					break;
+		    		case PURCHASE_LOCKOUT:
+						completePurchaseScreen.setImageResource(R.drawable.purchase_good_lockout);
+					break;
 		    	}
+			} else {
+				switch (networkActivity) {
+				case PURCHASE_TAUNT:
+	    			completePurchaseScreen.setImageResource(R.drawable.purchase_good_taunt);
+	    			break;
+	    		case PURCHASE_MONKEY:
+					completePurchaseScreen.setImageResource(R.drawable.purchase_bad_monkey);
+				break;
+	    		case PURCHASE_SMOKE:
+	    			completePurchaseScreen.setImageResource(R.drawable.purchase_bad_smoke);
+				break;
+	    		case PURCHASE_CLEARSKY:
+					completePurchaseScreen.setImageResource(R.drawable.purchase_bad_clearsky);
+				break;
+	    		case PURCHASE_COMPASS:
+		    		completePurchaseScreen.setImageResource(R.drawable.purchase_bad_compass);
+	    			break;
+	    		case PURCHASE_STEAL:
+					completePurchaseScreen.setImageResource(R.drawable.purchase_bad_steal);
+				break;
+	    		case PURCHASE_LOCKOUT:
+					completePurchaseScreen.setImageResource(R.drawable.purchase_bad_lockout);
+				break;
+		    	}
+				
+				Log.d("Tools", "Purchase Failed.");
 			}
+			
+			completePurchaseScreen.setVisibility(View.VISIBLE);
 	    } catch (JSONException e) {
 			Log.e("Treasure Hunt", "Tools -> PURCHASE JSON error: " + e);
 		}

@@ -115,7 +115,7 @@ public class MapsActivity extends MapActivity {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("SERVER", server);
-        editor.putBoolean("SHOWGOAL", true);
+        editor.putBoolean("SHOWGOAL", false);
         editor.commit();
 
 		mapView = (MapView) findViewById(R.id.mapView);
