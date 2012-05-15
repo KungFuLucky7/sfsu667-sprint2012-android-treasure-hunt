@@ -382,7 +382,7 @@ public class MapsActivity extends MapActivity {
 	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 	    userName = settings.getString("USERNAME", "NONE");
 	    userPassword = settings.getString("PASSWORD", "NONE");
-	    balance = settings.getInt("BALANCE", 0);
+	    balance = settings.getInt("BALANCE", -1);
 	    Log.d("Treasure Hunt", "User: " + userName + " signed on.");
 	    Log.d("Treasure Hunt", "Balance: " + balance);
 	}
@@ -450,6 +450,8 @@ public class MapsActivity extends MapActivity {
 			setUserAccountInfo();
 			break;
 		case TOOLS_SCREEN:
+		    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+		    balance = settings.getInt("BALANCE", -1);
 			showGoalLocationCheck();
 			break;
 		}
