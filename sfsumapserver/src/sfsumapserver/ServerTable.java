@@ -41,8 +41,8 @@ public class ServerTable extends Object {
 
 	private static String buildingMessage[] = { "", "", "", "", "", "", "", "",
 			"", "This is where CS students go to classes most oftenly.", "",
-			"", "", "", "", "", "", "", "", "", "", "",
-			"This is where CS students study." };
+			"We studied web application design and development there.", "", "",
+			"", "", "", "", "", "", "", "", "This is where CS students study." };
 
 	private static String toolName[] = { "taunt", "dizzyMonkey", "smokeBomb",
 			"clearSky", "steal", "lock-out", "compass" };
