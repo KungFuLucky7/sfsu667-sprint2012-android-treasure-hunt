@@ -89,7 +89,8 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/spacingLeft"
         android:paddingLeft="10dip"
-        android:src="@drawable/skull" />
+        android:src="@drawable/skull"
+        android:contentDescription="@string/skull" />
 
     <Button
         android:id="@+id/clueButton"
@@ -118,7 +119,7 @@
         android:layout_below="@+id/nameText"
         android:background="@drawable/parchment"
         android:padding="30dip"
-        android:text="TextView"
+        android:text="@string/name"
         android:textColor="#000000"
         android:textSize="20dip"
         android:textStyle="bold|italic"
@@ -133,7 +134,8 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/spacingRight"
         android:gravity="left"
-        android:src="@drawable/chest" />
+        android:src="@drawable/chest"
+        android:contentDescription="@string/treasureChest" />
 
     <TextView
         android:id="@+id/balanceText"
@@ -166,5 +168,24 @@
         android:minWidth="90dip"
         android:visibility="invisible"
         android:background = "@color/progress_gold" />
+
+    <ImageView
+        android:id="@+id/gameStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/winner"
+        android:contentDescription="@string/gameStatus"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/winGameButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/clueButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/refreshButton"
+        android:text="@string/win" />
 
 </RelativeLayout>
