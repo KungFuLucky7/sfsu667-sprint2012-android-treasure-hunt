@@ -356,8 +356,7 @@ public class Tools extends Activity {
 				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
 				networkSend += ", \"option\":\"setTool\"";
 				networkSend += ", \"tool\":\"smokeBomb\"";
-				networkSend += ", \"targetPlayer\":\"DF\"";
-				networkSend += "}";
+				goToSelectTargetScreen();
 				
 				networkActivity = PURCHASE_SMOKE;
 				Log.d("Tools", "Purchasing SmokeScreen.");
