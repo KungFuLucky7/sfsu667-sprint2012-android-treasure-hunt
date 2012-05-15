@@ -22,7 +22,7 @@ public class Tryput_2 {
 		boolean which = true;
 		if (which) {
 			try {
-				//Socket server = new Socket("localhost", 9255);
+				// Socket server = new Socket("localhost", 9255);
 				Socket server = new Socket("thecity.sfsu.edu", 9255);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
