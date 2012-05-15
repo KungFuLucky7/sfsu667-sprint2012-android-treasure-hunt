@@ -143,6 +143,7 @@ public class Process {
 				message = "Starting a new game, the last winner was "
 						+ lastWinner + ". ";
 			}
+			totalPoints = player.getPlayerPoints();
 			goalLocation = ServerTable.getGoalLocation();
 			computeDistance();
 			computeElapsedTime();
@@ -153,21 +154,15 @@ public class Process {
 			updateTopThree();
 		} else if (option.equalsIgnoreCase("setTool")) {
 			player = ServerTable.getPlayerInfo(playerID);
-			goalName = ServerTable.getGoal();
-			if (goalName.equals("")) {
-				goalName = ServerTable.setNewGoal();
-			}
-			System.out.println("goal: " + goalName);
-			if (player.getGoal().equals("")) {
-				player.setGoal(goalName);
-				startTime = System.currentTimeMillis();
-				System.out.println("player startTime: " + startTime);
-				player.setStartTime(startTime);
-				message = "Starting a new game, the last winner was "
-						+ lastWinner + ". ";
-			}
-			isToolSet = ServerTable.getPlayerInfo(targetPlayer).activateTool(
-					tool);
+			totalPoints = player.getPlayerPoints();
+			if (totalPoints - ServerTable.getToolPrice(tool) >= 0)
+				if (tool.equals("taunt")) {
+					player.setTaunt();
+					player.setTauntMessage(message);
+					isToolSet = true;
+				} else
+					isToolSet = ServerTable.getPlayerInfo(targetPlayer)
+							.activateTool(tool);
 			if (isToolSet) {
 				totalPoints -= ServerTable.getToolPrice(tool);
 				if (tool.equals("steal")) {
@@ -179,10 +174,6 @@ public class Process {
 			// of game
 			// ServerTable.getPlayerInfo(targetPlayer).setPlayerPoints(
 			// ServerTable.getToolDamage(tool));
-			goalLocation = ServerTable.getGoalLocation();
-			computeDistance();
-			computeElapsedTime();
-			player.setDistance(distance);
 			player.setPlayerPoints(totalPoints);
 			updateTopScoreTeams();
 			updateTopThree();
@@ -312,9 +303,10 @@ public class Process {
 			ServerTable.resetGame();
 		} else if (player.checkTaunt()) {
 			indicator = "taunt";
-			if (message == null || message.equals(""))
-				message += " <- " + ServerTable.getToolMessage("taunt");
+			message += player.getTauntMessage() + " <- "
+					+ ServerTable.getToolMessage("taunt");
 			player.resetTaunt();
+			player.setTauntMessage("");
 		} else {
 			if (player.getCurrentEffect().equals("")
 					&& player.checkClearSky() == true) {
@@ -417,15 +409,9 @@ public class Process {
 			else
 				output += "Bad";
 			output += ", \"tool\":\"" + tool + "\"";
-			output += ", \"distance\":\"" + distance + "\"";
-			output += ", \"goalLocation\":\"" + goalLocation + "\"";
-
-			// for elapsed time
-			output += ", \"elapsedTime\":\""
-					+ dateFormat.format(new Date(elapsedTime)) + "\"";
-
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 			output += ", \"targetPlayer\":\"" + targetPlayer + "\"";
+			output += ", \"message\":\"" + message + "\"";
 		} else if (option.equalsIgnoreCase("getTopThree")) {
 			// get each top 3 team's clue and distance by using keywords
 			// "TopTeam1",
