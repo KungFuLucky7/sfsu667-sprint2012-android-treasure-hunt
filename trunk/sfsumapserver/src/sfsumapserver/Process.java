@@ -104,7 +104,8 @@ public class Process {
 		if (jsonReceived.has("targetPlayer")) {
 			targetPlayer = jsonReceived.getAsJsonPrimitive("targetPlayer")
 					.getAsString();
-		}
+		} else
+			targetPlayer = playerID;
 
 		if (jsonReceived.has("message")) {
 			message = jsonReceived.getAsJsonPrimitive("message").getAsString();
@@ -176,7 +177,6 @@ public class Process {
 			computeDistance();
 			computeElapsedTime();
 			player.setDistance(distance);
-			setIndicator();
 			updateTopThree();
 		}
 	}
@@ -406,8 +406,7 @@ public class Process {
 
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (option.equalsIgnoreCase("setTool")) {
-			output += "\"clue\":\"" + message + "\"";
-			output += ", \"tool\":\"" + tool + "\"";
+			output += "\"tool\":\"" + tool + "\"";
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 

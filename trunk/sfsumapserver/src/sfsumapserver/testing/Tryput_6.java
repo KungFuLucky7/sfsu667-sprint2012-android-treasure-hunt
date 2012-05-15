@@ -29,8 +29,10 @@ public class Tryput_6 {
 				PrintWriter toServer = new PrintWriter(
 						server.getOutputStream(), true);
 
-				String stringToJson = "{\"playerID\":\"TW\", \"currentLocation\":\"37.723598,-122.480807\","
-						+ " \"option\":\"setTool\", \"tool\":\"compass\", \"targetPlayer\":\"DF\"}";
+				String stringToJson = "Testing!\n"
+						+ "\n"
+						+ "{\"playerID\":\"DF\", \"currentLocation\":\"37.723598,-122.480807\","
+						+ " \"option\":\"setTool\", \"tool\":\"smokeBomb\", \"targetPlayer\":\"DF\"}";
 
 				toServer.println(stringToJson);
 				toServer.println("");

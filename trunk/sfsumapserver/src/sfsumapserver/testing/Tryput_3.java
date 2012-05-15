@@ -23,13 +23,15 @@ public class Tryput_3 {
 		if (which) {
 			try {
 				Socket server = new Socket("localhost", 9255);
-				//Socket server = new Socket("thecity.sfsu.edu", 9255);
+				// Socket server = new Socket("thecity.sfsu.edu", 9255);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
 				PrintWriter toServer = new PrintWriter(
 						server.getOutputStream(), true);
 
-				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"37.723598,-122.480807\", \"option\":\"GetClue\"}";
+				String stringToJson = "Testing!\n"
+						+ "\n"
+						+ "{\"playerID\":\"DF\", \"currentLocation\":\"37.723598,-122.480807\", \"option\":\"GetClue\"}";
 
 				toServer.println(stringToJson);
 				toServer.println("");
