@@ -360,7 +360,6 @@ public class Tools extends Activity {
 				
 				networkActivity = PURCHASE_SMOKE;
 				Log.d("Tools", "Purchasing SmokeScreen.");
-				new NetworkCall().execute(networkSend);
 				break;
 			case ClearSky:
 				networkSend += "\"playerID\":\"" + userName + "\"";
