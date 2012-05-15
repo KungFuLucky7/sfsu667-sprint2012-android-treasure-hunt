@@ -22,8 +22,8 @@ public class Tryput_6 {
 		boolean which = true;
 		if (which) {
 			try {
-				Socket server = new Socket("localhost", 9255);
-				//Socket server = new Socket("thecity.sfsu.edu", 8088);
+				// Socket server = new Socket("localhost", 9255);
+				Socket server = new Socket("thecity.sfsu.edu", 8088);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
 				PrintWriter toServer = new PrintWriter(
@@ -32,7 +32,7 @@ public class Tryput_6 {
 				String stringToJson = "Testing!\n"
 						+ "\n"
 						+ "{\"playerID\":\"DF\", \"currentLocation\":\"37.723598,-122.480807\","
-						+ " \"option\":\"setTool\", \"tool\":\"smokeBomb\", \"targetPlayer\":\"DF\"}";
+						+ " \"option\":\"setTool\", \"tool\":\"smokeBomb\", \"targetPlayer\":\"tw\"}";
 
 				toServer.println(stringToJson);
 				toServer.println("");
