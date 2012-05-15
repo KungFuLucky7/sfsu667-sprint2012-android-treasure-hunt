@@ -25,6 +25,12 @@ public class SFSUMapServer {
 	public SFSUMapServer(int port) {
 		portNumber = port;
 		ServerTable.init();
+		if (!ServerTable.getDebugGoal().isEmpty()
+				&& ServerTable.getBuildingLocation(ServerTable.getDebugGoal()) == null) {
+			System.err
+					.println("Incorrect usage: The debug goal location is not included in the server's list of available locations.");
+			System.exit(1);
+		}
 	}
 
 	void runServer() {
@@ -61,12 +67,12 @@ public class SFSUMapServer {
 
 	public static void main(String[] args) {
 		if (args.length == 0) {
-			System.out.println("Incorrect usage: "
-					+ "need one argument for a port number");
+			System.out
+					.println("Incorrect usage: need one argument for a port number");
 			System.exit(1);
 		}
-		if (args[1].equals("-d"))
-			ServerTable.debugMode = true;
+		if (!args[1].isEmpty())
+			ServerTable.setDebugGoal(args[1]);
 		new SFSUMapServer(Integer.valueOf(args[0])).runServer();
 	}
 }

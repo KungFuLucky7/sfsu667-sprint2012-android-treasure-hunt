@@ -39,10 +39,15 @@ public class ServerTable extends Object {
 			"37.721198,-122.476739", "37.722083,-122.476737",
 			"37.721889,-122.476074", "37.722486025,-122.4751094625" };
 
+	private static String buildingMessage[] = { "", "", "", "", "", "", "", "",
+			"", "This is where CS students go to classes most oftenly.", "",
+			"", "", "", "", "", "", "", "", "", "", "",
+			"This is where CS students study." };
+
 	private static String toolName[] = { "taunt", "dizzyMonkey", "smokeBomb",
 			"clearSky", "steal", "lock-out", "compass" };
 
-	private static String Message[] = { "You've been taunted!",
+	private static String toolMessage[] = { "You've been taunted!",
 			"You are a dizzyMonkey!", "You've been smoke bombed!",
 			"You sky is now clear!", "Someone is trying to steal your win!",
 			"You have been locked out for winning!", "You have a radar!" };
@@ -55,23 +60,25 @@ public class ServerTable extends Object {
 	// };
 
 	private static HashMap<String, String> buildingInfo = new HashMap<String, String>();
+	private static HashMap<String, String> buildingClues = new HashMap<String, String>();
 	private static HashMap<String, Integer> toolsCosts = new HashMap<String, Integer>();
 	// private static HashMap<String, Integer> toolsEffects = new
 	// HashMap<String, Integer>();
-	private static HashMap<String, String> toolsMessages = new HashMap<String, String>();
+	private static HashMap<String, String> toolsClues = new HashMap<String, String>();
 	private static HashMap<String, PlayerStats> playerInfo = new HashMap<String, PlayerStats>();
 	private static ArrayList<String> durationalTools = new ArrayList<String>();
 
 	private static String goal = "";
-	public static boolean debugMode = false;
+	private static String debugGoal = "";
 
 	public static String setNewGoal() {
-		if (!debugMode) {
+		if (!debugGoal.isEmpty() && buildingInfo.containsKey(debugGoal))
+			// Debug
+			goal = debugGoal;
+		else {
 			int randomIndex = (int) (Math.random() * buildingName.length);
 			goal = buildingName[randomIndex];
-		} else
-			// Debug
-			goal = "Thornton Hall";
+		}
 		return goal;
 	}
 
@@ -90,8 +97,20 @@ public class ServerTable extends Object {
 		return buildingInfo.get(goal);
 	}
 
+	public static void setDebugGoal(String dg) {
+		debugGoal = dg;
+	}
+
+	public static String getDebugGoal() {
+		return debugGoal;
+	}
+
 	public static String getBuildingLocation(String buildingName) {
 		return buildingInfo.get(buildingName);
+	}
+
+	public static String getBuildingClue(String buildingName) {
+		return buildingClues.get(buildingName);
 	}
 
 	public static void setPlayerInfo(String playerID) {
@@ -115,7 +134,7 @@ public class ServerTable extends Object {
 	}
 
 	public static String getToolMessage(String tool) {
-		return toolsMessages.get(tool);
+		return toolsClues.get(tool);
 	}
 
 	// public static Integer getToolDamage(String toolName) {
@@ -213,6 +232,7 @@ public class ServerTable extends Object {
 	public static void init() {
 		for (int i = 0; i < buildingName.length; i++) {
 			buildingInfo.put(buildingName[i], buildingLocation[i]);
+			buildingClues.put(buildingName[i], buildingMessage[i]);
 		}
 		for (int i = 0; i < toolName.length; i++) {
 			toolsCosts.put(toolName[i], toolPrice[i]);
@@ -223,7 +243,7 @@ public class ServerTable extends Object {
 		// toolsEffects.put(toolName[i], toolDamage[i]);
 		// }
 		for (int i = 0; i < toolName.length; i++) {
-			toolsMessages.put(toolName[i], Message[i]);
+			toolsClues.put(toolName[i], toolMessage[i]);
 		}
 		durationalTools.addAll(Arrays.asList(toolWithDuration));
 		loadUserFile();
