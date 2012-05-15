@@ -23,6 +23,7 @@ import com.google.gson.JsonParser;
  * This class is for processing the request input stream.
  * 
  * @author Terry Wong
+ * @edited Benjamin Britten
  */
 public class Process {
 
@@ -392,8 +393,6 @@ public class Process {
 			}
 			output += "\"";
 		} else if (option.equalsIgnoreCase("getClue")) {
-			// output += "\"clue\":\"" + "There is a Peet's Coffee there!" +
-			// "\"";
 			output += "\"clue\":\"" + message + "\"";
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
