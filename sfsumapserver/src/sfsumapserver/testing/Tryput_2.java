@@ -10,7 +10,7 @@ import java.net.Socket;
 
 /**
  * 
- * @author  Terry Wong
+ * @author Terry Wong
  */
 public class Tryput_2 {
 
@@ -23,7 +23,7 @@ public class Tryput_2 {
 		if (which) {
 			try {
 				Socket server = new Socket("localhost", 9255);
-				//Socket server = new Socket("thecity.sfsu.edu", 9255);
+				// Socket server = new Socket("thecity.sfsu.edu", 9255);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
 				PrintWriter toServer = new PrintWriter(
