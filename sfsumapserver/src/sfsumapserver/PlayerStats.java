@@ -8,7 +8,7 @@ package sfsumapserver;
 public class PlayerStats {
 
 	private String playerID = "", playerGoal = "", currentIndicator = "",
-			toolInEffect = "", stealer = "";
+			toolInEffect = "", stealer = "", tauntMessage = "";
 	// private currentLocation = ""; -For future use.
 	private int playerPoints = 0;
 	private float playerDistance;
@@ -64,7 +64,7 @@ public class PlayerStats {
 	}
 
 	public void setPlayerPoints(int points) {
-		playerPoints += points;
+		playerPoints = points;
 	}
 
 	public int getPlayerPoints() {
@@ -157,6 +157,14 @@ public class PlayerStats {
 
 	public void resetTaunt() {
 		isTaunt = false;
+	}
+
+	public void setTauntMessage(String tm) {
+		tauntMessage = tm;
+	}
+
+	public String getTauntMessage() {
+		return tauntMessage;
 	}
 
 	public boolean checkClearSky() {
