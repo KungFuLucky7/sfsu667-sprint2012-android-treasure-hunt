@@ -39,10 +39,25 @@ public class ServerTable extends Object {
 			"37.721198,-122.476739", "37.722083,-122.476737",
 			"37.721889,-122.476074", "37.722486025,-122.4751094625" };
 
-	private static String buildingMessage[] = { "", "", "", "", "", "", "", "",
-			"", "This is where CS students go to classes most oftenly.", "",
-			"We studied web application design and development there.", "", "",
-			"", "", "", "", "", "", "", "", "This is where CS students study." };
+	private static String buildingMessage[] = {
+			"There are lots of cars here.",
+			"Where school tours start.",
+			"Clue: Village C.",
+			"They have cheap pizza 24/7.",
+			"Where freshman in dorms eat.",
+			"They have a three course restuarant here.",
+			"Where to go when you're feeling sick.",
+			"SFSU is the only CSU with a dedicated college to this area of study.",
+			"You can swim here.",
+			"This is where CS students go to classes most oftenly.",
+			"The biology departement is here.", "Where CSC 667 has class.",
+			"CS Lab is in this building.", "Where the student council meets.",
+			"Get your textbooks here.", "They make art here.",
+			"They make complex art here.", "Where the English majors go.",
+			"There's a Peets coffee here.",
+			"The people in charge of the school are here.",
+			"Marketing people go here.", "History majors go here.",
+			"This is where CS students study." };
 
 	private static String toolName[] = { "taunt", "dizzyMonkey", "smokeBomb",
 			"clearSky", "steal", "lock-out", "compass" };
