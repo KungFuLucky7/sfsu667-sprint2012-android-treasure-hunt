@@ -88,10 +88,13 @@ public class PlayerStats {
 		} else if (ServerTable.getDurationalTools().contains(tool)) {
 			toolInEffect = tool;
 			effectStartTime = System.currentTimeMillis();
-			if (toolInEffect.equals("lock-out") || toolInEffect.equals("steal")) {
-				effectDuration = 120;
+			if (toolInEffect.equals("compass"))
+				effectDuration = 60;
+			else if (toolInEffect.equals("lock-out")
+					|| toolInEffect.equals("steal")) {
+				effectDuration = 180;
 			} else {
-				effectDuration = 90;
+				effectDuration = 300;
 			}
 		}
 	}
