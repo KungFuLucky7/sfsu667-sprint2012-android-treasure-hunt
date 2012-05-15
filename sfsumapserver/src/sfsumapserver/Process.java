@@ -148,6 +148,8 @@ public class Process {
 			computeElapsedTime();
 			player.setDistance(distance);
 			setIndicator();
+			player.setPlayerPoints(totalPoints);
+			updateTopScoreTeams();
 			updateTopThree();
 		} else if (option.equalsIgnoreCase("setTool")) {
 			player = ServerTable.getPlayerInfo(playerID);
@@ -177,6 +179,8 @@ public class Process {
 			computeDistance();
 			computeElapsedTime();
 			player.setDistance(distance);
+			player.setPlayerPoints(totalPoints);
+			updateTopScoreTeams();
 			updateTopThree();
 		}
 	}
@@ -363,10 +367,7 @@ public class Process {
 				}
 			}
 		}
-
 		player.setIndicator(indicator);
-		player.setPlayerPoints(totalPoints);
-		updateTopScoreTeams();
 	}
 
 	/**

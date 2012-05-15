@@ -24,8 +24,8 @@ public class Tryput_1 {
 		boolean which = true;
 		if (which) {
 			try {
-				Socket server = new Socket("localhost", 9255);
-				// Socket server = new Socket("thecity.sfsu.edu", 9255);
+				// Socket server = new Socket("localhost", 9255);
+				Socket server = new Socket("thecity.sfsu.edu", 8088);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
 				String password = new Encrypt("1234").getPassword();
