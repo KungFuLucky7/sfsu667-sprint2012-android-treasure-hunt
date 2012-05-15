@@ -67,6 +67,14 @@ public class LoginActivity extends Activity {
         userNameBox = (EditText) findViewById(R.id.userNameBox);
         passwordBox = (EditText) findViewById(R.id.passwordBox);
         
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        if (!settings.getString("USERNAME", "").contentEquals("")) {
+        	userName = settings.getString("USERNAME", "");
+        	balance = settings.getInt("BALANCE", -1);
+        	loginState = true;
+        	isUserLoggedIn = true;
+        }
+        
         // Cancels users attempt to login to server.
         cancelButton = (Button) findViewById(R.id.cancelButton);
         cancelButton.setOnTouchListener(new OnTouchListener() {
@@ -85,7 +93,12 @@ public class LoginActivity extends Activity {
         
         // Action performs login and start game functions.
         actionButton = (Button) findViewById(R.id.actionButton);
-        actionButton.setText("Login");
+        if (loginState) {
+        	actionButton.setText("Start");
+        }
+        else {
+        	actionButton.setText("Login");
+        }
         actionButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -266,8 +279,16 @@ public class LoginActivity extends Activity {
 		closeSettingsScreen();
 		settingsTextBox.setText("Logged Out.\n\n\nTouch to continue.");
 		settingsTextBox.setVisibility(View.VISIBLE);
-		//Below reseting of text should occur after network confirmation of logged procedure.
+		
+		userName = "";
+		userPassword = "";
+		balance = 0;
+		savePreferences();
+		
+		//Below resetting of text should occur after network confirmation of logged procedure.
 		actionButton.setText("Login");
+		isUserLoggedIn = false;
+		loginState = false;
 	}
 	
 	/*
@@ -340,7 +361,7 @@ public class LoginActivity extends Activity {
            	String stringToJson = sendingInfo[0];
             
             JSONObject jsonToSend;
-            //JSONObject responseJSON;
+
             try {
                 jsonToSend = new JSONObject(stringToJson);
                 HttpClient httpClient = new HttpClient();
