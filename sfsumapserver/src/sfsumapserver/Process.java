@@ -138,8 +138,8 @@ public class Process {
 				startTime = System.currentTimeMillis();
 				System.out.println("player startTime: " + startTime);
 				player.setStartTime(startTime);
-				message = "You're starting a new game, the last winner was "
-						+ lastWinner + ".\n";
+				message = "Starting a new game, the last winner was "
+						+ lastWinner + ". ";
 			}
 			goalLocation = ServerTable.getGoalLocation();
 			computeDistance();
@@ -159,8 +159,8 @@ public class Process {
 				startTime = System.currentTimeMillis();
 				System.out.println("player startTime: " + startTime);
 				player.setStartTime(startTime);
-				message = "You're starting a new game, the last winner was "
-						+ lastWinner + ".";
+				message = "Starting a new game, the last winner was "
+						+ lastWinner + ". ";
 			}
 			totalPoints -= ServerTable.getToolPrice(tool);
 			ServerTable.getPlayerInfo(targetPlayer).activateTool(tool);
