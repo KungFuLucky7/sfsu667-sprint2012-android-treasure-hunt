@@ -23,8 +23,9 @@ public class ServerTable extends Object {
 			"Science Building", "Cesar Chavez Student Center",
 			"SFSU Bookstore", "Fine Arts Building", "Creative Arts Building",
 			"Humanities Building", "J. Paul Leonard Library",
-			"Administration Building", "Business Building", "HSS Building", "CS Lab" };
-	
+			"Administration Building", "Business Building", "HSS Building",
+			"CS Lab" };
+
 	private static String buildingLocation[] = { "37.724213,-122.4812",
 			"37.723413,-122.480602", "37.723008,-122.480838",
 			"37.72315,-122.482935", "37.723674,-122.482898",
@@ -37,31 +38,35 @@ public class ServerTable extends Object {
 			"37.722356,-122.480953", "37.721391,-122.477954",
 			"37.721198,-122.476739", "37.722083,-122.476737",
 			"37.721889,-122.476074", "37.722486025,-122.4751094625" };
-	
+
 	private static String toolName[] = { "taunt", "dizzyMonkey", "smokeBomb",
 			"clearSky", "steal", "lock-out", "compass" };
-	
+
+	private static String Message[] = { "You've been taunted!",
+			"You are a dizzyMonkey!", "You've been smokebombed!",
+			"You sky is now clear!", "Someone is trying to steal your win!",
+			"You have been locked out for winning!", "You have a radar!" };
+
 	private static String toolWithDuration[] = { "dizzyMonkey", "smokeBomb",
 			"steal", "lock-out", "compass" };
-	
+
 	private static Integer toolPrice[] = { 10, 100, 500, 700, 900, 950, 700 };
-	private static Integer toolDamage[] = { -5, -20, -50, 200, -300, -200, 0 };
-	
+	// private static Integer toolDamage[] = { -5, -20, -50, 200, -300, -200, 0
+	// };
+
 	private static HashMap<String, String> buildingInfo = new HashMap<String, String>();
 	private static HashMap<String, Integer> toolsCosts = new HashMap<String, Integer>();
-	private static HashMap<String, Integer> toolsEffects = new HashMap<String, Integer>();
+	// private static HashMap<String, Integer> toolsEffects = new
+	// HashMap<String, Integer>();
+	private static HashMap<String, String> toolsMessages = new HashMap<String, String>();
 	private static HashMap<String, PlayerStats> playerInfo = new HashMap<String, PlayerStats>();
 	private static ArrayList<String> durationalTools = new ArrayList<String>();
-	
+
 	private static String goal = "";
-	
-	private static String stealerName = "";
-	private static boolean stealer = false;
-	private static boolean lockOut = false;
 
 	public static String setNewGoal() {
-		//int randomIndex = (int) (Math.random() * buildingName.length);
-		//goal = buildingName[randomIndex];
+		// int randomIndex = (int) (Math.random() * buildingName.length);
+		// goal = buildingName[randomIndex];
 		// Debug
 		goal = "Thornton Hall";
 		return goal;
@@ -93,7 +98,7 @@ public class ServerTable extends Object {
 	public static PlayerStats getPlayerInfo(String playerID) {
 		return playerInfo.get(playerID);
 	}
-	
+
 	public static Set<String> getAllPlayerNames() {
 		return playerInfo.keySet();
 	}
@@ -106,9 +111,13 @@ public class ServerTable extends Object {
 		return toolsCosts.get(toolName);
 	}
 
-	public static Integer getToolDamage(String toolName) {
-		return toolsEffects.get(toolName);
+	public static String getToolMessage(String tool) {
+		return toolsMessages.get(tool);
 	}
+
+	// public static Integer getToolDamage(String toolName) {
+	// return toolsEffects.get(toolName);
+	// }
 
 	public static ArrayList<String> getDurationalTools() {
 		return durationalTools;
@@ -117,6 +126,7 @@ public class ServerTable extends Object {
 	public static void resetGame() {
 		for (Map.Entry<String, PlayerStats> entry : playerInfo.entrySet()) {
 			entry.getValue().setGoal("");
+			entry.getValue().resetCurrentEffect();
 		}
 	}
 
@@ -193,7 +203,7 @@ public class ServerTable extends Object {
 			}
 			fileReader.close();
 		} catch (Exception e) {
-			System.err.println("Error opening user file: " + e);
+			System.err.println("Error opening user files: " + e);
 		}
 	}
 
@@ -204,32 +214,15 @@ public class ServerTable extends Object {
 		for (int i = 0; i < toolName.length; i++) {
 			toolsCosts.put(toolName[i], toolPrice[i]);
 		}
+		// Future Use. Not dealing damage to other players in this version of
+		// game
+		// for (int i = 0; i < toolName.length; i++) {
+		// toolsEffects.put(toolName[i], toolDamage[i]);
+		// }
 		for (int i = 0; i < toolName.length; i++) {
-			toolsEffects.put(toolName[i], toolDamage[i]);
+			toolsMessages.put(toolName[i], Message[i]);
 		}
 		durationalTools.addAll(Arrays.asList(toolWithDuration));
 		loadUserFile();
 	}
-
-	public static boolean isLockOut() {
-		return lockOut;
-	}
-
-	public static void setLockOut() {
-		ServerTable.lockOut = true;
-	}
-
-	public static boolean isStealer() {
-		return stealer;
-	}
-
-	public static void setStealer(String stealerName) {
-		ServerTable.stealer = true;
-		ServerTable.stealerName = stealerName;
-	}
-	
-	public static String getStealerName() {
-		return stealerName;
-	}
-	
 }
