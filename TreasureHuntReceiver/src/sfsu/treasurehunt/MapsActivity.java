@@ -31,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -106,6 +107,11 @@ public class MapsActivity extends MapActivity {
 	
 	// Global variables.
 	private GeoPoint goalLocation;
+	private ImageView gameWinnerOrLoser;
+	private boolean activeGame = false;
+	
+	// Debugging
+	Button winGameButton;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -183,6 +189,33 @@ public class MapsActivity extends MapActivity {
         		return false;
          	}
      	});
+        
+        gameWinnerOrLoser = (ImageView) findViewById(R.id.gameStatus);
+        gameWinnerOrLoser.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				gameWinnerOrLoser.setVisibility(View.GONE);
+			}
+		});
+        
+        // Debugging Only
+        winGameButton = (Button) findViewById(R.id.winGameButton);
+        winGameButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View view) {
+				networkActivity = GETCLUE;
+				double lat = goalLocation.getLatitudeE6() / 1e6;
+				double lng = goalLocation.getLongitudeE6() / 1e6;
+				
+				Log.d("Treasure Hunt", "Debug Winner: (" + lat + "," + lng + ")");
+		    	String networkSend = "{";
+		    	networkSend += "\"playerID\":\"" + userName + "\"";
+		    	networkSend += ", \"password\":\"" + userPassword + "\"";
+		    	networkSend += ", \"currentLocation\":\"" + lat + "," + lng + "\"";
+		    	networkSend += ", \"option\":\"getClue\""; 
+		    	networkSend += "}";
+				
+		    	new NetworkCall().execute(networkSend);
+			}
+		});
         
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -415,7 +448,33 @@ public class MapsActivity extends MapActivity {
     	Log.d("Treasure Hunt", "processJSONForGoalLocation -> Goal: " + goal.toString());
     	return goal;
     }
-    // Menu created when you push the menu button.
+    
+    /*
+     * Checks if goal location has changed. If location has changed, the a new game has started.
+     */
+    private void checkGameWinnerOrLoser(String status, GeoPoint newGoalLocation) {
+    	if(activeGame) {
+    		Log.d("Treasure Hunt", "status: " + status + " newGoal: " + newGoalLocation + " Goal: " + goalLocation);
+    		if(status.toUpperCase().contentEquals("WIN")) {
+    			gameWinnerOrLoser.setImageResource(R.drawable.winner);
+    			gameWinnerOrLoser.setVisibility(View.VISIBLE);
+    			activeGame = false;
+    			Log.d("Treasure Hunt", "User Won!");
+    		} else if(!newGoalLocation.toString().contentEquals(goalLocation.toString())) {
+    			gameWinnerOrLoser.setImageResource(R.drawable.lose);
+    			gameWinnerOrLoser.setVisibility(View.VISIBLE);
+        		Log.d("Treasure Hunt", "Lost game. New game starting.");
+    		}
+    	} else {
+    		activeGame = true;
+    	}
+    	
+		goalLocation = newGoalLocation;
+    }
+    
+    /*
+     *  Menu created when you push the menu button.
+     */
  	@Override
  	public boolean onCreateOptionsMenu(Menu menu) {
  		super.onCreateOptionsMenu(menu);
@@ -468,7 +527,10 @@ public class MapsActivity extends MapActivity {
 			try {
 				GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
 				String status = responseJSON.getString("indicator");
-			    goalLocation = processJSONForGoalLocation();
+			    GeoPoint newGoalLocation = processJSONForGoalLocation();
+			    
+			    checkGameWinnerOrLoser(status, newGoalLocation);
+			    
 				setLocationColor(point, status);
 				showGoalLocationCheck();
 				
