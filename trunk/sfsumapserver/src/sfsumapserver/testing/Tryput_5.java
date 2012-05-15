@@ -10,7 +10,7 @@ import java.net.Socket;
 
 /**
  * 
- * @author acer
+ * @author Terry Wong
  */
 public class Tryput_5 {
 
@@ -22,13 +22,14 @@ public class Tryput_5 {
 		boolean which = true;
 		if (which) {
 			try {
-				Socket server = new Socket("thecity.sfsu.edu", 9255);
+				Socket server = new Socket("localhost", 9255);
+				//Socket server = new Socket("thecity.sfsu.edu", 9255);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
 				PrintWriter toServer = new PrintWriter(
 						server.getOutputStream(), true);
 
-				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"37.723413,-122.480602\","
+				String stringToJson = "{\"playerID\":\"TW\", \"currentLocation\":\"37.723413,-122.480602\","
 						+ " \"option\":\"setTool\", \"tool\":\"clearSky\", \"targetPlayer\":\"DF\"}";
 
 				toServer.println(stringToJson);

@@ -13,7 +13,7 @@ public class PlayerStats {
 	private int playerPoints = 0;
 	private float playerDistance;
 	private boolean HotOnce = false, WarmOnce = false, isTaunt = false,
-			stolenWin = false;
+			isClearSky = false, stolenWin = false;
 	private long startTime = 0, effectStartTime = 0, effectDuration = 0;
 
 	public PlayerStats(String ID) {
@@ -82,6 +82,7 @@ public class PlayerStats {
 	// Dizzy, SmokeBomb, Clear, Taunt
 	public void activateTool(String tool) {
 		if (!toolInEffect.equals("") && tool.equals("clearSky")) {
+			isClearSky = true;
 			toolInEffect = "";
 			effectStartTime = 0;
 		} else if (ServerTable.getDurationalTools().contains(tool)) {
@@ -141,6 +142,14 @@ public class PlayerStats {
 
 	public void resetTaunt() {
 		isTaunt = false;
+	}
+
+	public boolean checkClearSky() {
+		return isClearSky;
+	}
+
+	public void resetClearSky() {
+		isClearSky = false;
 	}
 
 	public void setStolenWin() {

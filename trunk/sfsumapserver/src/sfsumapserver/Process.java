@@ -306,7 +306,11 @@ public class Process {
 			message = ServerTable.getToolMessage("taunt");
 			player.resetTaunt();
 		} else {
-			if (!player.getCurrentEffect().equals("")) {
+			if (player.getCurrentEffect().equals("")
+					&& player.checkClearSky() == true) {
+				message = ServerTable.getToolMessage("clearSky");
+				player.resetClearSky();
+			} else if (!player.getCurrentEffect().equals("")) {
 				currentEffect = player.getCurrentEffect();
 				message = ServerTable.getToolMessage(currentEffect);
 			}
@@ -333,12 +337,14 @@ public class Process {
 			} else if (distance <= 0.003) {
 				indicator = "Hot";
 				if (currentEffect.equals("") && !player.checkHotOnce()) {
+					message = "You are hot!";
 					totalPoints += 200;
 					player.setHotOnce();
 				}
 			} else if (distance <= 0.006) {
 				indicator = "Warm";
 				if (currentEffect.equals("") && !player.checkWarmOnce()) {
+					message = "You are warm!";
 					totalPoints += 100;
 					player.setWarmOnce();
 				}
@@ -398,7 +404,8 @@ public class Process {
 
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (option.equalsIgnoreCase("setTool")) {
-			output += "\"tool\":\"" + tool + "\"";
+			output += "\"clue\":\"" + message + "\"";
+			output += ", \"tool\":\"" + tool + "\"";
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 
