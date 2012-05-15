@@ -9,7 +9,8 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/title" />
+        android:src="@drawable/title"
+        android:contentDescription="@string/titleScreen" />
 
     <Button
         android:id="@+id/actionButton"
@@ -41,6 +42,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:src="@drawable/parchment"
+        android:contentDescription="@string/parchment"
         android:visibility="invisible" />
 
     <EditText
@@ -82,15 +84,6 @@
         android:visibility="invisible" />
 
     <ImageView
-        android:id="@+id/settingsFrame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/settings_frame"
-        android:visibility="invisible" />
-
-    <ImageView
         android:id="@+id/settingsBackgroundImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -99,6 +92,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:src="@drawable/parchment_vertical"
+        android:contentDescription="@string/settingsBackground"
         android:visibility="invisible" />
 
     <Button
@@ -167,6 +161,16 @@
         android:paddingLeft = "60dip"
         android:paddingRight = "60dip"
         android:paddingTop = "80dip"
+        android:visibility="invisible" />
+
+    <ProgressBar
+        android:id="@+id/networkProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:background="@color/progress_gold"
         android:visibility="invisible" />
 
 </RelativeLayout>
