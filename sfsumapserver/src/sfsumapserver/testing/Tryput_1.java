@@ -12,7 +12,7 @@ import sfsumapserver.Encrypt;
 
 /**
  * 
- * @author acer
+ * @author Terry Wong
  */
 public class Tryput_1 {
 
@@ -24,14 +24,15 @@ public class Tryput_1 {
 		boolean which = true;
 		if (which) {
 			try {
-				Socket server = new Socket("thecity.sfsu.edu", 9255);
+				Socket server = new Socket("localhost", 9255);
+				//Socket server = new Socket("thecity.sfsu.edu", 9255);
 				BufferedReader fromServer = new BufferedReader(
 						new InputStreamReader(server.getInputStream()));
 				String password = new Encrypt("1234").getPassword();
 				PrintWriter toServer = new PrintWriter(
 						server.getOutputStream(), true);
 
-				String stringToJson = "{\"playerID\":\"DF\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\",\"password\":\""
+				String stringToJson = "{\"playerID\":\"TW\", \"currentLocation\":\"121.235,-23.456\", \"option\":\"signIn\",\"password\":\""
 						+ password + "\"}";
 
 				toServer.println(stringToJson);
