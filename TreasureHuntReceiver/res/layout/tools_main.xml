@@ -17,13 +17,13 @@
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/chest"
         android:background="@drawable/map"
-        android:text="@string/map"
-        android:textColor="#8B0000"
-        android:textSize="30dip"
         android:shadowColor="#000000"
         android:shadowDx="-2"
         android:shadowDy="1"
-        android:shadowRadius=".01" />
+        android:shadowRadius=".01"
+        android:text="@string/map"
+        android:textColor="#8B0000"
+        android:textSize="30dip" />
 
     <TextView
         android:id="@+id/balanceText"
@@ -107,7 +107,8 @@
         android:text="@string/buy"
         android:textSize="25dip"
         android:visibility="gone" />
-    <EditText
+
+    <EditText
         android:id="@+id/tauntText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -126,6 +127,15 @@
         android:layout_alignRight="@+id/tauntText"
         android:layout_marginTop="22dp"
         android:text="@string/send"
+        android:visibility="invisible" />
+
+    <ImageView
+        android:id="@+id/completePurchaseImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/purchase_good_monkey"
         android:visibility="invisible" />
 
 </RelativeLayout>
