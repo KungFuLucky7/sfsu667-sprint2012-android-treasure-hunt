@@ -31,7 +31,7 @@ public class Tryput_6 {
 
 				String stringToJson = "Testing!\n"
 						+ "\n"
-						+ "{\"playerID\":\"TW\", \"currentLocation\":\"37.723598,-122.480807\","
+						+ "{\"playerID\":\"tw\", \"currentLocation\":\"37.723598,-122.480807\","
 						+ " \"option\":\"setTool\", \"tool\":\"taunt\", \"targetPlayer\":\"DF\", \"message\":\"Screw You!\"}";
 
 				toServer.println(stringToJson);
