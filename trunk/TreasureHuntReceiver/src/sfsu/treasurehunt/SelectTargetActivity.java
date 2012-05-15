@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 /*
  * Sends a network call to the server to get a list of all active players.  List is converted
@@ -35,6 +36,7 @@ public class SelectTargetActivity extends Activity {
 	
 	// Layout objects.
 	private Button selectTargetButton;
+	private TextView title;
 	
 	// Global variables.
 	private ArrayList<String> targetList = new ArrayList<String>();
@@ -45,6 +47,11 @@ public class SelectTargetActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.target_main);
 
+		selectTargetButton = (Button) findViewById(R.id.selectTargetButton);
+		selectTargetButton.setText("Please Wait");
+		title = (TextView) findViewById(R.id.radioGroupTitle);
+		title.setText("Loading Targets");
+		
 	    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 	    
 		String networkSend = "{";
@@ -68,7 +75,10 @@ public class SelectTargetActivity extends Activity {
 		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		String userName = settings.getString("USERNAME", "NONE");
 	    radioGroup = (RadioGroup) findViewById(R.id.targetRadioGroup);
-
+	    
+	    title.setText("Select Target Below");
+	    selectTargetButton.setText("Confirm Target");
+	    
 		// Go through JSON response from server to add all active players to the target list used for radio buttons.
 		try {
 			JSONArray activePlayersList = responseJSON.getJSONArray("players");
@@ -96,7 +106,6 @@ public class SelectTargetActivity extends Activity {
 		radioGroup.check(0);
 		
 		// Confirms that checked player on the radio button is target, ends activity and returns result.
-		selectTargetButton = (Button) findViewById(R.id.selectTargetButton);
 		selectTargetButton.setOnClickListener(new View.OnClickListener() {
      		public void onClick(View view) {
      			Log.d("TargetPlayer", "Selected: " + targetList.get(radioGroup.getCheckedRadioButtonId()));
