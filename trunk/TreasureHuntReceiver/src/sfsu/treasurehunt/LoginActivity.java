@@ -15,6 +15,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +42,7 @@ public class LoginActivity extends Activity {
     private EditText userNameBox;
     private EditText passwordBox;
     private Button cancelButton;
+    private ProgressBar networkProgressBar;
     
     // Settings background and buttons.
     private ImageView settingsBackground;
@@ -66,6 +68,7 @@ public class LoginActivity extends Activity {
         settingsBackground = (ImageView) findViewById(R.id.settingsBackgroundImage);
         userNameBox = (EditText) findViewById(R.id.userNameBox);
         passwordBox = (EditText) findViewById(R.id.passwordBox);
+        networkProgressBar = (ProgressBar) findViewById(R.id.networkProgressBar);
         
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         if (!settings.getString("USERNAME", "").contentEquals("")) {
@@ -344,6 +347,7 @@ public class LoginActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
+        	networkProgressBar.setVisibility(View.VISIBLE);
             this.dialog.setMessage("Logging into game....");
             Log.i("AsyncTask", "onPreExecute");
         }
@@ -385,6 +389,7 @@ public class LoginActivity extends Activity {
             if (this.dialog.isShowing()) {
                 this.dialog.dismiss();
             }
+            networkProgressBar.setVisibility(View.INVISIBLE);
             Log.d("Networking", "result = " + result);
             onNetworkResult();
         }
