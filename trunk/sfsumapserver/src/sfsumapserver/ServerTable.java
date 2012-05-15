@@ -63,12 +63,15 @@ public class ServerTable extends Object {
 	private static ArrayList<String> durationalTools = new ArrayList<String>();
 
 	private static String goal = "";
+	public static boolean debugMode = false;
 
 	public static String setNewGoal() {
-		// int randomIndex = (int) (Math.random() * buildingName.length);
-		// goal = buildingName[randomIndex];
-		// Debug
-		goal = "Thornton Hall";
+		if (!debugMode) {
+			int randomIndex = (int) (Math.random() * buildingName.length);
+			goal = buildingName[randomIndex];
+		} else
+			// Debug
+			goal = "Thornton Hall";
 		return goal;
 	}
 

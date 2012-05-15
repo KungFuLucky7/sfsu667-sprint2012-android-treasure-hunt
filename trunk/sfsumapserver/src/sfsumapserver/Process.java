@@ -39,7 +39,7 @@ public class Process {
 	private long startTime, currentTime, elapsedTime;
 	private PlayerStats player;
 
-	private boolean authenticationFailure = false;
+	private boolean authenticationFailure = false, isToolSet = false;
 
 	private static HashMap<String, Float> topThreeTeams = new HashMap<String, Float>();
 	private static HashMap<String, String> topThreeClues = new HashMap<String, String>();
@@ -166,10 +166,14 @@ public class Process {
 				message = "Starting a new game, the last winner was "
 						+ lastWinner + ". ";
 			}
-			totalPoints -= ServerTable.getToolPrice(tool);
-			ServerTable.getPlayerInfo(targetPlayer).activateTool(tool);
-			if (tool.equals("steal")) {
-				ServerTable.getPlayerInfo(targetPlayer).setStealer(playerID);
+			isToolSet = ServerTable.getPlayerInfo(targetPlayer).activateTool(
+					tool);
+			if (isToolSet) {
+				totalPoints -= ServerTable.getToolPrice(tool);
+				if (tool.equals("steal")) {
+					ServerTable.getPlayerInfo(targetPlayer)
+							.setStealer(playerID);
+				}
 			}
 			// Future Use. Not dealing damage to other players in this version
 			// of game
@@ -309,7 +313,7 @@ public class Process {
 		} else if (player.checkTaunt()) {
 			indicator = "taunt";
 			if (message == null || message.equals(""))
-				message = ServerTable.getToolMessage("taunt");
+				message += " <- " + ServerTable.getToolMessage("taunt");
 			player.resetTaunt();
 		} else {
 			if (player.getCurrentEffect().equals("")
@@ -407,7 +411,12 @@ public class Process {
 
 			output += ", \"playerPoints\":\"" + player.getPlayerPoints() + "\"";
 		} else if (option.equalsIgnoreCase("setTool")) {
-			output += "\"tool\":\"" + tool + "\"";
+			output += "\"status\":\"";
+			if (isToolSet)
+				output += "Good\"";
+			else
+				output += "Bad";
+			output += ", \"tool\":\"" + tool + "\"";
 			output += ", \"distance\":\"" + distance + "\"";
 			output += ", \"goalLocation\":\"" + goalLocation + "\"";
 

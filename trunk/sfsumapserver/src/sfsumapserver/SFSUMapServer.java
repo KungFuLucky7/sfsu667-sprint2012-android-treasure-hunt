@@ -65,6 +65,8 @@ public class SFSUMapServer {
 					+ "need one argument for a port number");
 			System.exit(1);
 		}
+		if (args[1].equals("-d"))
+			ServerTable.debugMode = true;
 		new SFSUMapServer(Integer.valueOf(args[0])).runServer();
 	}
 }

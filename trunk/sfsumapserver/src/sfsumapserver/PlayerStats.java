@@ -80,12 +80,23 @@ public class PlayerStats {
 	}
 
 	// Dizzy, SmokeBomb, Clear, Taunt
-	public void activateTool(String tool) {
-		if (!toolInEffect.equals("") && tool.equals("clearSky")) {
-			isClearSky = true;
-			toolInEffect = "";
-			effectStartTime = 0;
-		} else if (ServerTable.getDurationalTools().contains(tool)) {
+	public boolean activateTool(String tool) {
+		if (!toolInEffect.equals("")) {
+			if (tool.equals("clearSky")) {
+				isClearSky = true;
+				toolInEffect = "";
+				effectStartTime = 0;
+			} else if ((toolInEffect.equals("steal") && tool.equals("steal"))
+					|| (toolInEffect.equals("lock-out") && tool
+							.equals("lock-out"))) {
+				toolInEffect = tool;
+				effectStartTime = System.currentTimeMillis();
+				effectDuration = 180;
+			} else
+				return false;
+		} else if (((!toolInEffect.equals("steal") && !toolInEffect
+				.equals("lock-out")) || toolInEffect.equals(""))
+				&& ServerTable.getDurationalTools().contains(tool)) {
 			toolInEffect = tool;
 			effectStartTime = System.currentTimeMillis();
 			if (toolInEffect.equals("compass"))
@@ -93,10 +104,11 @@ public class PlayerStats {
 			else if (toolInEffect.equals("lock-out")
 					|| toolInEffect.equals("steal")) {
 				effectDuration = 180;
-			} else {
+			} else
 				effectDuration = 300;
-			}
-		}
+		} else
+			return false;
+		return true;
 	}
 
 	// Deals with "dizzyMonkey", "smokeBomb", "steal", "lock-out", "compass"
