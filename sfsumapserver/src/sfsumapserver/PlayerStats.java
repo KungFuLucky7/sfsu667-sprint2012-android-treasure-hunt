@@ -7,67 +7,15 @@ package sfsumapserver;
  */
 public class PlayerStats {
 
-	private String playerID = "", playerGoal = "", currentIndicator = "", clue = "";
-	
-	private String toolInEffect = "";
-	
+	private String playerID = "", playerGoal = "", currentIndicator = "",
+			toolInEffect = "", stealer = "";
+	// private currentLocation = ""; -For future use.
 	private int playerPoints = 0;
 	private float playerDistance;
-	
-	private boolean HotOnce = false, WarmOnce = false, isTaunt = false, stolenWin = false;
-	
-	private long startTime = 0, effectStartTime = 0, effectDuration = 2;
+	private boolean HotOnce = false, WarmOnce = false, isTaunt = false,
+			stolenWin = false;
+	private long startTime = 0, effectStartTime = 0, effectDuration = 0;
 
-	// private currentLocation = "";  -For future use.
-	
-	
-/*
-	public boolean activateTool(String tool) {
-		if (!(toolInEffect.equals("")) && tool.equals("clearSky")) {
-			toolInEffect = "";
-			effectStartTime = 0;
-		} else if (toolInEffect.equals("")) {
-			toolInEffect = tool;
-			effectStartTime = System.currentTimeMillis();
-		} else return false;
-		return true;
-	}
-*/
-	
-	// Dizzy, SmokeBomb, Clear, Taunt
-	public boolean activateTool(String tool, String message) {
-		if (!(toolInEffect.equals("")) && tool.equals("clearSky")) {
-			toolInEffect = "";
-			effectStartTime = 0;
-		} else if (toolInEffect.equals("")) {
-			toolInEffect = tool;
-			effectStartTime = System.currentTimeMillis();
-			if(message != null) {
-				clue = message;
-			}
-		} else return false;
-		return true;
-	}
-	
-	// Add check for stealer and lockout
-	// Deals with Dizzy, SmokeBomb, and Taunt being set
-	public String getCurrentEffect() {
-		if (!(toolInEffect.equals(""))) {
-			long duration = (System.currentTimeMillis() - effectStartTime) / 1000;
-			System.out.println("Duration :"+duration);
-			System.out.println("effectDuration :"+effectDuration);
-			if (duration > effectDuration) {
-				toolInEffect = "";
-				return toolInEffect;
-			} else {
-				return toolInEffect;
-			}
-		} else {
-			return toolInEffect;
-		}
-	}
-	
-	
 	public PlayerStats(String ID) {
 		playerID = ID;
 	}
@@ -75,6 +23,13 @@ public class PlayerStats {
 	public String getPlayerID() {
 		return playerID;
 	}
+
+	/*
+	 * public void setCurrentLocation(String location) { currentLocation =
+	 * location; }
+	 * 
+	 * public String getCurrentLocation() { return currentLocation; }
+	 */
 
 	public void setGoal(String goal) {
 		playerGoal = goal;
@@ -116,6 +71,50 @@ public class PlayerStats {
 		return playerPoints;
 	}
 
+	public void setStealer(String s) {
+		stealer = s;
+	}
+
+	public String getStealer() {
+		return stealer;
+	}
+
+	// Dizzy, SmokeBomb, Clear, Taunt
+	public void activateTool(String tool) {
+		if (!toolInEffect.equals("") && tool.equals("clearSky")) {
+			toolInEffect = "";
+			effectStartTime = 0;
+		} else if (ServerTable.getDurationalTools().contains(tool)) {
+			toolInEffect = tool;
+			effectStartTime = System.currentTimeMillis();
+			if (toolInEffect.equals("lock-out") || toolInEffect.equals("steal")) {
+				effectDuration = 120;
+			} else {
+				effectDuration = 90;
+			}
+		}
+	}
+
+	// Deals with "dizzyMonkey", "smokeBomb", "steal", "lock-out", "compass"
+	public String getCurrentEffect() {
+		if (!toolInEffect.equals("")) {
+			long duration = (System.currentTimeMillis() - effectStartTime) / 1000;
+			if (duration > effectDuration) {
+				toolInEffect = "";
+				return toolInEffect;
+			} else {
+				return toolInEffect;
+			}
+		} else {
+			return toolInEffect;
+		}
+	}
+
+	// Reset currentEffect to nothing
+	public void resetCurrentEffect() {
+		toolInEffect = "";
+	}
+
 	public void setHotOnce() {
 		HotOnce = true;
 	}
@@ -132,8 +131,6 @@ public class PlayerStats {
 		return WarmOnce;
 	}
 
-	
-	
 	public void setTaunt() {
 		isTaunt = true;
 	}
@@ -146,8 +143,6 @@ public class PlayerStats {
 		isTaunt = false;
 	}
 
-	
-	
 	public void setStolenWin() {
 		stolenWin = true;
 	}
@@ -159,17 +154,4 @@ public class PlayerStats {
 	public void resetStolenWin() {
 		stolenWin = false;
 	}
-	
-	
-/* For future use in keeping track of all current location of players
-	public void setCurrentLocation(String location) {
-		currentLocation = location;
-	}
-
-	public String getCurrentLocation() {
-		return currentLocation;
-	}
-	
-*/	
-	
 }
