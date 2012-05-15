@@ -29,6 +29,13 @@
     <string name="confirmTarget">Confirm Target</string>
     <string name="moneySign">Money Sign</string>
     <string name="imageIcon">Icon</string>
+    <string name="helpScreen">Help screen</string>
+    <string name="treasureChest">Treasure chest</string>    
+    <string name="completePurchase">Complete purchase</string>
+    <string name="waitBackground">Waiting background</string>
+    <string name="titleScreen">Title screen background</string>
+    <string name="parchment">Parchment</string>
+    <string name="settingsBackground">Settings background</string>
     <color name="grey">#808080</color>
     <color name="blue">#0000FF</color>
     <color name="white">#FFFFFF</color>

@@ -33,7 +33,7 @@
         android:layout_alignParentRight="true"
         android:paddingBottom="5dip"
         android:paddingRight="10dip"
-        android:text="$1234"
+        android:text="@string/balance"
         android:textColor="#000000"
         android:textSize="25dip"
         android:textStyle="bold" />
@@ -44,56 +44,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/balanceText"
+        android:contentDescription="@string/treasureChest"
         android:paddingLeft="115dip"
         android:src="@drawable/chest" />
 
     <ImageView
-        android:id="@+id/monkeyHelpScreen"
+        android:id="@+id/helpScreen"
         android:layout_width="wrap_content"
         android:layout_height="491dp"
+        android:contentDescription="@string/helpScreen"
         android:src="@drawable/info_monkey"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/tauntHelpScreen"
-        android:layout_width="wrap_content"
-        android:layout_height="491dp"
-        android:src="@drawable/info_taunt"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/smokescreenHelpScreen"
-        android:layout_width="wrap_content"
-        android:layout_height="491dp"
-        android:src="@drawable/info_smokescreen"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/clearskyHelpScreen"
-        android:layout_width="wrap_content"
-        android:layout_height="491dp"
-        android:src="@drawable/info_clearsky"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/compassHelpScreen"
-        android:layout_width="wrap_content"
-        android:layout_height="491dp"
-        android:src="@drawable/info_compass"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/stealerHelpScreen"
-        android:layout_width="wrap_content"
-        android:layout_height="491dp"
-        android:src="@drawable/info_stealer"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/lockoutHelpScreen"
-        android:layout_width="wrap_content"
-        android:layout_height="491dp"
-        android:src="@drawable/info_lockout"
         android:visibility="gone" />
 
     <Button
@@ -135,7 +95,22 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/purchase_good_monkey"
+        android:contentDescription="@string/completePurchase"
+        android:src="@drawable/purchase_wait"
+        android:visibility="invisible" />
+
+    <ProgressBar
+        android:id="@+id/networkProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:maxHeight="125dip"
+        android:maxWidth="125dip"
+        android:minHeight="125dip"
+        android:minWidth="125dip"
+        android:background="@color/progress_blue"
         android:visibility="invisible" />
 
 </RelativeLayout>

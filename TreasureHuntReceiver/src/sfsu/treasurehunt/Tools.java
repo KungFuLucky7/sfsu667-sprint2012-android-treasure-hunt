@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.TextView;
 
@@ -62,6 +63,7 @@ public class Tools extends Activity {
 	private ImageView completePurchaseScreen;
 	private EditText tauntScreen;
 	private TextView balanceText;
+	private static ProgressBar networkProgressBar;
 	
 	// Static tools guide.
 	private static final int Taunt = 0;
@@ -75,11 +77,13 @@ public class Tools extends Activity {
     // Tools Activity global variables.
 	private ListView listView1;
 	private ArrayList<ToolList> toolListData = new ArrayList<ToolList>();
+	private ArrayList<Integer> toolPriceList = new ArrayList<Integer>();
 	private int purchaseItem;
 	final Context context = this;
 	private String userName = "";
 	private String userPassword = "";
 	private int balance = 0;
+	private boolean waitStatus = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -90,6 +94,8 @@ public class Tools extends Activity {
 		buy = (Button) findViewById(R.id.buyButton);
 		tauntScreen = (EditText) findViewById(R.id.tauntText);
 		balanceText = (TextView) findViewById(R.id.balanceText);
+		helpScreen = (ImageView) findViewById(R.id.helpScreen);
+		networkProgressBar = (ProgressBar) findViewById(R.id.networkProgressBar);
 		
 		getPreferences();
 
@@ -101,6 +107,14 @@ public class Tools extends Activity {
 		toolListData.add(new ToolList(R.drawable.compass, "Compass", 700));
 		toolListData.add(new ToolList(R.drawable.thief, "Stealer", 900));
 		toolListData.add(new ToolList(R.drawable.lockout, "Lockout", 950));
+		
+		toolPriceList.add(10);
+		toolPriceList.add(100);
+		toolPriceList.add(500);
+		toolPriceList.add(700);
+		toolPriceList.add(700);
+		toolPriceList.add(900);
+		toolPriceList.add(950);
 
 		ToolListAdapter adapter = new ToolListAdapter(this,	R.layout.listview_item_row, toolListData);
 
@@ -118,25 +132,25 @@ public class Tools extends Activity {
 					int position, long id) {
 				switch (position) {
 				case Taunt:
-					helpScreen = (ImageView) findViewById(R.id.tauntHelpScreen);
+					helpScreen.setImageResource(R.drawable.info_taunt);
 					break;
 				case Monkey:
-					helpScreen = (ImageView) findViewById(R.id.monkeyHelpScreen);
+					helpScreen.setImageResource(R.drawable.info_monkey);
 					break;
 				case SmokeScreen:
-					helpScreen = (ImageView) findViewById(R.id.smokescreenHelpScreen);
+					helpScreen.setImageResource(R.drawable.info_smokescreen);
 					break;
 				case ClearSky:
-					helpScreen = (ImageView) findViewById(R.id.clearskyHelpScreen);
+					helpScreen.setImageResource(R.drawable.info_clearsky);
 					break;
 				case Compass:
-					helpScreen = (ImageView) findViewById(R.id.compassHelpScreen);
+					helpScreen.setImageResource(R.drawable.info_compass);
 					break;
 				case Stealer:
-					helpScreen = (ImageView) findViewById(R.id.stealerHelpScreen);
+					helpScreen.setImageResource(R.drawable.info_stealer);
 					break;
 				case Lockout:
-					helpScreen = (ImageView) findViewById(R.id.lockoutHelpScreen);
+					helpScreen.setImageResource(R.drawable.info_lockout);
 					break;
 				}
 
@@ -202,7 +216,9 @@ public class Tools extends Activity {
 		completePurchaseScreen = (ImageView) findViewById(R.id.completePurchaseImage);
 		completePurchaseScreen.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				completePurchaseScreen.setVisibility(View.GONE);
+				if (!waitStatus) {
+					completePurchaseScreen.setVisibility(View.GONE);
+				}
 			}
 		});
 	}
@@ -215,6 +231,7 @@ public class Tools extends Activity {
 	    userName = settings.getString("USERNAME", "NONE");
 	    userPassword = settings.getString("PASSWORD", "NONE");
 	    balance = settings.getInt("BALANCE", -1);
+	    //balance = 0;
 	    Log.d("Treasure Hunt", "Tools: balance = " + balance);
 	    balanceText.setText(Integer.toString(balance));
 	}
@@ -295,102 +312,106 @@ public class Tools extends Activity {
 	 * to networkCall() for each specific tool.
 	 */
 	private void makeToolPurchase() {
-		networkSend = "{";
-		
 		// For debugging purposes		
 		//userName = "DF";
 		//userPassword = "testpass";
-		
-		switch (purchaseItem) {
-		case Taunt:
-			/*
-			 *  Make taunt text box and send button visible.  Return to onCreate() where sendTaunt button
-			 *  is listening for user to confirm to send the taunt text to the server.
-			 */
-			tauntScreen.setVisibility(View.VISIBLE);
-			sendTaunt.setVisibility(View.VISIBLE);
+		networkSend = "{";
+		if ((balance - toolPriceList.get(purchaseItem)) < 0) {
+			helpScreen.setImageResource(R.drawable.not_enough_funds);
+			helpScreen.setVisibility(View.VISIBLE);
+			Log.d("Tools", "Not enough funds!");
+		} else {
+			switch (purchaseItem) {
+			case Taunt:
+				/*
+				 *  Make taunt text box and send button visible.  Return to onCreate() where sendTaunt button
+				 *  is listening for user to confirm to send the taunt text to the server.
+				 */
+				tauntScreen.setVisibility(View.VISIBLE);
+				sendTaunt.setVisibility(View.VISIBLE);
 			
-			networkSend += "\"playerID\":\"" + userName + "\"";
-	    	networkSend += ", \"password\":\"" + userPassword + "\"";
-	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
-	    	networkSend += ", \"option\":\"setTool\"";
-	    	networkSend += ", \"tool\":\"taunt\"";
-	    	
-	    	networkActivity = PURCHASE_TAUNT;
-	    	Log.d("Tools", "Purchasing Taunt.");
-			break;
-		case Monkey:
-			networkSend += "\"playerID\":\"" + userName + "\"";
-	    	networkSend += ", \"password\":\"" + userPassword + "\"";
-	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
-	    	networkSend += ", \"option\":\"setTool\"";
-	    	networkSend += ", \"tool\":\"dizzyMonkey\"";
-	    	goToSelectTargetScreen();
-	    	
-	    	networkActivity = PURCHASE_MONKEY;
-	    	Log.d("Tools", "Purchasing Confused Monkey.");
-			break;
-		case SmokeScreen:
-	    	networkSend += "\"playerID\":\"" + userName + "\"";
-	    	networkSend += ", \"password\":\"" + userPassword + "\"";
-	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
-	    	networkSend += ", \"option\":\"setTool\"";
-	    	networkSend += ", \"tool\":\"smokeBomb\"";
-	    	networkSend += ", \"targetPlayer\":\"DF\"";
-	    	networkSend += "}";
-	    	
-	    	networkActivity = PURCHASE_SMOKE;
-	    	Log.d("Tools", "Purchasing SmokeScreen.");
-	    	new NetworkCall().execute(networkSend);
-			break;
-		case ClearSky:
-	    	networkSend += "\"playerID\":\"" + userName + "\"";
-	    	networkSend += ", \"password\":\"" + userPassword + "\"";
-	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
-	    	networkSend += ", \"option\":\"setTool\"";
-	    	networkSend += ", \"tool\":\"clearSky\""; 
-	    	networkSend += "}";
-	    	
-	    	networkActivity = PURCHASE_CLEARSKY;
-	    	Log.d("Tools", "Purchasing Clear Sky.");
-	    	new NetworkCall().execute(networkSend);
-			break;
-		case Compass:
-	    	networkSend += "\"playerID\":\"" + userName + "\"";
-	    	networkSend += ", \"password\":\"" + userPassword + "\"";
-	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
-	    	networkSend += ", \"option\":\"setTool\"";
-	    	networkSend += ", \"tool\":\"compass\""; 
-	    	networkSend += "}";
-	    
-	    	networkActivity = PURCHASE_COMPASS;
-	    	Log.d("Tools", "Purchasing Compass.");
-	    	new NetworkCall().execute(networkSend);
-			break;
-		case Stealer:
-			networkSend += "\"playerID\":\"" + userName + "\"";
-	    	networkSend += ", \"password\":\"" + userPassword + "\"";
-	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
-	    	networkSend += ", \"option\":\"setTool\"";
-	    	networkSend += ", \"tool\":\"stealer\""; 
-	    	networkSend += "}";
-	    	
-	    	networkActivity = PURCHASE_SMOKE;
-	    	Log.d("Tools", "Purchasing Stealer.");
-	    	new NetworkCall().execute(networkSend);
-			break;
-		case Lockout:
-			networkSend += "\"playerID\":\"" + userName + "\"";
-	    	networkSend += ", \"password\":\"" + userPassword + "\"";
-	    	networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
-	    	networkSend += ", \"option\":\"setTool\"";
-	    	networkSend += ", \"tool\":\"lockout\""; 
-	    	networkSend += "}";
-	    	
-	    	networkActivity = PURCHASE_LOCKOUT;
-	    	Log.d("Tools", "Purchasing Lockout.");
-	    	new NetworkCall().execute(networkSend);
-			break;
+				networkSend += "\"playerID\":\"" + userName + "\"";
+				networkSend += ", \"password\":\"" + userPassword + "\"";
+				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+				networkSend += ", \"option\":\"setTool\"";
+				networkSend += ", \"tool\":\"taunt\"";
+				
+				networkActivity = PURCHASE_TAUNT;
+				Log.d("Tools", "Purchasing Taunt.");
+				break;
+			case Monkey:
+				networkSend += "\"playerID\":\"" + userName + "\"";
+				networkSend += ", \"password\":\"" + userPassword + "\"";
+				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+				networkSend += ", \"option\":\"setTool\"";
+				networkSend += ", \"tool\":\"dizzyMonkey\"";
+				goToSelectTargetScreen();
+				
+				networkActivity = PURCHASE_MONKEY;
+				Log.d("Tools", "Purchasing Confused Monkey.");
+				break;
+			case SmokeScreen:
+				networkSend += "\"playerID\":\"" + userName + "\"";
+				networkSend += ", \"password\":\"" + userPassword + "\"";
+				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+				networkSend += ", \"option\":\"setTool\"";
+				networkSend += ", \"tool\":\"smokeBomb\"";
+				networkSend += ", \"targetPlayer\":\"DF\"";
+				networkSend += "}";
+				
+				networkActivity = PURCHASE_SMOKE;
+				Log.d("Tools", "Purchasing SmokeScreen.");
+				new NetworkCall().execute(networkSend);
+				break;
+			case ClearSky:
+				networkSend += "\"playerID\":\"" + userName + "\"";
+				networkSend += ", \"password\":\"" + userPassword + "\"";
+				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+				networkSend += ", \"option\":\"setTool\"";
+				networkSend += ", \"tool\":\"clearSky\""; 
+				networkSend += "}";
+				
+				networkActivity = PURCHASE_CLEARSKY;
+				Log.d("Tools", "Purchasing Clear Sky.");
+				new NetworkCall().execute(networkSend);
+				break;
+			case Compass:
+				networkSend += "\"playerID\":\"" + userName + "\"";
+				networkSend += ", \"password\":\"" + userPassword + "\"";
+				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+				networkSend += ", \"option\":\"setTool\"";
+				networkSend += ", \"tool\":\"compass\""; 
+				networkSend += "}";
+				
+				networkActivity = PURCHASE_COMPASS;
+				Log.d("Tools", "Purchasing Compass.");
+				new NetworkCall().execute(networkSend);
+				break;
+			case Stealer:
+				networkSend += "\"playerID\":\"" + userName + "\"";
+				networkSend += ", \"password\":\"" + userPassword + "\"";
+				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+				networkSend += ", \"option\":\"setTool\"";
+				networkSend += ", \"tool\":\"stealer\""; 
+				networkSend += "}";
+				
+				networkActivity = PURCHASE_SMOKE;
+				Log.d("Tools", "Purchasing Stealer.");
+				new NetworkCall().execute(networkSend);
+				break;
+			case Lockout:
+				networkSend += "\"playerID\":\"" + userName + "\"";
+				networkSend += ", \"password\":\"" + userPassword + "\"";
+				networkSend += ", \"currentLocation\":\"" + 0.0 + "," + 0.0 + "\"";
+				networkSend += ", \"option\":\"setTool\"";
+				networkSend += ", \"tool\":\"lockout\""; 
+				networkSend += "}";
+				
+				networkActivity = PURCHASE_LOCKOUT;
+				Log.d("Tools", "Purchasing Lockout.");
+				new NetworkCall().execute(networkSend);
+				break;
+			}
 		}
 	}
 	
@@ -506,7 +527,9 @@ public class Tools extends Activity {
 
         @Override
         protected void onPreExecute() {
-            this.dialog.setMessage("Updating location....");
+        	waitScreen(true);
+        	
+        	this.dialog.setMessage("Updating location....");
             Log.i("AsyncTask", "onPreExecute");
         }
 
@@ -546,8 +569,24 @@ public class Tools extends Activity {
             if (this.dialog.isShowing()) {
                 this.dialog.dismiss();
             }
-            Log.d("Networking", "result = " + result);
+            
+            waitScreen(false);
+        	Log.d("Networking", "result = " + result);
             onNetworkResult();
         }
+    }
+    
+    private void waitScreen(boolean waiting) {
+    	if (waiting) {
+    		completePurchaseScreen.setImageResource(R.drawable.purchase_wait);
+        	completePurchaseScreen.setVisibility(View.VISIBLE);
+        	waitStatus = true;
+            networkProgressBar.setVisibility(View.VISIBLE);
+    	} else {
+    		completePurchaseScreen.setVisibility(View.INVISIBLE);
+        	completePurchaseScreen.setClickable(true);
+        	waitStatus = false;
+        	networkProgressBar.setVisibility(View.INVISIBLE);
+    	}
     }
 }

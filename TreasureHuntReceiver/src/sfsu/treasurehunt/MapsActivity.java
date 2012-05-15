@@ -31,6 +31,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 /*
@@ -86,6 +87,7 @@ public class MapsActivity extends MapActivity {
     private int balance = -1;
     
     // Network related variables.
+    private ProgressBar networkProgressBar;
     private JSONObject responseJSON;
 	private int networkActivity;
     private String server = "http://thecity.sfsu.edu:9226";
@@ -120,6 +122,7 @@ public class MapsActivity extends MapActivity {
 
 		mapView = (MapView) findViewById(R.id.mapView);
 		
+		networkProgressBar = (ProgressBar) findViewById(R.id.networkProgressBar);
         userNameText = (TextView) findViewById(R.id.nameText);
         balanceText = (TextView) findViewById(R.id.balanceText);
         textMessages = (TextView) findViewById(R.id.textMessages);
@@ -305,6 +308,7 @@ public class MapsActivity extends MapActivity {
         	mapOverlays.add(markerlayer);
         	
         	mapController.animateTo(goalLocation);
+        	mapView.invalidate();
         	
         	SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean("SHOWGOAL", false);
@@ -446,6 +450,7 @@ public class MapsActivity extends MapActivity {
 			setUserAccountInfo();
 			break;
 		case TOOLS_SCREEN:
+			showGoalLocationCheck();
 			break;
 		}
 	}
@@ -491,6 +496,7 @@ public class MapsActivity extends MapActivity {
 
         @Override
         protected void onPreExecute() {
+        	networkProgressBar.setVisibility(View.VISIBLE);
             this.dialog.setMessage("Updating location....");
             Log.i("AsyncTask", "onPreExecute");
         }
@@ -529,6 +535,7 @@ public class MapsActivity extends MapActivity {
             if (this.dialog.isShowing()) {
                 this.dialog.dismiss();
             }
+            networkProgressBar.setVisibility(View.INVISIBLE);
             Log.d("Networking", "result = " + result);
             onNetworkResult();
         }
