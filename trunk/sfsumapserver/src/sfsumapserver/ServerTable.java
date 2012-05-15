@@ -43,7 +43,7 @@ public class ServerTable extends Object {
 			"clearSky", "steal", "lock-out", "compass" };
 
 	private static String Message[] = { "You've been taunted!",
-			"You are a dizzyMonkey!", "You've been smokebombed!",
+			"You are a dizzyMonkey!", "You've been smoke bombed!",
 			"You sky is now clear!", "Someone is trying to steal your win!",
 			"You have been locked out for winning!", "You have a radar!" };
 
