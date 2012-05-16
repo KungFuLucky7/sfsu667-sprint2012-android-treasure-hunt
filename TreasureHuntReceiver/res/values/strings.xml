@@ -36,8 +36,11 @@
     <string name="titleScreen">Title screen background</string>
     <string name="parchment">Parchment</string>
     <string name="settingsBackground">Settings background</string>
+    <string name="gameStatus">Game status</string>
+    <string name="skull">Skull</string>    
     <color name="grey">#808080</color>
     <color name="blue">#0000FF</color>
     <color name="white">#FFFFFF</color>
+    <string name="win">Win</string>
 
 </resources>
