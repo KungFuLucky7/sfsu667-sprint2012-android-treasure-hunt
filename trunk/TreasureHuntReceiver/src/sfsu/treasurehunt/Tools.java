@@ -223,6 +223,10 @@ public class Tools extends Activity {
 		});
 	}
 	
+	@Override
+	public void onBackPressed() {
+	}
+	
 	 /*
 	  * Get preferences.
 	  */

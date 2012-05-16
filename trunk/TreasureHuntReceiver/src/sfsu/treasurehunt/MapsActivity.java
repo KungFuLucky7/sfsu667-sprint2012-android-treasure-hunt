@@ -111,7 +111,8 @@ public class MapsActivity extends MapActivity {
 	private boolean activeGame = false;
 	
 	// Debugging
-	Button winGameButton;
+	private Button winGameButton;
+	private boolean debugOn = false;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -194,28 +195,63 @@ public class MapsActivity extends MapActivity {
         gameWinnerOrLoser.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
 				gameWinnerOrLoser.setVisibility(View.GONE);
+				// For debugging.
+				winGameButton.setVisibility(View.VISIBLE);
 			}
 		});
         
         // Debugging Only
         winGameButton = (Button) findViewById(R.id.winGameButton);
+        /*
         winGameButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View view) {
-				networkActivity = GETCLUE;
-				double lat = goalLocation.getLatitudeE6() / 1e6;
-				double lng = goalLocation.getLongitudeE6() / 1e6;
+				if(activeGame) {
+					debugOn = true;
+					networkActivity = GETCLUE;
+					double lat = goalLocation.getLatitudeE6() / 1e6;
+					double lng = goalLocation.getLongitudeE6() / 1e6;
 				
-				Log.d("Treasure Hunt", "Debug Winner: (" + lat + "," + lng + ")");
-		    	String networkSend = "{";
-		    	networkSend += "\"playerID\":\"" + userName + "\"";
-		    	networkSend += ", \"password\":\"" + userPassword + "\"";
-		    	networkSend += ", \"currentLocation\":\"" + lat + "," + lng + "\"";
-		    	networkSend += ", \"option\":\"getClue\""; 
-		    	networkSend += "}";
+					Log.d("Treasure Hunt", "Debug Winner: (" + lat + "," + lng + ")");
+					String networkSend = "{";
+					networkSend += "\"playerID\":\"" + userName + "\"";
+					networkSend += ", \"password\":\"" + userPassword + "\"";
+					networkSend += ", \"currentLocation\":\"" + lat + "," + lng + "\"";
+					networkSend += ", \"option\":\"getClue\""; 
+					networkSend += "}";
 				
-		    	new NetworkCall().execute(networkSend);
+					new NetworkCall().execute(networkSend);
+				}
 			}
 		});
+        */
+        winGameButton.setOnTouchListener(new OnTouchListener() {
+        	public boolean onTouch(View v, MotionEvent event) {
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        			//mSoundManager.playSound(1);
+        			winGameButton.setBackgroundResource(R.drawable.wooden_frame2_pressed);
+        		}
+        		else if (event.getAction() == MotionEvent.ACTION_UP) {
+        			winGameButton.setBackgroundResource(R.drawable.wooden_frame2);
+        			if(activeGame) {
+    					debugOn = true;
+    					networkActivity = GETCLUE;
+    					double lat = goalLocation.getLatitudeE6() / 1e6;
+    					double lng = goalLocation.getLongitudeE6() / 1e6;
+    				
+    					Log.d("Treasure Hunt", "Debug Winner: (" + lat + "," + lng + ")");
+    					String networkSend = "{";
+    					networkSend += "\"playerID\":\"" + userName + "\"";
+    					networkSend += ", \"password\":\"" + userPassword + "\"";
+    					networkSend += ", \"currentLocation\":\"" + lat + "," + lng + "\"";
+    					networkSend += ", \"option\":\"getClue\""; 
+    					networkSend += "}";
+    				
+    					new NetworkCall().execute(networkSend);
+    				}
+        		}
+        		return false;
+         	}
+     	});
         
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
@@ -460,6 +496,8 @@ public class MapsActivity extends MapActivity {
     			gameWinnerOrLoser.setVisibility(View.VISIBLE);
     			activeGame = false;
     			Log.d("Treasure Hunt", "User Won!");
+    			// For debugging.
+				winGameButton.setVisibility(View.INVISIBLE);
     		} else if(!newGoalLocation.toString().contentEquals(goalLocation.toString())) {
     			gameWinnerOrLoser.setImageResource(R.drawable.lose);
     			gameWinnerOrLoser.setVisibility(View.VISIBLE);
@@ -525,7 +563,13 @@ public class MapsActivity extends MapActivity {
 		switch (networkActivity) {
 		case GETCLUE:
 			try {
-				GeoPoint point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
+				GeoPoint point;
+				if(debugOn) {
+					point = new GeoPoint(goalLocation.getLatitudeE6(), goalLocation.getLongitudeE6());
+					debugOn = false;
+				} else {
+					point = new GeoPoint((int)(myLocation.getLatitude()*1E6), (int)(myLocation.getLongitude()*1E6));
+				}
 				String status = responseJSON.getString("indicator");
 			    GeoPoint newGoalLocation = processJSONForGoalLocation();
 			    
@@ -547,7 +591,11 @@ public class MapsActivity extends MapActivity {
 				Log.e("Treasure Hunt", "MapsActivity -> GETCLUE JSON error: " + e);
 			}
 			
-			textMessages.setVisibility(View.VISIBLE);
+			if(activeGame) {
+				textMessages.setVisibility(View.VISIBLE);
+			} else {
+				textMessages.setVisibility(View.INVISIBLE);
+			}
 			break;
 		}
 	}

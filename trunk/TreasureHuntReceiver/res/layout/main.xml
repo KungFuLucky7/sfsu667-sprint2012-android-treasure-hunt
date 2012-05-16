@@ -88,9 +88,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/spacingLeft"
+        android:contentDescription="@string/skull"
         android:paddingLeft="10dip"
-        android:src="@drawable/skull"
-        android:contentDescription="@string/skull" />
+        android:src="@drawable/skull" />
 
     <Button
         android:id="@+id/clueButton"
@@ -133,9 +133,9 @@
         android:layout_alignLeft="@+id/clueButton"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/spacingRight"
+        android:contentDescription="@string/treasureChest"
         android:gravity="left"
-        android:src="@drawable/chest"
-        android:contentDescription="@string/treasureChest" />
+        android:src="@drawable/chest" />
 
     <TextView
         android:id="@+id/balanceText"
@@ -153,7 +153,8 @@
         android:text="@string/balance"
         android:textColor="#000000"
         android:textSize="25dip"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:singleLine="true" />
 
     <ProgressBar
         android:id="@+id/networkProgressBar"
@@ -162,12 +163,12 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
+        android:background="@color/progress_gold"
         android:maxHeight="90dip"
         android:maxWidth="90dip"
         android:minHeight="90dip"
         android:minWidth="90dip"
-        android:visibility="invisible"
-        android:background = "@color/progress_gold" />
+        android:visibility="invisible" />
 
     <ImageView
         android:id="@+id/gameStatus"
@@ -175,17 +176,20 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/winner"
         android:contentDescription="@string/gameStatus"
+        android:src="@drawable/winner"
         android:visibility="gone" />
-
+
     <Button
         android:id="@+id/winGameButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/clueButton"
+        android:layout_width="90dip"
+        android:layout_height="70dip"
+        android:layout_above="@+id/refreshButton"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/refreshButton"
-        android:text="@string/win" />
+        android:background="@drawable/wooden_frame2"
+        android:paddingLeft="5dip"
+        android:text="@string/win"
+        android:textColor="#FFFFFF"
+        android:textSize="20dip" />
 
 </RelativeLayout>
