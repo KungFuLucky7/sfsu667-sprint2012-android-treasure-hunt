@@ -5,6 +5,8 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import sfsu.treasurehunt.R.id;
+
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
@@ -202,28 +204,6 @@ public class MapsActivity extends MapActivity {
         
         // Debugging Only
         winGameButton = (Button) findViewById(R.id.winGameButton);
-        /*
-        winGameButton.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View view) {
-				if(activeGame) {
-					debugOn = true;
-					networkActivity = GETCLUE;
-					double lat = goalLocation.getLatitudeE6() / 1e6;
-					double lng = goalLocation.getLongitudeE6() / 1e6;
-				
-					Log.d("Treasure Hunt", "Debug Winner: (" + lat + "," + lng + ")");
-					String networkSend = "{";
-					networkSend += "\"playerID\":\"" + userName + "\"";
-					networkSend += ", \"password\":\"" + userPassword + "\"";
-					networkSend += ", \"currentLocation\":\"" + lat + "," + lng + "\"";
-					networkSend += ", \"option\":\"getClue\""; 
-					networkSend += "}";
-				
-					new NetworkCall().execute(networkSend);
-				}
-			}
-		});
-        */
         winGameButton.setOnTouchListener(new OnTouchListener() {
         	public boolean onTouch(View v, MotionEvent event) {
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -495,12 +475,17 @@ public class MapsActivity extends MapActivity {
     			gameWinnerOrLoser.setImageResource(R.drawable.winner);
     			gameWinnerOrLoser.setVisibility(View.VISIBLE);
     			activeGame = false;
-    			Log.d("Treasure Hunt", "User Won!");
+    			
     			// For debugging.
-				winGameButton.setVisibility(View.INVISIBLE);
+    			winGameButton.setVisibility(View.INVISIBLE);
+    			Log.d("Treasure Hunt", "User Won!");
     		} else if(!newGoalLocation.toString().contentEquals(goalLocation.toString())) {
     			gameWinnerOrLoser.setImageResource(R.drawable.lose);
     			gameWinnerOrLoser.setVisibility(View.VISIBLE);
+    			activeGame=false;
+    			
+    			// For debugging.
+    			winGameButton.setVisibility(View.INVISIBLE);
         		Log.d("Treasure Hunt", "Lost game. New game starting.");
     		}
     	} else {
@@ -549,6 +534,7 @@ public class MapsActivity extends MapActivity {
 		case TOOLS_SCREEN:
 		    SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 		    balance = settings.getInt("BALANCE", -1);
+		    balanceText.setText(String.valueOf(balance));
 			showGoalLocationCheck();
 			break;
 		}
