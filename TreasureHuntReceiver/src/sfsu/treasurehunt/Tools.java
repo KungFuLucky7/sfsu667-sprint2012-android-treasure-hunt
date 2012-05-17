@@ -101,7 +101,7 @@ public class Tools extends Activity {
 
 		// Add tools to the tools list.
 		toolListData.add(new ToolList(R.drawable.laugh, "Taunt", 10));
-		toolListData.add(new ToolList(R.drawable.monkey, "Confused Monkey", 100));
+		toolListData.add(new ToolList(R.drawable.monkey, "Dizzy Monkey", 100));
 		toolListData.add(new ToolList(R.drawable.smoke, "Smoke Screen", 500));
 		toolListData.add(new ToolList(R.drawable.clearsky, "Clear Sky", 700));
 		toolListData.add(new ToolList(R.drawable.compass, "Compass", 700));
@@ -182,6 +182,7 @@ public class Tools extends Activity {
         		}
         		else if (event.getAction() == MotionEvent.ACTION_UP) {
         			returnToMap.setBackgroundResource(R.drawable.map);
+        			savePreferences();
         			finish();
         		}
         		return false;
@@ -352,7 +353,7 @@ public class Tools extends Activity {
 				goToSelectTargetScreen();
 				
 				networkActivity = PURCHASE_MONKEY;
-				Log.d("Tools", "Purchasing Confused Monkey.");
+				Log.d("Tools", "Purchasing Dizzy Monkey.");
 				break;
 			case SmokeScreen:
 				networkSend += "\"playerID\":\"" + userName + "\"";
@@ -424,6 +425,17 @@ public class Tools extends Activity {
 	private void goToSelectTargetScreen() {
         Intent intent = new Intent(this, SelectTargetActivity.class);
         startActivityForResult(intent, SELECT_TARGET);
+	}
+	
+	/*
+	 * Save preferences.
+	 */
+	private void savePreferences() {
+		SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("BALANCE", balance);
+        editor.commit();
+        Log.d("Tools", "Saving balance of " + balance);
 	}
 	
 	/*
