@@ -253,7 +253,7 @@ public class Tools extends Activity {
 			callConfirmBox("Monkey");
 			break;
 		case SmokeScreen:
-			callConfirmBox("SmokeScreen");
+			callConfirmBox("Smoke Bomb");
 			break;
 		case ClearSky:
 			callConfirmBox("ClearSky");
