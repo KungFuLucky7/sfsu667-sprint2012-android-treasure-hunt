@@ -398,7 +398,7 @@ public class Tools extends Activity {
 				networkSend += ", \"tool\":\"stealer\""; 
 				networkSend += "}";
 				
-				networkActivity = PURCHASE_SMOKE;
+				networkActivity = PURCHASE_STEAL;
 				Log.d("Tools", "Purchasing Stealer.");
 				new NetworkCall().execute(networkSend);
 				break;
